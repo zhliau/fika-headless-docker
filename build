@@ -1,0 +1,5 @@
+#!/bin/bash
+
+VERSION=0.1
+
+docker build . -t fika-dedicated:$VERSION
