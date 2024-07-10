@@ -3,7 +3,7 @@
 # Most of this code is cribbed from the entrypoint of the selkies docker-nvidia-glx-desktop project
 # https://github.com/selkies-project/docker-nvidia-glx-desktop
 
-rm -rf /tmp/.X* ~/.cache || echo 'Failed to clean X11 paths'
+sudo rm -rf /tmp/.X* ~/.cache || echo 'Failed to clean X11 paths'
 
 # Install Nvidia driver package using same version as host
 if ! command -v nvidia-xconfig >/dev/null 2>&1; then
@@ -59,7 +59,7 @@ fi
 
 # Remove existing Xorg configuration
 if [ -f "/etc/X11/xorg.conf" ]; then
-    rm -f "/etc/X11/xorg.conf"
+    sudo rm -f "/etc/X11/xorg.conf"
 fi
 
 if [ "$NVIDIA_VISIBLE_DEVICES" == "all" ] || [ -z "$NVIDIA_VISIBLE_DEVICES" ]; then
