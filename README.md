@@ -7,7 +7,8 @@ I've only tested this on my linux host (arch kernel 6.9.8). No guarantees this w
 1. Create a profile that the dedicated client will login as. Copy its profileID and set it aside. 
    You can find the profiles in the server `user/profiles` directory. The profileID is the filename of the profile, excluding the `.json` extension
 2. Make sure your `Force Bind IP` and `Force IP` values in the fika core config are set correctly. I found it sufficient to set `Force Bind IP` to `Disabled`, and to set `Force IP` to the IP of my host interface
-3. Run the dockerfile, making sure you have the following configured:
+3. You probably want to set your graphics settings to as low as possible on the dedicated client. See `user/sptSettings` in your fika client flder
+4. Run the dockerfile, making sure you have the following configured:
     - Client directory mounted to `/opt/tarkov` in the container. This is the folder containing a copy of the FIKA install.
       Don't forget the `Fika.Dedicated.dll` plugin file, it needs to be in `BepInEx/plugins`.
       If you use modsync on your client, you might want to remove it from here and manually ensure all plugins are the same as your clients' in this BepInEx folder 
@@ -15,6 +16,8 @@ I've only tested this on my linux host (arch kernel 6.9.8). No guarantees this w
     - `PROFILE_ID` env var set to the profile you created in step 1
     - `SERVER_URL` env var set to your server URL
     - `SERVER_PORT` env var set to your server's port
+    - (Experimental) `USE_DGPU` env var set to `true`, to enable starting an X server in container in combination with `nvidia-container-toolkit` to use the host GPU resource
+      *This will not work if you have an X server running on your host using your GPU already!* This is due to Xorg server limitations.
 
 E.g
 ```Shell
@@ -59,7 +62,11 @@ services:
       - 25565:25565/udp
 ```
 
-*(Not fully working yet)* If you want to pass in your host GPU, make sure you have `nvidia-container-toolkit` installed on your host and specify the `deploy` section.
+If you want to pass in your host Nvidia GPU, make sure you have the following:
+- set the env var `USE_DGPU=true` in the container
+- `nvidia-container-toolkit` installed on your host
+- set the `deploy` section in compose.
+- No X server running on host
 ```yaml
 services:
   fika:
@@ -74,6 +81,8 @@ services:
       - PROFILE_ID=adadadadadadaadadadad
       - SERVER_URL=fika
       - SERVER_PORT=6969
+      # Set USE_DGPU to enable installation of nvidia drivers in container and start Xorg server on virtual tty
+      - USE_DGPU=true
     ports:
       - 25565:25565/udp
     # Specify nvidia device to pass to the container
@@ -87,5 +96,5 @@ services:
 ```
 
 # TODO
-- [ ] Figure out how to ditch Xvfb and use something like VirtualGL so that wine can use hardware acceleration.
-  Right now it falls back to LLVMPipe even if we pass in the nvidia GPU and `nvidia-smi` reports the GPU correcty in the container, all because Xvfb is software-rendering only
+- [ ] Now that DGPU works via in-container X server, figure out why it makes no difference! Do we need to use VirtualGL still?
+- [ ] Overlay mount a custom `sptSettings/Graphics.ini` to set all graphics to Potato just for the container?

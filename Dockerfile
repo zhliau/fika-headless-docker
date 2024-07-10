@@ -9,7 +9,7 @@
 # - Port forwards? Do we need to set a new port for this dedicated client?
 # - modify fika core config as part of dockerfile?
 
-FROM ubuntu:20.04
+FROM ubuntu:24.04
 
 # ENV WINE_MONO_VERSION 9.2.0
 USER root
@@ -38,16 +38,69 @@ RUN apt-get update \
     cabextract \
     git \
     wget \
+    pkg-config \
     libxext6 \
     libvulkan1 \
     libvulkan-dev \
     vulkan-tools \
-    dxvk \
+    sudo \
+
+    # Nvidia driver install deps
+    kmod \
+    libc6-dev \
+    libpci3 \
+    libelf-dev \
+    dbus-x11 \
+
+    # OpenGL libraries
+    libxau6 \
+    libxdmcp6 \
+    libxcb1 \
+    libxext6 \
+    libx11-6 \
+    libxv1 \
+    libxtst6 \
+    libdrm2 \
+    libegl1 \
+    libgl1 \
+    libopengl0 \
+    libgles1 \
+    libgles2 \
+    libglvnd0 \
+    libglx0 \
+    libglu1 \
+    libsm6 \
+
+    x11-apps \
+    x11-utils \
+    x11-xserver-utils \
+    xserver-xorg-video-all \
+    xcvt \
     xvfb
 
-# RUN setup_dxvk install
+# Install VirtualGL
+RUN wget -q -O- https://packagecloud.io/dcommander/virtualgl/gpgkey | \
+  gpg --dearmor >/etc/apt/trusted.gpg.d/VirtualGL.gpg
+RUN wget -nv https://raw.githubusercontent.com/VirtualGL/repo/main/VirtualGL.list -O /etc/apt/sources.list.d/VirtualGL.list
+RUN apt update && apt install -y virtualgl
 
-ARG WINE_BRANCH="stable"
+# Install TurboVNC
+RUN wget -nv https://github.com/TurboVNC/turbovnc/releases/download/3.1.1/turbovnc_3.1.1_amd64.deb -O /opt/turbovnc.deb
+RUN apt install -y -f /opt/turbovnc.deb
+
+# Fix permissions starting KDE in container
+#RUN MULTI_ARCH=$(dpkg --print-architecture | sed -e 's/arm64/aarch64-linux-gnu/' -e 's/armhf/arm-linux-gnueabihf/' -e 's/riscv64/riscv64-linux-gnu/' -e 's/ppc64el/powerpc64le-linux-gnu/' -e 's/s390x/s390x-linux-gnu/' -e 's/i.*86/i386-linux-gnu/' -e 's/amd64/x86_64-linux-gnu/' -e 's/unknown/x86_64-linux-gnu/') && \
+#    cp -f /usr/lib/${MULTI_ARCH}/libexec/kf5/start_kdeinit /tmp/ && \
+#    rm -f /usr/lib/${MULTI_ARCH}/libexec/kf5/start_kdeinit && \
+#    cp -f /tmp/start_kdeinit /usr/lib/${MULTI_ARCH}/libexec/kf5/start_kdeinit && \
+#    rm -f /tmp/start_kdeinit
+
+# Disable screen lock
+RUN echo "[Daemon]\n\
+    Autolock=false\n\
+    LockOnResume=false" > /etc/xdg/kscreenlockerrc
+
+ARG WINE_BRANCH="devel"
 
 # Add wine repos and install stable wine
 RUN wget -nv -O- https://dl.winehq.org/wine-builds/winehq.key | APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1 apt-key add - \
@@ -64,19 +117,21 @@ RUN curl -SL 'https://raw.githubusercontent.com/Winetricks/winetricks/master/src
 RUN locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8
 
-# Add user to run the client
-RUN useradd -ms /bin/bash fika
 
-USER fika
-ENV HOME /home/fika
-ENV WINEPREFIX /home/fika/.wine
+ENV PASSWD=asdfasdf
+# Add user to run the client
+# user 1000 on host maps to ubuntu in container (also UID 1000)
+RUN echo "ubuntu ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers \
+    && echo "ubuntu:${PASSWD}" | chpasswd
+
+USER ubuntu
+ENV HOME /home/ubuntu
+ENV WINEPREFIX /home/ubuntu/.wine
 
 # winetricks dotnet48 doesn't install on win64
 ENV WINEARCH win64
 
-WORKDIR /home/fika
-# Init wine prefix by starting a random program without DISPLAY, this will crash but that's okay
-#RUN wine hostname
+WORKDIR /home/ubuntu
 
 # Install wineprefix deps
 # Have to run these separately for some reason or else they fail
@@ -87,11 +142,23 @@ ENV PROFILE_ID=test
 ENV SERVER_URL=127.0.0.1
 ENV SERVER_PORT=6969
 
+ENV XDG_RUNTIME_DIR=/tmp/runtime-ubuntu
+ENV DBUS_SESSION_BUS_ADDRESS="unix:path=${XDG_RUNTIME_DIR:-/tmp}/dbus-session-${DISPLAY#*:}"
+ENV DISPLAY=:0
+ENV DISPLAY_SIZEW=1024
+ENV DISPLAY_SIZEH=768
+ENV DISPLAY_REFRESH=60
+ENV DISPLAY_DPI=96
+ENV DISPLAY_CDEPTH=24
+ENV VIDEO_PORT=DFP
+
 # Copy over all modified reg files to prefix in container
 # Wineprefix set overrides winhttp n,b for bepinex
-COPY ./data/reg/user.reg /home/fika/.wine/
-COPY ./data/reg/system.reg /home/fika/.wine/
+COPY ./data/reg/user.reg /home/ubuntu/.wine/
+COPY ./data/reg/system.reg /home/ubuntu/.wine/
+
+# Copy nvidia init script
+COPY ./scripts/install_nvidia_deps.sh /opt/scripts/
 
 COPY entrypoint.sh /usr/bin/entrypoint
-COPY init_xvfb /opt/
 ENTRYPOINT ["/usr/bin/entrypoint"]
