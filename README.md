@@ -23,7 +23,7 @@ Or better yet use a docker-compose file
 ```yaml
 services:
   fika_dedicated:
-  image: fika-dedicated:0.1
+    image: fika-dedicated:0.1
     container_name: fika_ded
     volumes:
       - /path/to/live/files:/opt/live
