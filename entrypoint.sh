@@ -24,5 +24,5 @@ if [ ! -f $EFT_BINARY ]; then
     echo "EFT Binary $EFT_BINARY not found! Please make sure you have mounted the Fika client directory to /opt/tarkov"
     exit 1
 else
-    xvfb-run -a -e /dev/stdout wine /opt/tarkov/EscapeFromTarkov.exe -batchmode -token="$PROFILE_ID" -config="{'BackendUrl':'http://$SERVER_URL:$SERVER_PORT', 'Version':'live'}" 
+    WINEDEBUG=-all xvfb-run -a wine /opt/tarkov/EscapeFromTarkov.exe -batchmode -token="$PROFILE_ID" -config="{'BackendUrl':'http://$SERVER_URL:$SERVER_PORT', 'Version':'live'}" 
 fi

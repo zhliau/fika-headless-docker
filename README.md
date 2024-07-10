@@ -4,7 +4,8 @@ Run the `build` script. The image is tagged `fika-dedicated:0.1`
 # Running
 1. Create a profile that the dedicated client will login as. Copy its profileID and set it aside. 
    You can find the profiles in the server `user/profiles` directory. The profileID is the filename of the profile, excluding the `.json` extension
-2. Run the dockerfile, making sure you have the following configured:
+2. Make sure your `Force Bind IP` and `Force IP` values in the fika core config are set correctly. I found it sufficient to set `Force Bind IP` to `Disabled`, and to set `Force IP` to the IP of my host interface
+3. Run the dockerfile, making sure you have the following configured:
     - Client directory mounted to `/opt/tarkov` in the container. This is the folder containing a copy of the FIKA install.
       Don't forget the `Fika.Dedicated.dll` plugin file, it needs to be in `BepInEx/plugins`.
       If you use modsync on your client, you might want to remove it from here and manually ensure all plugins are the same as your clients' in this BepInEx folder 
@@ -15,7 +16,7 @@ Run the `build` script. The image is tagged `fika-dedicated:0.1`
 
 E.g
 ```Shell
-docker run --name fika_dedicated -v /path/to/client:/opt/tarkov -v /path/to/live:/opt/live -e PROFILE_ID=blah -e SERVER_URL=localhost -e SERVER_PORT=6969 fika_dedicated:0.1
+docker run --name fika_dedicated -v /path/to/client:/opt/tarkov -v /path/to/live:/opt/live -e PROFILE_ID=blah -e SERVER_URL=localhost -e SERVER_PORT=6969 -p 25565:25565/udp fika_dedicated:0.1
 ```
 
 # docker-compose
@@ -33,7 +34,7 @@ services:
       - SERVER_URL=localhost
       - SERVER_PORT=6969
     ports:
-      - 25565:25565
+      - 25565:25565/udp
 ```
 
 If you are running the SPT server in docker, you can make use of docker-compose's network DNS 
@@ -53,7 +54,7 @@ services:
       - SERVER_URL=fika
       - SERVER_PORT=6969
     ports:
-      - 25565:25565
+      - 25565:25565/udp
 ```
 
 *(Not fully working yet)* If you want to pass in your host GPU, make sure you have `nvidia-container-toolkit` installed on your host and specify the `deploy` section.
@@ -72,7 +73,7 @@ services:
       - SERVER_URL=fika
       - SERVER_PORT=6969
     ports:
-      - 25565:25565
+      - 25565:25565/udp
     # Specify nvidia device to pass to the container
     deploy:
       resources:
@@ -86,4 +87,3 @@ services:
 # TODO
 - [ ] Figure out how to ditch Xvfb and use something like VirtualGL so that wine can use hardware acceleration.
   Right now it falls back to LLVMPipe even if we pass in the nvidia GPU and `nvidia-smi` reports the GPU correcty in the container, all because Xvfb is software-rendering only
-- [ ] What's going on with ports? Seems to only accept connections when using host networking, even though I thought I'd forwarded ports out from the container
