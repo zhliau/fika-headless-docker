@@ -79,21 +79,14 @@ RUN apt-get update \
     xvfb
 
 # Install VirtualGL
-RUN wget -q -O- https://packagecloud.io/dcommander/virtualgl/gpgkey | \
-  gpg --dearmor >/etc/apt/trusted.gpg.d/VirtualGL.gpg
-RUN wget -nv https://raw.githubusercontent.com/VirtualGL/repo/main/VirtualGL.list -O /etc/apt/sources.list.d/VirtualGL.list
-RUN apt update && apt install -y virtualgl
+#RUN wget -q -O- https://packagecloud.io/dcommander/virtualgl/gpgkey | \
+#  gpg --dearmor >/etc/apt/trusted.gpg.d/VirtualGL.gpg
+#RUN wget -nv https://raw.githubusercontent.com/VirtualGL/repo/main/VirtualGL.list -O /etc/apt/sources.list.d/VirtualGL.list
+#RUN apt update && apt install -y virtualgl
 
 # Install TurboVNC
-RUN wget -nv https://github.com/TurboVNC/turbovnc/releases/download/3.1.1/turbovnc_3.1.1_amd64.deb -O /opt/turbovnc.deb
-RUN apt install -y -f /opt/turbovnc.deb
-
-# Fix permissions starting KDE in container
-#RUN MULTI_ARCH=$(dpkg --print-architecture | sed -e 's/arm64/aarch64-linux-gnu/' -e 's/armhf/arm-linux-gnueabihf/' -e 's/riscv64/riscv64-linux-gnu/' -e 's/ppc64el/powerpc64le-linux-gnu/' -e 's/s390x/s390x-linux-gnu/' -e 's/i.*86/i386-linux-gnu/' -e 's/amd64/x86_64-linux-gnu/' -e 's/unknown/x86_64-linux-gnu/') && \
-#    cp -f /usr/lib/${MULTI_ARCH}/libexec/kf5/start_kdeinit /tmp/ && \
-#    rm -f /usr/lib/${MULTI_ARCH}/libexec/kf5/start_kdeinit && \
-#    cp -f /tmp/start_kdeinit /usr/lib/${MULTI_ARCH}/libexec/kf5/start_kdeinit && \
-#    rm -f /tmp/start_kdeinit
+#RUN wget -nv https://github.com/TurboVNC/turbovnc/releases/download/3.1.1/turbovnc_3.1.1_amd64.deb -O /opt/turbovnc.deb
+#RUN apt install -y -f /opt/turbovnc.deb
 
 # Disable screen lock
 RUN echo "[Daemon]\n\

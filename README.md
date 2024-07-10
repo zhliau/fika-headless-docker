@@ -8,7 +8,7 @@ I've only tested this on my linux host (arch kernel 6.9.8). No guarantees this w
    You can find the profiles in the server `user/profiles` directory. The profileID is the filename of the profile, excluding the `.json` extension
 2. Make sure your `Force Bind IP` and `Force IP` values in the fika core config are set correctly. I found it sufficient to set `Force Bind IP` to `Disabled`, and to set `Force IP` to the IP of my host interface
 3. You probably want to set your graphics settings to as low as possible on the dedicated client. See `user/sptSettings` in your fika client flder
-4. Run the dockerfile, making sure you have the following configured:
+4. Run the docker image, making sure you have the following configured:
     - Client directory mounted to `/opt/tarkov` in the container. This is the folder containing a copy of the FIKA install.
       Don't forget the `Fika.Dedicated.dll` plugin file, it needs to be in `BepInEx/plugins`.
       If you use modsync on your client, you might want to remove it from here and manually ensure all plugins are the same as your clients' in this BepInEx folder 
