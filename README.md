@@ -2,6 +2,8 @@
 Run the `build` script. The image is tagged `fika-dedicated:0.1`
 
 # Running
+I've only tested this on my linux host (arch kernel 6.9.8). No guarantees this will work on Windows.
+
 1. Create a profile that the dedicated client will login as. Copy its profileID and set it aside. 
    You can find the profiles in the server `user/profiles` directory. The profileID is the filename of the profile, excluding the `.json` extension
 2. Make sure your `Force Bind IP` and `Force IP` values in the fika core config are set correctly. I found it sufficient to set `Force Bind IP` to `Disabled`, and to set `Force IP` to the IP of my host interface
