@@ -92,9 +92,6 @@ ENV SERVER_PORT=6969
 COPY ./data/reg/user.reg /home/fika/.wine/
 COPY ./data/reg/system.reg /home/fika/.wine/
 
-# Prepare live directory in prefix drive_c
-RUN mkdir -p /home/fika/.wine/drive_c/live
-
 COPY entrypoint.sh /usr/bin/entrypoint
 COPY init_xvfb /opt/
 ENTRYPOINT ["/usr/bin/entrypoint"]
