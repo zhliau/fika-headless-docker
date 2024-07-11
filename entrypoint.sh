@@ -32,5 +32,9 @@ if [ ! -f $EFT_BINARY ]; then
     exit 1
 fi
 
+if [ "$DEBUG" == "true" ]; then
+    XVFB_DEBUG_OPTS="-e /dev/stdout"
+fi
+
 # Start client
-WINEDEBUG=-all $XVFB_RUN wine $EFT_BINARY -batchmode -token="$PROFILE_ID" -config="{'BackendUrl':'http://$SERVER_URL:$SERVER_PORT', 'Version':'live'}" 
+WINEDEBUG=-all $XVFB_RUN $XVFB_DEBUG_OPTS $EFT_BINARY -batchmode -token="$PROFILE_ID" -config="{'BackendUrl':'http://$SERVER_URL:$SERVER_PORT', 'Version':'live'}" 
