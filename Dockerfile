@@ -144,6 +144,9 @@ ENV DISPLAY_DPI=96
 ENV DISPLAY_CDEPTH=24
 ENV VIDEO_PORT=DFP
 
+# Force TERM to xterm because sometimes it gets set to "dumb" for some reason ???
+ENV TERM=xterm
+
 # Copy over all modified reg files to prefix in container
 # Wineprefix set overrides winhttp n,b for bepinex
 COPY ./data/reg/user.reg /home/ubuntu/.wine/
