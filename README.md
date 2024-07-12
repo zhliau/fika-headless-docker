@@ -1,6 +1,12 @@
 # Building
 Run the `build` script. The image is tagged `fika-dedicated:0.1`
 
+# Releases
+The image build is triggered off commits to master and hosted on ghcr.
+```
+docker pull ghcr.io/zhliau/fika-headless-docker:master
+```
+
 # Running
 I've only tested this on my linux host (arch kernel 6.9.8). No guarantees this will work on Windows.
 
@@ -32,6 +38,8 @@ services:
     image: fika-dedicated:0.1
     container_name: fika_ded
     volumes:
+      # If you have SELinux enabled on the host you want the :z option to re-label the mount with the correct SELinux context
+      # or else the container can't read these mounted directories. Be VERY careful with this option!
       - /path/to/live/files:/opt/live
       - /path/to/fika:/opt/tarkov
     environment:
