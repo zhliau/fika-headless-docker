@@ -8,7 +8,7 @@ docker pull ghcr.io/zhliau/fika-headless-docker:master
 ```
 
 # Running
-I've only tested this on my linux host (arch kernel 6.9.8). No guarantees this will work on Windows.
+I've only tested this on my linux host (arch kernel 6.9.8). I'm pretty sure this won't work on Windows. Also only tested with SPT 3.8.3 and the Fika headless-3.8.3 branch. 
 
 1. Create a profile that the dedicated client will login as. Copy its profileID and set it aside. 
    You can find the profiles in the server `user/profiles` directory. The profileID is the filename of the profile, excluding the `.json` extension
@@ -106,3 +106,5 @@ services:
 # TODO
 - [ ] Now that DGPU works via in-container X server, figure out why it makes no difference! Do we need to use VirtualGL still?
 - [ ] Overlay mount a custom `sptSettings/Graphics.ini` to set all graphics to Potato just for the container?
+- [ ] Support mounting host X socket to potentially support Windows docker hosts via Vcxsrv or an equivalent Windows X server
+- [ ] Re-using Client files by mounting the Fika.Dedicated.dll file?
