@@ -21,14 +21,17 @@ elif [ ! -f $PREFIX_LIVE_DIR/ConsistencyInfo ]; then
 fi
 
 if [ "$USE_DGPU" == "true" ]; then
-	source /opt/scripts/install_nvidia_deps.sh
+    source /opt/scripts/install_nvidia_deps.sh
 
-	# Run Xorg server with required extensions
-	sudo /usr/bin/Xorg "${DISPLAY}" vt7 -noreset -novtswitch -sharevts -dpi "${DISPLAY_DPI}" +extension "COMPOSITE" +extension "DAMAGE" +extension "GLX" +extension "RANDR" +extension "RENDER" +extension "MIT-SHM" +extension "XFIXES" +extension "XTEST" &
+    # Run Xorg server with required extensions
+    sudo /usr/bin/Xorg "${DISPLAY}" vt7 -noreset -novtswitch -sharevts -dpi "${DISPLAY_DPI}" +extension "COMPOSITE" +extension "DAMAGE" +extension "GLX" +extension "RANDR" +extension "RENDER" +extension "MIT-SHM" +extension "XFIXES" +extension "XTEST" &
 
-	# Wait for X server to start
-	echo 'Waiting for X Socket' && until [ -S "/tmp/.X11-unix/X${DISPLAY#*:}" ]; do sleep 0.5; done && echo 'X Server is ready'
-	unset XVFB_RUN
+    # Wait for X server to start
+    echo 'Waiting for X Socket' && until [ -S "/tmp/.X11-unix/X${DISPLAY#*:}" ]; do sleep 0.5; done && echo 'X Server is ready'
+    unset XVFB_RUN
+elif [ "$USE_HOST_X" == "true" ]; then
+    echo "Waiting for host X Socket on display $DISPLAY" && until [ -S "/tmp/.X11-unix/X${DISPLAY#*:}" ]; do sleep 0.5; done && echo 'X Server is ready'
+    unset XVFB_RUN
 fi
 
 if [ ! -f $EFT_BINARY ]; then
