@@ -8,7 +8,7 @@ docker pull ghcr.io/zhliau/fika-headless-docker:master
 ```
 
 # Running
-I've only tested this on my linux host (arch kernel 6.9.8). I'm pretty sure this won't work on Windows. Also only tested with SPT 3.8.3 and the Fika headless-3.8.3 branch. 
+I've only tested this on my linux hosts (Arch kernel 6.9.8 and Fedora 6.7.10). This won't work on Windows because of permission issues with WSL2. Tested with both SPT 3.8.3 and SPT 3.9.0 and the associated Fika versions. 
 
 1. Create a profile that the dedicated client will login as. Copy its profileID and set it aside. 
    You can find the profiles in the server `user/profiles` directory. The profileID is the filename of the profile, excluding the `.json` extension
