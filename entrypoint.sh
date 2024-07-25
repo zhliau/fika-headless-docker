@@ -37,4 +37,4 @@ if [ ! -f $EFT_BINARY ]; then
 fi
 
 # Start client
-WINEDEBUG=-all $XVFB_RUN wine $EFT_BINARY -batchmode -token="$PROFILE_ID" -config="{'BackendUrl':'http://$SERVER_URL:$SERVER_PORT', 'Version':'live'}" 
+WINEDEBUG=-all $XVFB_RUN wine $EFT_BINARY -batchmode -nographics -token="$PROFILE_ID" -config="{'BackendUrl':'http://$SERVER_URL:$SERVER_PORT', 'Version':'live'}" 
