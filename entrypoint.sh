@@ -5,7 +5,7 @@ LIVE_DIR=/opt/live/
 PREFIX=/home/ubuntu/.wine
 PREFIX_LIVE_DIR=$PREFIX/drive_c/live
 XVFB_RUN="xvfb-run -a"
-NOGRAPHICS=-nographics""
+NOGRAPHICS="-nographics"
 
 if [ "$XVFB_DEBUG" == "true" ]; then
     XVFB_RUN="$XVFB_RUN -e /dev/stdout"
