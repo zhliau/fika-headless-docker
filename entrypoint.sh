@@ -5,9 +5,14 @@ LIVE_DIR=/opt/live/
 PREFIX=/home/ubuntu/.wine
 PREFIX_LIVE_DIR=$PREFIX/drive_c/live
 XVFB_RUN="xvfb-run -a"
+NOGRAPHICS=-nographics""
 
 if [ "$XVFB_DEBUG" == "true" ]; then
     XVFB_RUN="$XVFB_RUN -e /dev/stdout"
+fi
+
+if [ "$USE_GRAPHICS" == "true" ]; then
+    NOGRAPHICS=""
 fi
 
 # If directory doesn't exist or is empty
@@ -37,4 +42,4 @@ if [ ! -f $EFT_BINARY ]; then
 fi
 
 # Start client
-WINEDEBUG=-all $XVFB_RUN wine $EFT_BINARY -batchmode -token="$PROFILE_ID" -config="{'BackendUrl':'http://$SERVER_URL:$SERVER_PORT', 'Version':'live'}" 
+WINEDEBUG=-all $XVFB_RUN wine $EFT_BINARY -batchmode $NOGRAPHICS -token="$PROFILE_ID" -config="{'BackendUrl':'http://$SERVER_URL:$SERVER_PORT', 'Version':'live'}"

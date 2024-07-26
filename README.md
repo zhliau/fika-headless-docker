@@ -10,20 +10,26 @@ docker pull ghcr.io/zhliau/fika-headless-docker:master
 # Running
 I've only tested this on my linux host (arch kernel 6.9.8). I'm pretty sure this won't work on Windows. Also only tested with SPT 3.8.3 and the Fika headless-3.8.3 branch. 
 
-1. Create a profile that the dedicated client will login as. Copy its profileID and set it aside. 
+
+You will need to build the `Fika.Dedicated.dll` yourself from the Fika dedicated plugin source, for now.
+
+
+1. Create a profile that the dedicated client will login as. Copy its profileID and set it aside.
+   If you are on Fika for SPT 3.9.x, the server will generate this profie for you as long as you set the `dedicated > profiles > amount` option > 1 in the server config.
    You can find the profiles in the server `user/profiles` directory. The profileID is the filename of the profile, excluding the `.json` extension
-2. Make sure your `Force Bind IP` and `Force IP` values in the fika core config are set correctly. I found it sufficient to set `Force Bind IP` to `Disabled`, and to set `Force IP` to the IP of my host interface
-3. You probably want to set your graphics settings to as low as possible on the dedicated client. See `user/sptSettings` in your fika client flder
-4. Run the docker image, making sure you have the following configured:
+2. Make sure your `Force Bind IP` and `Force IP` values in the fika core client config on the dedicated client are set correctly.
+   I found it sufficient to set `Force Bind IP` to `Disabled`, and to set `Force IP` to the IP of my host interface.
+3. You probably want to set your graphics settings to as low as possible on the dedicated client. See `user/sptSettings` in your fika client folder
+4. Ensure you have the `Fika.Dedicated.dll` plugin file in the dedicated client's plugins folder `BepInEx/plugins`.
+5. If you use the excellent `modsync` plugin on your regular client, you might want to remove it from here and manually ensure all plugins are the same as your clients' in this BepInEx folder 
+6. Run the docker image, making sure you have the following configured:
     - Client directory mounted to `/opt/tarkov` in the container. This is the folder containing a copy of the FIKA install.
-      Don't forget the `Fika.Dedicated.dll` plugin file, it needs to be in `BepInEx/plugins`.
-      If you use modsync on your client, you might want to remove it from here and manually ensure all plugins are the same as your clients' in this BepInEx folder 
     - Live directory mounted to `/opt/live`. This is the directory that contains the `EscapeFromTarkov_BE.exe` executable
     - `PROFILE_ID` env var set to the profile you created in step 1
     - `SERVER_URL` env var set to your server URL
     - `SERVER_PORT` env var set to your server's port
     - (Experimental) `USE_DGPU` env var set to `true`, to enable starting an X server in container in combination with `nvidia-container-toolkit` to use the host GPU resource
-      *This will not work if you have an X server running on your host using your GPU already!* This is due to Xorg server limitations.
+      *This will not work if you have an X server running on your host using your GPU already!*. This is due to Xorg server limitations.
 
 E.g
 ```Shell
@@ -103,8 +109,9 @@ services:
               capabilities: [gpu]
 ```
 
+# Debug
+- `USE_GRAPHICS` - disables the `-nographics` parameter when starting the dedicated client. This will significantly increase resource usage.
+- `XVFB_DEBUG` - enables debug output for xvfb (the virtual framebuffer)
+
 # TODO
-- [ ] Now that DGPU works via in-container X server, figure out why it makes no difference! Do we need to use VirtualGL still?
-- [ ] Overlay mount a custom `sptSettings/Graphics.ini` to set all graphics to Potato just for the container?
-- [ ] Support mounting host X socket to potentially support Windows docker hosts via Vcxsrv or an equivalent Windows X server
-- [ ] Re-using Client files by mounting the Fika.Dedicated.dll file?
+- [ ] Support mounting host X socket to potentially support Windows docker hosts via Vcxsrv or an equivalent Windows X server. With -nographics maybe we don't even need to do this?
