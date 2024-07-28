@@ -11,7 +11,7 @@ docker pull ghcr.io/zhliau/fika-headless-docker:master
 I've only tested this on my linux hosts (Arch kernel 6.9.8 and Fedora 6.7.10). This won't work on Windows because of permission issues with WSL2. Tested with both SPT 3.8.3 and SPT 3.9.0 and the associated Fika versions. 
 
 ### Running on SPT 3.8.3
-You will need to build the `Fika.Dedicated.dll` plugin yourself from the Fika Plugin `headless-3.8.3` branch
+You will need to build the `Fika.Dedicated.dll` plugin yourself from the Fika Plugin `headless-3.8.3` branch.
 
 ### Running on SPT 3.9.x
 The team just released the official build of the dedicated plugin, so no need to build it yourself anymore!
@@ -22,10 +22,9 @@ The team just released the official build of the dedicated plugin, so no need to
    You can find the profiles in the server `user/profiles` directory. The profileID is the filename of the profile, excluding the `.json` extension
 2. Make sure your `Force Bind IP` and `Force IP` values in the fika core client config on the dedicated client are set correctly.
    I found it sufficient to set `Force Bind IP` to `Disabled`, and to set `Force IP` to the IP of my host interface.
-3. You probably want to set your graphics settings to as low as possible on the dedicated client. See `user/sptSettings` in your fika client folder
-4. Ensure you have the `Fika.Dedicated.dll` plugin file in the dedicated client's plugins folder `BepInEx/plugins`.
-5. If you use the excellent `modsync` plugin on your regular client, you might want to remove it from here and manually ensure all plugins are the same as your clients' in this BepInEx folder 
-6. Run the docker image, making sure you have the following configured:
+3. Ensure you have the `Fika.Dedicated.dll` plugin file in the dedicated client's plugins folder `BepInEx/plugins`.
+4. If you use the excellent `modsync` plugin on your regular client, you might want to remove it from here and manually ensure all plugins are the same as your clients' in this BepInEx folder 
+5. Run the docker image, making sure you have the following configured:
     - Client directory mounted to `/opt/tarkov` in the container. This is the folder containing a copy of the FIKA install.
     - Live directory mounted to `/opt/live`. This is the directory that contains the `EscapeFromTarkov_BE.exe` executable
     - `PROFILE_ID` env var set to the profile you created in step 1
