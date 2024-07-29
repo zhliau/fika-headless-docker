@@ -1,0 +1,34 @@
+# Example docker-compose file to get all required services running for an SPT server and dedicated client
+#
+# Change the volume mounts to point to the right paths, of course
+services:
+  # SPT Server container
+  spt_server:
+    # Replace with an SPT docker image of your choice
+    image: spt_docker_image:latest
+    container_name: spt_server
+    volumes:
+      # I like to mount my server files from the host into the container so I can easily add/change mods
+      - /host/path/to/serverfiles:/opt/server
+    ports:
+      - 6969:6969
+      - 6970:6970
+      - 6971:6971
+      - 6972:6972
+    restart: unless-stopped
+ 
+  fika_dedi:
+    image: ghcr.io/zhliau/fika-headless-docker:master
+    container_name: fika_dedi
+    volumes:
+      # If you have SELinux enabled on the host you want the :z option to re-label the mount with the correct SELinux context
+      # or else the container can't read these mounted directories. Be VERY careful with this option!
+      - /host/path/to/live/files:/opt/live
+      - /host/path/to/fika:/opt/tarkov
+    environment:
+      - PROFILE_ID=adadadadadadaadadadad
+      # Use service name from above, docker-compose resolves this to the SPT server container
+      - SERVER_URL=spt_server
+      - SERVER_PORT=6969
+    ports:
+      - 25565:25565/udp
