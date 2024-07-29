@@ -1,3 +1,7 @@
+# About
+Run the FIKA dedicated client as a headless service, in a docker container!
+
+# Releases
 The image build is triggered off commits to master and hosted on ghcr.
 ```
 docker pull ghcr.io/zhliau/fika-headless-docker:master
@@ -7,11 +11,16 @@ docker pull ghcr.io/zhliau/fika-headless-docker:master
 Run the `build` script. The image is tagged `fika-dedicated:0.1`
 
 # Running
-I've only tested this on my linux hosts (Arch kernel 6.9.8 and Fedora 6.7.10). This won't work on Windows because of permission issues with WSL2. Tested with both SPT 3.8.3 and SPT 3.9.3 and the associated Fika versions. 
+I've only tested this on my linux hosts (Arch kernel 6.9.8 and Fedora 6.7.10).
+This won't work on Windows because of permission issues with WSL2.
+Probably will not work on ARM hosts either.
+
+Tested with both SPT 3.8.3 and SPT 3.9.3 and the associated Fika versions. 
 
 ### Requirements
-- A directory containing the *vanilla EFT files*. This is the directory that contains your **vanilla install of EFT**, and contains the `EscapeFromTarkov_BE.exe` executable.
-- A directory containing a *working copy of the FIKA SPT Client*. This is the folder including the `BepInEx` folder with all your plugins, and the `EscapeFromTarkov.exe` binary. You can copy your working install from wherever you normally run your Fika client.
+- A host with a CPU capable of running EFT+SPT. This will be a disaster running on something like a Pi since the dedicated client is a full fledged client that will run all of the AI and raid logic.
+- A directory on your host containing the *vanilla EFT files*. This is the directory that contains your **vanilla install of EFT**, and contains the `EscapeFromTarkov_BE.exe` executable and `ConsistencyInfo` file.
+- A directory on your host containing a *working copy of the FIKA SPT Client*. This is the folder including the `BepInEx` folder with all your plugins, and the `EscapeFromTarkov.exe` binary. You can copy your working install from wherever you normally run your Fika client.
 - The `Fika.Dedicated.dll` plugin file in the FIKA SPT Client's `BepInEx/plugins` folder.
 
 ### Running on SPT 3.8.3
