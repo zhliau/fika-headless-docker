@@ -6,13 +6,21 @@ PREFIX=/home/ubuntu/.wine
 PREFIX_LIVE_DIR=$PREFIX/drive_c/live
 XVFB_RUN="xvfb-run -a"
 NOGRAPHICS="-nographics"
+BATCHMODE="-batchmode"
 
 if [ "$XVFB_DEBUG" == "true" ]; then
+    echo "Xvfb debug is ON"
     XVFB_RUN="$XVFB_RUN -e /dev/stdout"
 fi
 
 if [ "$USE_GRAPHICS" == "true" ]; then
+    echo "Using graphics"
     NOGRAPHICS=""
+fi
+
+if [ "$DISABLE_BATCHMODE" == "true" ]; then
+    echo "Disabling batchmode"
+    BATCHMODE=""
 fi
 
 # If directory doesn't exist or is empty
@@ -42,4 +50,4 @@ if [ ! -f $EFT_BINARY ]; then
 fi
 
 # Start client
-WINEDEBUG=-all $XVFB_RUN wine $EFT_BINARY -batchmode $NOGRAPHICS -token="$PROFILE_ID" -config="{'BackendUrl':'http://$SERVER_URL:$SERVER_PORT', 'Version':'live'}"
+WINEDEBUG=-all $XVFB_RUN wine $EFT_BINARY $BATCHMODE $NOGRAPHICS -token="$PROFILE_ID" -config="{'BackendUrl':'http://$SERVER_URL:$SERVER_PORT', 'Version':'live'}"

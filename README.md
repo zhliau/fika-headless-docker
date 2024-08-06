@@ -132,6 +132,23 @@ services:
               capabilities: [gpu]
 ```
 
+# Environment variabes
+## Required
+
+| Env var       | Description                                             |
+| ------------- | ------------------------------------------------------- |
+| `PROFILE_ID`  | ProfileID of the dedicated client you created in step 1 |
+| `SERVER_URL`  | env var set to your server URL                          |
+| `SERVER_PORT` | env var set to your server's port                       |
+
+## Debug
+
+| Env var             | Description                                                                                                                                                                                         |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `USE_GRAPHICS`      | Disables the `-nographics` parameter when starting the dedicated client. This will significantly increase resource usage.                                                                           |
+| `DISABLE_BATCHMODE` | Disable the `-batchmode` parameter when starting the client. This will significantly increase resource usage, but may be a workaround for the strange AI aiming behavior seen on dedicated clients. |
+| `XVFB_DEBUG`        | Enables debug output for xvfb (the virtual framebuffer)                                                                                                                                             |
+
 # Troubleshooting
 Container immediately exits, crashing with stacktrace in container, permissions errors, wine unable to find EscapeFromTarkov.exe, or wine throwing a page fault on read access to 0000000000000000 exception?
 
@@ -141,10 +158,6 @@ Container immediately exits, crashing with stacktrace in container, permissions 
   they can be read by the container.
 - If you have SELinux enabled on the host, the container may not be able to read the mounted directories unless you provide the :z option to re-label the mount with the correct SELinux context.
   Be VERY careful with this option! I will not be responsible for anything that happens if you choose to do this.
-
-# Debug
-- `USE_GRAPHICS` - disables the `-nographics` parameter when starting the dedicated client. This will significantly increase resource usage.
-- `XVFB_DEBUG` - enables debug output for xvfb (the virtual framebuffer)
 
 # TODO
 - [ ] Support mounting host X socket to potentially support Windows docker hosts via Vcxsrv or an equivalent Windows X server. With -nographics maybe we don't even need to do this?

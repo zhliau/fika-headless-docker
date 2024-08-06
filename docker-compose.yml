@@ -30,5 +30,12 @@ services:
       # Use service name from above, docker-compose resolves this to the SPT server container
       - SERVER_URL=spt_server
       - SERVER_PORT=6969
+      # Debug section. See the README under the Debug section
+      #
+      # Disable the -nographics parameter.
+      #- USE_GRAPHICS=true
+      #
+      # Disable the -batchmode parameter.
+      #- DISABLE_BATCHMODE=true
     ports:
       - 25565:25565/udp
