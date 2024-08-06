@@ -132,7 +132,7 @@ services:
               capabilities: [gpu]
 ```
 
-# Environment variabes
+# Environment variables
 ## Required
 
 | Env var       | Description                                                                                                                                |
