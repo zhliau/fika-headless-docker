@@ -135,11 +135,17 @@ services:
 # Environment variabes
 ## Required
 
-| Env var       | Description                                             |
-| ------------- | ------------------------------------------------------- |
-| `PROFILE_ID`  | ProfileID of the dedicated client you created in step 1 |
-| `SERVER_URL`  | env var set to your server URL                          |
-| `SERVER_PORT` | env var set to your server's port                       |
+| Env var       | Description                                                                                                                                |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `PROFILE_ID`  | ProfileID of the dedicated client you created in step 1                                                                                    |
+| `SERVER_URL`  | Server URL, or the name of the service that runs the Fika server if you have it in the same docker-compose stack                           |
+| `SERVER_PORT` | Server port, usually `6969`                                                                                                                |
+
+## Optional
+
+| Env var       | Description                                                                                                                                            |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `USE_DGPU`    | Enable passing a GPU resource into the container with `nvidia-container-toolkit`. Make sure you have the required dependencies installed for your host |
 
 ## Debug
 
