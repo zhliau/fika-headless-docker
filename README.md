@@ -145,15 +145,15 @@ services:
 
 | Env var       | Description                                                                                                                                            |
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `USE_DGPU`    | Enable passing a GPU resource into the container with `nvidia-container-toolkit`. Make sure you have the required dependencies installed for your host |
+| `USE_DGPU`    | If set to `true`, enable passing a GPU resource into the container with `nvidia-container-toolkit`. Make sure you have the required dependencies installed for your host |
 
 ## Debug
 
 | Env var             | Description                                                                                                                                                                                         |
 | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `USE_GRAPHICS`      | Disables the `-nographics` parameter when starting the dedicated client. This will significantly increase resource usage.                                                                           |
-| `DISABLE_BATCHMODE` | Disable the `-batchmode` parameter when starting the client. This will significantly increase resource usage, but may be a workaround for the strange AI aiming behavior seen on dedicated clients. |
-| `XVFB_DEBUG`        | Enables debug output for xvfb (the virtual framebuffer)                                                                                                                                             |
+| `USE_GRAPHICS`      | If set to `true`, disables the `-nographics` parameter when starting the dedicated client. This will significantly increase resource usage.                                                                           |
+| `DISABLE_BATCHMODE` | If set to `true`, disable the `-batchmode` parameter when starting the client. This will significantly increase resource usage, but may be a workaround for the strange AI aiming behavior seen on dedicated clients. |
+| `XVFB_DEBUG`        | If set to `true`, enables debug output for xvfb (the virtual framebuffer)                                                                                                                                             |
 
 # Troubleshooting
 Container immediately exits, crashing with stacktrace in container, permissions errors, wine unable to find EscapeFromTarkov.exe, or wine throwing a page fault on read access to 0000000000000000 exception?
