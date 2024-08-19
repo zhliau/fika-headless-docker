@@ -1,6 +1,22 @@
 # About
 Run the FIKA dedicated client as a headless service, in a docker container!
 
+- [About](#about)
+- [Releases](#releases)
+- [Building](#building)
+- [Running](#running)
+  * [Requirements](#requirements)
+    + [Running on SPT 3.8.3](#running-on-spt-383)
+    + [Running on SPT 3.9.x](#running-on-spt-39x)
+  * [Steps](#steps)
+- [docker-compose](#docker-compose)
+- [Environment variables](#environment-variables)
+  * [Required](#required)
+  * [Optional](#optional)
+  * [Debug](#debug)
+- [Troubleshooting](#troubleshooting)
+- [TODO](#todo)
+
 # Releases
 The image build is triggered off commits to master and hosted on ghcr.
 ```
@@ -17,7 +33,7 @@ Probably will not work on ARM hosts either.
 
 Tested with both SPT 3.8.3 and SPT 3.9.3 and the associated Fika versions. 
 
-### Requirements
+## Requirements
 - A host with a CPU capable of running EFT+SPT. This will be a disaster running on something like a Pi since the dedicated client is a full fledged client that will run all of the AI and raid logic.
 - A directory on your host containing the **vanilla EFT files**.
   - This is the directory that contains your vanilla install of EFT, and contains the `EscapeFromTarkov_BE.exe` executable and `ConsistencyInfo` file.
