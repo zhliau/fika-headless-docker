@@ -185,6 +185,7 @@ services:
 Container immediately exits, crashing with stacktrace in container, permissions errors, wine unable to find EscapeFromTarkov.exe, or wine throwing a page fault on read access to 0000000000000000 exception?
 
 - If you are using Corter-ModSync to keep plugin files up to date, make sure you set the `USE_MODSYNC` env var to `true` or the plugin updater will not be able to run properly and the container will keep exiting!
+- If you are using Amands.Graphics, remove it from the dedicated client's plugins. Sometimes, it causes an NPE on ending a raid and stops the client from returning to the main menu, preventing any new raids from starting.
 - Double check that you have the `Fika.Dedicated.dll` file in the client's `BepInEx/plugins` folder! The game will crash in the container if you don't have this plugin.
 - Check your docker logs output. Maybe you haven't mounted your directories properly? Verify the contents of the Vanilla EFT and FIKA Client directories to make sure all expected files are there. You must mount the vanilla EFT files to `/opt/live`, and a working copy of the FIKA client to `/opt/tarkov`.
 - Double check that your file permissions for the FIKA client directory and its contents are correct. The container runs as the user `ubuntu` with uid:gid as 1000:1000, so as long as the files you mount from the host are owned by the **host** user with that uid/gid,
