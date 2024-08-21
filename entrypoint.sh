@@ -26,7 +26,7 @@ if [ "$DISABLE_BATCHMODE" == "true" ]; then
     BATCHMODE=""
 fi
 
-if [ "$ENABLE_DYNAMICAI" == "true" ]; then
+if [ "$DISABLE_NODYNAMICAI" == "true" ]; then
     echo "Allowing dynamic AI"
     NODYNAMICAI=""
 fi

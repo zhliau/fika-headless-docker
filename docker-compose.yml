@@ -17,6 +17,7 @@ services:
       - 6972:6972
     restart: unless-stopped
  
+  # Dedicated client container
   fika_dedi:
     image: ghcr.io/zhliau/fika-headless-docker:master
     container_name: fika_dedi
@@ -39,6 +40,25 @@ services:
       #- DISABLE_BATCHMODE=true
       #
       # Disable the -noDynamicAI parameter
-      #- ENABLE_DYNAMICAI=true
+      #- DISABLE_NODYNAMICAI=true
     ports:
       - 25565:25565/udp
+
+  # Restarter service, to restart the dedicated client at 11 UTC every day
+    # Replace "fika_dedi" with the name of your dedicated client container
+  restarter:
+    image: docker:cli
+    container_name: tarkov-restarter
+    restart: unless-stopped
+    volumes: ["/var/run/docker.sock:/var/run/docker.sock"]
+    entrypoint: ["/bin/sh","-c"]
+    command:
+      - |
+        echo "Scheduling restart - container start $$(date +'%Y%m%d %H:%M')"
+        while true; do
+        if [ "$$(date +'%H:%M')" = '11:00' ]; then
+        echo "Restarting dedicated container on $$(date +'%H:%M')"
+        docker restart fika_dedi
+        fi
+        sleep 60
+        done

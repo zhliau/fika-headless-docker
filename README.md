@@ -3,21 +3,6 @@
 
 :star: NEW: With :arrows_counterclockwise: [Corter-ModSync](https://github.com/c-orter/modsync/) :arrows_counterclockwise: support!
 
-- [Releases](#releases)
-- [Building](#building)
-- [Running](#running)
-  * [Requirements](#requirements)
-    + [Running on SPT 3.8.3](#running-on-spt-383)
-    + [Running on SPT 3.9.x](#running-on-spt-39x)
-  * [Steps](#steps)
-- [docker-compose](#docker-compose)
-- [Environment variables](#environment-variables)
-  * [Required](#required)
-  * [Optional](#optional)
-  * [Debug](#debug)
-- [Troubleshooting](#troubleshooting)
-- [TODO](#todo)
-
 # Releases
 The image build is triggered off commits to master and hosted on ghcr.
 ```
@@ -42,6 +27,24 @@ Tested with both SPT 3.8.3 and SPT 3.9.3 and the associated Fika versions.
   - This is the folder including the `BepInEx` folder with all your plugins, and the `EscapeFromTarkov.exe` binary. You can copy your working install from wherever you normally run your Fika client.
 - The `Fika.Dedicated.dll` plugin file in the FIKA SPT Client's `BepInEx/plugins` folder.
 
+### Corter-Modsync support
+This image supports the unique plugin updater process that [Corter-ModSync](https://github.com/c-orter/modsync/) employs to update client plugins.
+To enable support:
+- Copy the `Fika.Dedicated.dll` plugin file into the **server's BepInEx directory** (the directory that modsync treats as the source of truth).
+- **(IMPORTANT)** Ensure you have `"BepInEx/plugins/Fika.Dedicated.dll"` in the `commonModExclusions` list in the ModSync server configuration. It should already be there by default.
+  This is to ensure that ModSync does not push the Dedicated plugin to clients nor delete it from the container, especially if you are enforcing the `BepInEx/plugins` path on all connecting clients
+- Set the `USE_MODSYNC` env var to `true` when starting the container.
+
+The start script will then:
+- Start Xvfb in the background to make it available to all running container processes
+- Anticipate that ModSync may close the dedicated client for an update
+- On client plugin update, the script will restart the dedicated client.
+
+> [!NOTE]
+> Enabling `USE_MODSYNC` does NOT mean that the dedicated client will periodically restart to check for updates to plugins. If you wish to do this, you must build it
+> via a periodic restarter script or a cron job. You can mount the docker socket into a `docker:cli` image and run a simple bash while loop or something.
+> See the example docker-compose.yml in this repo for details
+
 ## Steps
 1. Create a profile that the dedicated client will login as. Copy its profileID and set it aside.
    If you are on Fika for SPT 3.9.x, the server will generate this profie for you as long as you set the `dedicated > profiles > amount` option to some value greater than 0 in the server config.
@@ -58,44 +61,6 @@ Tested with both SPT 3.8.3 and SPT 3.9.3 and the associated Fika versions.
     - `USE_MODSYNC` env var set to `true` if you wish to use the excellent [Corter-ModSync](https://github.com/c-orter/modsync/) plugin on your dedicated client.
     - (No longer recommended) `USE_DGPU` env var set to `true`, to enable starting an X server in container in combination with `nvidia-container-toolkit` to use the host GPU resource
       *This will not work if you have an X server running on your host using your GPU already!*. This is due to Xorg server limitations.
-
-### Corter-Modsync support
-This image supports the unique plugin updater process that [Corter-ModSync](https://github.com/c-orter/modsync/) employs to update client plugins.
-To enable support:
-- Copy the `Fika.Dedicated.dll` plugin file into the **server's BepInEx directory** (the directory that modsync treats as the source of truth).
-- **(IMPORTANT)** Ensure you have `"BepInEx/plugins/Fika.Dedicated.dll"` in the `commonModExclusions` list in the ModSync server configuration. It should already be there by default.
-  This is to ensure that ModSync does not push the Dedicated plugin to clients nor delete it from the container, especially if you are enforcing the `BepInEx/plugins` path on all connecting clients
-- Set the `USE_MODSYNC` env var to `true` when starting the container.
-
-The start script will then:
-- Start Xvfb in the background to make it available to all running container processes
-- Anticipate that ModSync may close the dedicated client for an update
-- On client plugin update, the script will restart the dedicated client.
-
-> [!NOTE]
-> Enabling this setting does NOT mean that the dedicated client will periodically restart to check for updates to plugins. If you wish to do this, you must build it
-> via a periodic restarter script or a cron job. In docker-compose, you can mount the docker socket and do something simple like
-
-```yaml
-  restarter:
-    image: docker:cli
-    container_name: tarkov-restarter
-    restart: unless-stopped
-    volumes: ["/var/run/docker.sock:/var/run/docker.sock"]
-    entrypoint: ["/bin/sh","-c"]
-    # Replace "fika_dedicated" with the name of your dedicated client container
-    command:
-      - |
-        echo "Scheduling restart - container start $$(date +'%Y%m%d %H:%M')"
-        while true; do
-        if [ "$$(date +'%H:%M')" = '11:00' ]; then
-        echo "Restarting dedicated container on $$(date +'%H:%M')"
-        docker restart fika_dedicated
-        fi
-        sleep 60
-        done
-
-```
 
 E.g
 ```Shell
@@ -192,7 +157,7 @@ services:
 | Env var       | Description                                                                                                                                            |
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `USE_DGPU`    | If set to `true`, enable passing a GPU resource into the container with `nvidia-container-toolkit`. Make sure you have the required dependencies installed for your host |
-| `ENABLE_DYNAMICAI`  | If set to `true`, removes the `-noDynamicAI` parameter when starting the client, enabling Fika's dynamic AI feature. Can help with dedicated client performance if you notice server FPS dropping below 30 |
+| `DISABLE_NODYNAMICAI`  | If set to `true`, removes the `-noDynamicAI` parameter when starting the client, allowing the use of Fika's dynamic AI feature. Can help with dedicated client performance if you notice server FPS dropping below 30 |
 | `USE_MODSYNC`  | If set to `true`, enables support for Corter-ModSync 0.8.1+ and the external updater. On container start, the dedicated client will close and start the updater the modsync plugin detects changes. On completion, the script will start the dedicated client up again |
 
 ## Debug
