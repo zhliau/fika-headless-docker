@@ -63,7 +63,7 @@ Tested with both SPT 3.8.3 and SPT 3.9.3 and the associated Fika versions.
 This image supports the unique plugin updater process that [Corter-ModSync](https://github.com/c-orter/modsync/) employs to update client plugins.
 To enable support:
 - Copy the `Fika.Dedicated.dll` plugin file into the **server's BepInEx directory** (the directory that modsync treats as the source of truth).
-- Ensure you have `"BepInEx/plugins/Fika.Dedicated.dll"` in the `commonModExclusions` list in the ModSync server configuration. It should already be there by default.
+- **(IMPORTANT)** Ensure you have `"BepInEx/plugins/Fika.Dedicated.dll"` in the `commonModExclusions` list in the ModSync server configuration. It should already be there by default.
   This is to ensure that ModSync does not push the Dedicated plugin to clients nor delete it from the container, especially if you are enforcing the `BepInEx/plugins` path on all connecting clients
 - Set the `USE_MODSYNC` env var to `true` when starting the container.
 
@@ -72,7 +72,7 @@ The start script will then:
 - Anticipate that ModSync may close the dedicated client for an update
 - On client plugin update, the script will restart the dedicated client.
 
-[!NOTE]
+> [!NOTE]
 > Enabling this setting does NOT mean that the dedicated client will periodically restart to check for updates to plugins. If you wish to do this, you must build it
 > via a periodic restarter script or a cron job. In docker-compose, you can mount the docker socket and do something simple like
 
