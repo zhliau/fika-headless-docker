@@ -3,6 +3,19 @@
 
 :star: NEW: With :arrows_counterclockwise: [Corter-ModSync](https://github.com/c-orter/modsync/) :arrows_counterclockwise: support!
 
+- [Releases](#releases)
+- [Building](#building)
+- [Running](#running)
+  * [Requirements](#requirements)
+    + [Corter-Modsync support](#corter-modsync-support)
+  * [Steps](#steps)
+- [docker-compose](#docker-compose)
+- [Environment variables](#environment-variables)
+  * [Required](#required)
+  * [Optional](#optional)
+  * [Debug](#debug)
+- [Troubleshooting](#troubleshooting)
+
 # Releases
 The image build is triggered off commits to master and hosted on ghcr.
 ```
