@@ -129,7 +129,7 @@ WORKDIR /home/ubuntu
 # Install wineprefix deps
 # Have to run these separately for some reason or else they fail
 RUN winetricks arial times 
-RUN xvfb-run -a winetricks -q vcrun2019
+RUN xvfb-run -a winetricks -q vcrun2019 dotnetdesktop8
 
 ENV PROFILE_ID=test
 ENV SERVER_URL=127.0.0.1

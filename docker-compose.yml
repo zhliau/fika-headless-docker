@@ -37,5 +37,8 @@ services:
       #
       # Disable the -batchmode parameter.
       #- DISABLE_BATCHMODE=true
+      #
+      # Disable the -noDynamicAI parameter
+      #- ENABLE_DYNAMICAI=true
     ports:
       - 25565:25565/udp
