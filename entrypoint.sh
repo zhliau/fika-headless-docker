@@ -9,6 +9,7 @@ NOGRAPHICS="-nographics"
 BATCHMODE="-batchmode"
 NODYNAMICAI="-noDynamicAI"
 
+# Overriden if you use DGPU
 export DISPLAY=:0.0
 
 if [ "$XVFB_DEBUG" == "true" ]; then
@@ -49,6 +50,7 @@ fi
 if [ "$USE_DGPU" == "true" ]; then
 	source /opt/scripts/install_nvidia_deps.sh
 
+	DISPLAY=:0
 	# Run Xorg server with required extensions
 	sudo /usr/bin/Xorg "${DISPLAY}" vt7 -noreset -novtswitch -sharevts -dpi "${DISPLAY_DPI}" +extension "COMPOSITE" +extension "DAMAGE" +extension "GLX" +extension "RANDR" +extension "RENDER" +extension "MIT-SHM" +extension "XFIXES" +extension "XTEST" &
 
