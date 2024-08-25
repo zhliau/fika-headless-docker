@@ -1,9 +1,6 @@
 #!/bin/bash -e
 
 EFT_BINARY=/opt/tarkov/EscapeFromTarkov.exe
-LIVE_DIR=/opt/live/
-PREFIX=/home/ubuntu/.wine
-PREFIX_LIVE_DIR=$PREFIX/drive_c/live
 XVFB_RUN="xvfb-run -a"
 NOGRAPHICS="-nographics"
 BATCHMODE="-batchmode"
@@ -35,16 +32,6 @@ fi
 if [ "$USE_MODSYNC" = "true" ]; then
     echo "Running Xvfb in background for modsync"
     XVFB_RUN=""
-fi
-
-# If directory doesn't exist or is empty
-if [ ! -d $PREFIX_LIVE_DIR ] || [ -z "$(ls -A $PREFIX_LIVE_DIR)" ]; then
-    echo "Symlinking live dir"
-    ln -s /opt/live $PREFIX_LIVE_DIR
-# TODO make this more robust
-elif [ ! -f $PREFIX_LIVE_DIR/ConsistencyInfo ]; then
-    echo "Live files not found! Make sure you mount a folder containing the live files to /opt/live"
-    exit 1
 fi
 
 if [ "$USE_DGPU" == "true" ]; then

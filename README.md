@@ -34,8 +34,6 @@ Tested with both SPT 3.8.3 and SPT 3.9.3 and the associated Fika versions.
 
 ## Requirements
 - A host with a CPU capable of running EFT+SPT. This will be a disaster running on something like a Pi since the dedicated client is a full fledged client that will run all of the AI and raid logic.
-- A directory on your host containing the **vanilla EFT files**.
-  - This is the directory that contains your vanilla install of EFT, and contains the `EscapeFromTarkov_BE.exe` executable and `ConsistencyInfo` file.
 - A directory on your host containing a **working copy of the FIKA SPT Client**.
   - This is the folder including the `BepInEx` folder with all your plugins, and the `EscapeFromTarkov.exe` binary. You can copy your working install from wherever you normally run your Fika client.
 - The `Fika.Dedicated.dll` plugin file in the FIKA SPT Client's `BepInEx/plugins` folder.
@@ -66,7 +64,6 @@ The start script will then:
    I found it sufficient to set `Force Bind IP` to `Disabled`, and to set `Force IP` to the IP of my host interface. If you are running a VPN, this is your VPN IP.
 3. Ensure you have the `Fika.Dedicated.dll` plugin file in the dedicated client's plugins folder `BepInEx/plugins`.
 5. Run the docker image, making sure you have the following configured:
-    - Vanilla EFT directory mounted to `/opt/live`.
     - Fika Client directory mounted to `/opt/tarkov` in the container.
     - `PROFILE_ID` env var set to the profile you created in step 1
     - `SERVER_URL` env var set to your server URL
@@ -79,7 +76,6 @@ E.g
 ```Shell
 docker run --name fika_dedicated \
   -v /path/to/fika:/opt/tarkov \
-  -v /path/to/vanilla:/opt/live \
   -e PROFILE_ID=blah \
   -e SERVER_URL=localhost \
   -e SERVER_PORT=6969 \
@@ -95,7 +91,6 @@ services:
     image: ghcr.io/zhliau/fika-headless-docker:master
     container_name: fika_dedi
     volumes:
-      - /host/path/to/vanilla/:/opt/live
       - /host/path/to/fika:/opt/tarkov
     environment:
       - PROFILE_ID=adadadadadadaadadadad
@@ -136,7 +131,6 @@ services:
     image: fika-dedicated:0.1
     container_name: fika_ded
     volumes:
-      - /host/path/to/live/files:/opt/live
       - /host/path/to/fika:/opt/tarkov
     environment:
       - PROFILE_ID=adadadadadadaadadadad
@@ -182,13 +176,23 @@ services:
 | `XVFB_DEBUG`        | If set to `true`, enables debug output for xvfb (the virtual framebuffer)                                                                                                                                             |
 
 # Troubleshooting
-Container immediately exits, crashing with stacktrace in container, permissions errors, wine unable to find EscapeFromTarkov.exe, or wine throwing a page fault on read access to 0000000000000000 exception?
+### Container immediately exits, crashing with stacktrace in container, permissions errors, wine unable to find EscapeFromTarkov.exe, or wine throwing a page fault on read access to 0000000000000000 exception?
 
 - If you are using Corter-ModSync to keep plugin files up to date, make sure you set the `USE_MODSYNC` env var to `true` or the plugin updater will not be able to run properly and the container will keep exiting!
 - If you are using Amands.Graphics, remove it from the dedicated client's plugins. Sometimes, it causes an NPE on ending a raid and stops the client from returning to the main menu, preventing any new raids from starting.
 - Double check that you have the `Fika.Dedicated.dll` file in the client's `BepInEx/plugins` folder! The game will crash in the container if you don't have this plugin.
-- Check your docker logs output. Maybe you haven't mounted your directories properly? Verify the contents of the Vanilla EFT and FIKA Client directories to make sure all expected files are there. You must mount the vanilla EFT files to `/opt/live`, and a working copy of the FIKA client to `/opt/tarkov`.
+- Check your docker logs output. Maybe you haven't mounted your directories properly? Verify the contents of the Vanilla EFT and FIKA Client directories to make sure all expected files are there. You must mount a working copy of the FIKA client to `/opt/tarkov`.
 - Double check that your file permissions for the FIKA client directory and its contents are correct. The container runs as the user `ubuntu` with uid:gid as 1000:1000, so as long as the files you mount from the host are owned by the **host** user with that uid/gid,
   they can be read by the container.
 - If you have SELinux enabled on the host, the container may not be able to read the mounted directories unless you provide the :z option to re-label the mount with the correct SELinux context.
   Be VERY careful with this option! I will not be responsible for anything that happens if you choose to do this.
+- Make sure your Fika client files have the winhttp.dll in the root folder. This is required for any plugins (even SPT) to run.
+
+### Stuck right after BepInEx preloader finished
+```
+fika_dedi  | [Message:   BepInEx] Preloader finished
+fika_dedi  | (Filename: C:\buildslave\unity\build\Runtime/Export/Debug/Debug.bindings.h Line: 39)
+fika_dedi  |
+fika_dedi  | Fallback handler could not load library Z:/opt/tarkov/EscapeFromTarkov_Data/Mono/data-00007D86E24EA790.dll
+```
+- Double check your server is reachable at whatever you set `SERVER_URL` to. If the client can't reach the backend, it tends to hang here.

@@ -24,7 +24,6 @@ services:
     volumes:
       # If you have SELinux enabled on the host you want the :z option to re-label the mount with the correct SELinux context
       # or else the container can't read these mounted directories. Be VERY careful with this option!
-      - /host/path/to/live/files:/opt/live
       - /host/path/to/fika:/opt/tarkov
     environment:
       - PROFILE_ID=adadadadadadaadadadad
