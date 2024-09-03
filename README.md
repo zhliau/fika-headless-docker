@@ -1,7 +1,7 @@
 # About
 :new_moon_with_face: Run the FIKA dedicated client as a headless service, in a docker container! :new_moon_with_face:
 
-:star: NEW: With :arrows_counterclockwise: [Corter-ModSync](https://github.com/c-orter/modsync/) :arrows_counterclockwise: support!
+:star: NEW: With :arrows_counterclockwise: [Corter-ModSync support](#corter-modsync-support) :arrows_counterclockwise:!
 
 - [Releases](#releases)
 - [Building](#building)
@@ -22,15 +22,12 @@ The image build is triggered off commits to master and hosted on ghcr.
 docker pull ghcr.io/zhliau/fika-headless-docker:master
 ```
 
-# Building
-Run the `build` script. The image is tagged `fika-dedicated:0.1`
-
 # Running
 I've only tested this on my linux hosts (Arch kernel 6.9.8 and Fedora 6.7.10).
 This won't work on Windows because of permission issues with WSL2.
 Probably will not work on ARM hosts either.
 
-Tested with both SPT 3.8.3 and SPT 3.9.3 and the associated Fika versions. 
+Tested with both SPT 3.8.3 and SPT 3.9.x and the associated Fika versions. 
 
 ## Requirements
 - A host with a CPU capable of running EFT+SPT. This will be a disaster running on something like a Pi since the dedicated client is a full fledged client that will run all of the AI and raid logic.
@@ -38,28 +35,10 @@ Tested with both SPT 3.8.3 and SPT 3.9.3 and the associated Fika versions.
   - This is the folder including the `BepInEx` folder with all your plugins, and the `EscapeFromTarkov.exe` binary. You can copy your working install from wherever you normally run your Fika client.
 - The `Fika.Dedicated.dll` plugin file in the FIKA SPT Client's `BepInEx/plugins` folder.
 
-### Corter-Modsync support
-This image supports the unique plugin updater process that [Corter-ModSync](https://github.com/c-orter/modsync/) employs to update client plugins.
-To enable support:
-- Copy the `Fika.Dedicated.dll` plugin file into the **server's BepInEx directory** (the directory that modsync treats as the source of truth).
-- **(IMPORTANT)** Ensure you have `"BepInEx/plugins/Fika.Dedicated.dll"` in the `commonModExclusions` list in the ModSync server configuration. It should already be there by default.
-  This is to ensure that ModSync does not push the Dedicated plugin to clients nor delete it from the container, especially if you are enforcing the `BepInEx/plugins` path on all connecting clients
-- Set the `USE_MODSYNC` env var to `true` when starting the container.
-
-The start script will then:
-- Start Xvfb in the background to make it available to all running container processes
-- Anticipate that ModSync may close the dedicated client for an update
-- On client plugin update, the script will restart the dedicated client.
-
-> [!NOTE]
-> Enabling `USE_MODSYNC` does NOT mean that the dedicated client will periodically restart to check for updates to plugins. If you wish to do this, you must build it
-> via a periodic restarter script or a cron job. You can mount the docker socket into a `docker:cli` image and run a simple bash while loop or something.
-> See the example docker-compose.yml in this repo for details
-
 ## Steps
 1. Create a profile that the dedicated client will login as. Copy its profileID and set it aside.
-   If you are on Fika for SPT 3.9.x, the server will generate this profie for you as long as you set the `dedicated > profiles > amount` option to some value greater than 0 in the server config.
-   You can find the profiles in the server `user/profiles` directory. The profileID is the filename of the profile, excluding the `.json` extension
+   - If you are on Fika for SPT 3.9.x, the server will generate this profie for you as long as you set the `dedicated > profiles > amount` option to some value greater than 0 in the server config.
+   - You can find the profiles in the server `user/profiles` directory. The profileID is the filename of the profile, excluding the `.json` extension
 2. Make sure your `Force Bind IP` and `Force IP` values in the `BepInEx/config/com.fika.core.cfg` config file on the dedicated client are set correctly.
    I found it sufficient to set `Force Bind IP` to `Disabled`, and to set `Force IP` to the IP of my host interface. If you are running a VPN, this is your VPN IP.
 3. Ensure you have the `Fika.Dedicated.dll` plugin file in the dedicated client's plugins folder `BepInEx/plugins`.
@@ -69,8 +48,6 @@ The start script will then:
     - `SERVER_URL` env var set to your server URL
     - `SERVER_PORT` env var set to your server's port
     - `USE_MODSYNC` env var set to `true` if you wish to use the excellent [Corter-ModSync](https://github.com/c-orter/modsync/) plugin on your dedicated client.
-    - (No longer recommended) `USE_DGPU` env var set to `true`, to enable starting an X server in container in combination with `nvidia-container-toolkit` to use the host GPU resource
-      *This will not work if you have an X server running on your host using your GPU already!*. This is due to Xorg server limitations.
 
 E.g
 ```Shell
@@ -117,38 +94,23 @@ services:
     # ...
 ```
 
-(**No longer recommended**)
-If you want to pass in your host Nvidia GPU, make sure you have the following:
-- set the env var `USE_DGPU=true` in the container
-- `nvidia-container-toolkit` installed on your host
-- set the `deploy` section in compose.
-- No X server running on host
-```yaml
-services:
-  fika:
-    image: fikadockerimagehere:latest
-  fika_dedicated:
-    image: fika-dedicated:0.1
-    container_name: fika_ded
-    volumes:
-      - /host/path/to/fika:/opt/tarkov
-    environment:
-      - PROFILE_ID=adadadadadadaadadadad
-      - SERVER_URL=fika
-      - SERVER_PORT=6969
-      # Set USE_DGPU to enable installation of nvidia drivers in container and start Xorg server on virtual tty
-      - USE_DGPU=true
-    ports:
-      - 25565:25565/udp
-    # Specify nvidia device to pass to the container
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-```
+### Corter-Modsync support
+This image supports the unique plugin updater process that [Corter-ModSync](https://github.com/c-orter/modsync/) employs to update client plugins.
+To enable support:
+- Copy the `Fika.Dedicated.dll` plugin file into the **server's BepInEx directory** (the directory that modsync treats as the source of truth).
+- **(IMPORTANT)** Ensure you have `"BepInEx/plugins/Fika.Dedicated.dll"` in the `commonModExclusions` list in the ModSync server configuration. It should already be there by default.
+  This is to ensure that ModSync does not push the Dedicated plugin to clients nor delete it from the container, especially if you are enforcing the `BepInEx/plugins` path on all connecting clients
+- Set the `USE_MODSYNC` env var to `true` when starting the container.
+
+The start script will then:
+- Start Xvfb in the background to make it available to all running container processes
+- Anticipate that ModSync may close the dedicated client for an update
+- On client plugin update, the script will restart the dedicated client.
+
+> [!NOTE]
+> Enabling `USE_MODSYNC` does NOT mean that the dedicated client will periodically restart to check for updates to plugins. If you wish to do this, you must build it
+> via a periodic restarter script or a cron job. You can mount the docker socket into a `docker:cli` image and run a simple bash while loop or something.
+> See the example docker-compose.yml in this repo for details
 
 # Environment variables
 ## Required
@@ -181,8 +143,8 @@ services:
 - If you are using Corter-ModSync to keep plugin files up to date, make sure you set the `USE_MODSYNC` env var to `true` or the plugin updater will not be able to run properly and the container will keep exiting!
 - If you are using Amands.Graphics, remove it from the dedicated client's plugins. Sometimes, it causes an NPE on ending a raid and stops the client from returning to the main menu, preventing any new raids from starting.
 - Double check that you have the `Fika.Dedicated.dll` file in the client's `BepInEx/plugins` folder! The game will crash in the container if you don't have this plugin.
-- Check your docker logs output. Maybe you haven't mounted your directories properly? Verify the contents of the Vanilla EFT and FIKA Client directories to make sure all expected files are there. You must mount a working copy of the FIKA client to `/opt/tarkov`.
-- Double check that your file permissions for the FIKA client directory and its contents are correct. The container runs as the user `ubuntu` with uid:gid as 1000:1000, so as long as the files you mount from the host are owned by the **host** user with that uid/gid,
+- Check your docker logs output. Maybe you haven't mounted your FIKA client directory properly? Verify the contents of the Fika Client directory to make sure all expected files are there. You must mount a working copy of the Fika client to `/opt/tarkov`.
+- Double check that your file permissions for the Fika client directory and its contents are correct. The container runs as the user `ubuntu` with uid:gid as 1000:1000, so as long as the files you mount from the host are owned by the **host** user with that uid/gid,
   they can be read by the container.
 - If you have SELinux enabled on the host, the container may not be able to read the mounted directories unless you provide the :z option to re-label the mount with the correct SELinux context.
   Be VERY careful with this option! I will not be responsible for anything that happens if you choose to do this.
@@ -196,3 +158,43 @@ fika_dedi  |
 fika_dedi  | Fallback handler could not load library Z:/opt/tarkov/EscapeFromTarkov_Data/Mono/data-00007D86E24EA790.dll
 ```
 - Double check your server is reachable at whatever you set `SERVER_URL` to. If the client can't reach the backend, it tends to hang here.
+
+# Development
+## Building
+Run the `build` script. The image is tagged `fika-dedicated:0.1`
+
+## Using an Nvidia GPU in the container
+If you want to pass in your host Nvidia GPU, make sure you have the following:
+- set the env var `USE_DGPU=true` in the container
+- set the env var `USE_GRAPHICS=true` to disable headless mode
+- `nvidia-container-toolkit` installed on your host
+- set the `deploy` section in compose.
+- No X server running on host
+```yaml
+services:
+  fika:
+    image: fikadockerimagehere:latest
+  fika_dedicated:
+    image: fika-dedicated:0.1
+    container_name: fika_ded
+    volumes:
+      - /host/path/to/fika:/opt/tarkov
+    environment:
+      - PROFILE_ID=adadadadadadaadadadad
+      - SERVER_URL=fika
+      - SERVER_PORT=6969
+      # Set USE_DGPU to enable installation of nvidia drivers in container and start Xorg server on virtual tty
+      - USE_DGPU=true
+      # Do not run headless
+      - USE_GRAPHICS=true
+    ports:
+      - 25565:25565/udp
+    # Specify nvidia device to pass to the container
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+```
