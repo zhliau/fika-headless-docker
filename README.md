@@ -20,8 +20,6 @@
     + [Building](#building)
     + [Using an Nvidia GPU in the container](#using-an-nvidia-gpu-in-the-container)
 
-<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
-
 # Releases
 The image build is triggered off commits to master and hosted on ghcr.
 ```
