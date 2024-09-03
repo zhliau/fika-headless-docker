@@ -29,13 +29,13 @@ Probably will not work on ARM hosts either.
 
 Tested with both SPT 3.8.3 and SPT 3.9.x and the associated Fika versions. 
 
-## Requirements
+### Requirements
 - A host with a CPU capable of running EFT+SPT. This will be a disaster running on something like a Pi since the dedicated client is a full fledged client that will run all of the AI and raid logic.
 - A directory on your host containing a **working copy of the FIKA SPT Client**.
   - This is the folder including the `BepInEx` folder with all your plugins, and the `EscapeFromTarkov.exe` binary. You can copy your working install from wherever you normally run your Fika client.
 - The `Fika.Dedicated.dll` plugin file in the FIKA SPT Client's `BepInEx/plugins` folder.
 
-## Steps
+### Steps
 1. Create a profile that the dedicated client will login as. Copy its profileID and set it aside.
    - If you are on Fika for SPT 3.9.x, the server will generate this profie for you as long as you set the `dedicated > profiles > amount` option to some value greater than 0 in the server config.
    - You can find the profiles in the server `user/profiles` directory. The profileID is the filename of the profile, excluding the `.json` extension
@@ -60,7 +60,7 @@ docker run --name fika_dedicated \
   ghcr.io/zhliau/fika-headless-docker:master
 ```
 
-# docker-compose
+### docker-compose
 Or better yet use a docker-compose file
 ```yaml
 services:
@@ -94,7 +94,7 @@ services:
     # ...
 ```
 
-### Corter-Modsync support
+## Corter-Modsync support
 This image supports the unique plugin updater process that [Corter-ModSync](https://github.com/c-orter/modsync/) employs to update client plugins.
 To enable support:
 - Copy the `Fika.Dedicated.dll` plugin file into the **server's BepInEx directory** (the directory that modsync treats as the source of truth).
@@ -160,10 +160,10 @@ fika_dedi  | Fallback handler could not load library Z:/opt/tarkov/EscapeFromTar
 - Double check your server is reachable at whatever you set `SERVER_URL` to. If the client can't reach the backend, it tends to hang here.
 
 # Development
-## Building
+### Building
 Run the `build` script. The image is tagged `fika-dedicated:0.1`
 
-## Using an Nvidia GPU in the container
+### Using an Nvidia GPU in the container
 If you want to pass in your host Nvidia GPU, make sure you have the following:
 - set the env var `USE_DGPU=true` in the container
 - set the env var `USE_GRAPHICS=true` to disable headless mode
