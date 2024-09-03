@@ -4,17 +4,23 @@
 :star: NEW: With :arrows_counterclockwise: [Corter-ModSync support](#corter-modsync-support) :arrows_counterclockwise:!
 
 - [Releases](#releases)
-- [Building](#building)
 - [Running](#running)
-  * [Requirements](#requirements)
-    + [Corter-Modsync support](#corter-modsync-support)
-  * [Steps](#steps)
-- [docker-compose](#docker-compose)
+    + [Requirements](#requirements)
+    + [Steps](#steps)
+    + [docker-compose](#docker-compose)
+  * [Corter-Modsync support](#corter-modsync-support)
 - [Environment variables](#environment-variables)
   * [Required](#required)
   * [Optional](#optional)
   * [Debug](#debug)
 - [Troubleshooting](#troubleshooting)
+    + [Container immediately exits](#container-immediately-exits)
+    + [Stuck right after BepInEx preloader finished](#stuck-right-after-bepinex-preloader-finished)
+- [Development](#development)
+    + [Building](#building)
+    + [Using an Nvidia GPU in the container](#using-an-nvidia-gpu-in-the-container)
+
+<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
 # Releases
 The image build is triggered off commits to master and hosted on ghcr.
@@ -138,8 +144,8 @@ The start script will then:
 | `XVFB_DEBUG`        | If set to `true`, enables debug output for xvfb (the virtual framebuffer)                                                                                                                                             |
 
 # Troubleshooting
-### Container immediately exits, crashing with stacktrace in container, permissions errors, wine unable to find EscapeFromTarkov.exe, or wine throwing a page fault on read access to 0000000000000000 exception?
-
+### Container immediately exits
+Crashing with stacktrace in container, permissions errors, wine unable to find EscapeFromTarkov.exe, or wine throwing a page fault on read access to 0000000000000000 exception?
 - If you are using Corter-ModSync to keep plugin files up to date, make sure you set the `USE_MODSYNC` env var to `true` or the plugin updater will not be able to run properly and the container will keep exiting!
 - If you are using Amands.Graphics, remove it from the dedicated client's plugins. Sometimes, it causes an NPE on ending a raid and stops the client from returning to the main menu, preventing any new raids from starting.
 - Double check that you have the `Fika.Dedicated.dll` file in the client's `BepInEx/plugins` folder! The game will crash in the container if you don't have this plugin.
