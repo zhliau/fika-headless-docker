@@ -29,7 +29,7 @@ if [ "$DISABLE_NODYNAMICAI" == "true" ]; then
     NODYNAMICAI=""
 fi
 
-if [ "$USE_MODSYNC" = "true" ]; then
+if [ "$USE_MODSYNC" == "true" ]; then
     echo "Running Xvfb in background for modsync"
     XVFB_RUN=""
 fi
