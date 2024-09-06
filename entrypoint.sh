@@ -6,6 +6,7 @@ NOGRAPHICS="-nographics"
 BATCHMODE="-batchmode"
 NODYNAMICAI="-noDynamicAI"
 
+XLOCKFILE=/tmp/.X0-lock
 # Overriden if you use DGPU
 export DISPLAY=:0.0
 
@@ -52,7 +53,7 @@ if [ ! -f $EFT_BINARY ]; then
 fi
 
 run_xvfb() {
-    /usr/bin/Xvfb :0 -screen 0 1024x768x16 >/dev/null 2>&1 &
+    /usr/bin/Xvfb :0 -screen 0 1024x768x16 2>&1 &
 }
 
 run_client() {
@@ -65,10 +66,15 @@ run_client() {
 
 if [ "$USE_MODSYNC" == "true" ]; then
     while true; do
-        pgrep Xvfb && echo "Cleaning up old xvfb processes" && pkill Xvfb
         # Anticipate the client exiting due to modsync, and restart it after modsync external updater has done its thing
         # I don't know why, but it seems on second run of the client it always fails to create a batchmode window,
         # so we have to restart xvfb after each run
+        if pgrep -x "Xvfb" > /dev/null; then
+            echo "Cleaning up old xvfb processes"
+            pkill Xvfb
+        fi
+        if [ -f "$XLOCKFILE" ]; then rm -f $XLOCKFILE; fi
+
         echo "Starting Xvfb in background"
         run_xvfb
         XVFB_PID=$!
