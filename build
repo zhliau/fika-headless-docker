@@ -1,5 +1,5 @@
 #!/bin/bash
 
-VERSION=0.1
+version_tag=${VERSION:-latest}
 
-docker build . -t fika-dedicated:$VERSION
+docker build . -t fika-dedicated:$version_tag

@@ -88,7 +88,7 @@ services:
   fika:
     image: fikadockerimagehere:latest
   fika_dedicated:
-    image: fika-dedicated:0.1
+    image: ghcr.io/zhliau/fika-headless-docker:master
     # ...
     environment:
       # ...
@@ -138,7 +138,7 @@ The start script will then:
 | Env var             | Description                                                                                                                                                                                         |
 | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `USE_GRAPHICS`      | If set to `true`, disables the `-nographics` parameter when starting the dedicated client. This will significantly increase resource usage.                                                                           |
-| `DISABLE_BATCHMODE` | If set to `true`, disable the `-batchmode` parameter when starting the client. This will significantly increase resource usage, but may be a workaround for the strange AI aiming behavior seen on dedicated clients. |
+| `DISABLE_BATCHMODE` | If set to `true`, disable the `-batchmode` parameter when starting the client. This will significantly increase resource usage.                                                                                       |
 | `XVFB_DEBUG`        | If set to `true`, enables debug output for xvfb (the virtual framebuffer)                                                                                                                                             |
 
 # Troubleshooting
@@ -165,7 +165,10 @@ fika_dedi  | Fallback handler could not load library Z:/opt/tarkov/EscapeFromTar
 
 # Development
 ### Building
-Run the `build` script. The image is tagged `fika-dedicated:0.1`
+Run the `build` script, optionally setting a `VERSION` env var to tag the image. The image is tagged `fika-dedicated:latest`, or whatever version is provided in the env var.
+```
+$ VERSION=0.1 ./build
+```
 
 ### Using an Nvidia GPU in the container
 If you want to pass in your host Nvidia GPU, make sure you have the following:
@@ -179,7 +182,7 @@ services:
   fika:
     image: fikadockerimagehere:latest
   fika_dedicated:
-    image: fika-dedicated:0.1
+    image: fika-dedicated:latest
     container_name: fika_ded
     volumes:
       - /host/path/to/fika:/opt/tarkov
