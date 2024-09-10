@@ -110,21 +110,13 @@ RUN curl -SL 'https://raw.githubusercontent.com/Winetricks/winetricks/master/src
 RUN locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8
 
-
-ENV PASSWD=asdfasdf
-# Add user to run the client
-# user 1000 on host maps to ubuntu in container (also UID 1000)
-RUN echo "ubuntu ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers \
-    && echo "ubuntu:${PASSWD}" | chpasswd
-
-USER ubuntu
-ENV HOME /home/ubuntu
-ENV WINEPREFIX /home/ubuntu/.wine
+ENV HOME /
+ENV WINEPREFIX /.wine
 
 # winetricks dotnet48 doesn't install on win64
 ENV WINEARCH win64
 
-WORKDIR /home/ubuntu
+WORKDIR /
 
 # Install wineprefix deps
 # Have to run these separately for some reason or else they fail
@@ -142,8 +134,8 @@ ENV TERM=xterm
 
 # Copy over all modified reg files to prefix in container
 # Wineprefix set overrides winhttp n,b for bepinex
-COPY ./data/reg/user.reg /home/ubuntu/.wine/
-COPY ./data/reg/system.reg /home/ubuntu/.wine/
+COPY ./data/reg/user.reg /.wine/
+COPY ./data/reg/system.reg /.wine/
 
 # Copy nvidia init script
 COPY ./scripts/install_nvidia_deps.sh /opt/scripts/
