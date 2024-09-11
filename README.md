@@ -148,8 +148,7 @@ Crashing with stacktrace in container, permissions errors, wine unable to find E
 - If you are using Amands.Graphics, remove it from the dedicated client's plugins. Sometimes, it causes an NPE on ending a raid and stops the client from returning to the main menu, preventing any new raids from starting.
 - Double check that you have the `Fika.Dedicated.dll` file in the client's `BepInEx/plugins` folder! The game will crash in the container if you don't have this plugin.
 - Check your docker logs output. Maybe you haven't mounted your FIKA client directory properly? Verify the contents of the Fika Client directory to make sure all expected files are there. You must mount a working copy of the Fika client to `/opt/tarkov`.
-- Double check that your file permissions for the Fika client directory and its contents are correct. The container runs as the user `ubuntu` with uid:gid as 1000:1000, so as long as the files you mount from the host are owned by the **host** user with that uid/gid,
-  they can be read by the container.
+- Double check that your file permissions for the Fika client directory and its contents are correct. The container runs as the user `root`, so it should be able to read any mounted files as long as you don't have anything unusual with your file permissions.
 - If you have SELinux enabled on the host, the container may not be able to read the mounted directories unless you provide the :z option to re-label the mount with the correct SELinux context.
   Be VERY careful with this option! I will not be responsible for anything that happens if you choose to do this.
 - Make sure your Fika client files have the winhttp.dll in the root folder. This is required for any plugins (even SPT) to run.
