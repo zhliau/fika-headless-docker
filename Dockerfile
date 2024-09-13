@@ -44,6 +44,7 @@ RUN apt-get update \
     libvulkan-dev \
     vulkan-tools \
     sudo \
+    iproute2 \
 
     # Nvidia driver install deps
     kmod \
@@ -53,40 +54,30 @@ RUN apt-get update \
     dbus-x11 \
 
     # OpenGL libraries
-    libxau6 \
-    libxdmcp6 \
-    libxcb1 \
-    libxext6 \
-    libx11-6 \
-    libxv1 \
-    libxtst6 \
-    libdrm2 \
-    libegl1 \
-    libgl1 \
-    libopengl0 \
-    libgles1 \
-    libgles2 \
-    libglvnd0 \
-    libglx0 \
-    libglu1 \
-    libsm6 \
+    #libxau6 \
+    #libxdmcp6 \
+    #libxcb1 \
+    #libxext6 \
+    #libx11-6 \
+    #libxv1 \
+    #libxtst6 \
+    #libdrm2 \
+    #libegl1 \
+    #libgl1 \
+    #libopengl0 \
+    #libgles1 \
+    #libgles2 \
+    #libglvnd0 \
+    #libglx0 \
+    #libglu1 \
+    #libsm6 \
 
-    x11-apps \
+    #x11-apps \
     x11-utils \
     x11-xserver-utils \
     xserver-xorg-video-all \
     xcvt \
     xvfb
-
-# Install VirtualGL
-#RUN wget -q -O- https://packagecloud.io/dcommander/virtualgl/gpgkey | \
-#  gpg --dearmor >/etc/apt/trusted.gpg.d/VirtualGL.gpg
-#RUN wget -nv https://raw.githubusercontent.com/VirtualGL/repo/main/VirtualGL.list -O /etc/apt/sources.list.d/VirtualGL.list
-#RUN apt update && apt install -y virtualgl
-
-# Install TurboVNC
-#RUN wget -nv https://github.com/TurboVNC/turbovnc/releases/download/3.1.1/turbovnc_3.1.1_amd64.deb -O /opt/turbovnc.deb
-#RUN apt install -y -f /opt/turbovnc.deb
 
 # Disable screen lock
 RUN echo "[Daemon]\n\
