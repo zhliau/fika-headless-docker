@@ -59,7 +59,7 @@ E.g
 docker run --name fika_dedicated \
   -v /path/to/fika:/opt/tarkov \
   -e PROFILE_ID=blah \
-  -e SERVER_URL=localhost \
+  -e SERVER_URL=your.spt.server.ip \
   -e SERVER_PORT=6969 \
   -p 25565:25565/udp \
   ghcr.io/zhliau/fika-headless-docker:master
@@ -76,7 +76,7 @@ services:
       - /host/path/to/fika:/opt/tarkov
     environment:
       - PROFILE_ID=adadadadadadaadadadad
-      - SERVER_URL=your.spt.backend.ip
+      - SERVER_URL=your.spt.server.ip
       - SERVER_PORT=6969
       - USE_MODSYNC=true # If you want to use modsync on this dedicated client
     ports:
