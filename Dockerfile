@@ -77,6 +77,14 @@ ENV PROFILE_ID=test
 ENV SERVER_URL=127.0.0.1
 ENV SERVER_PORT=6969
 
+# Nvidia container toolkit stuff, for nvidia-xconfig
+ENV DISPLAY_SIZEW=1024
+ENV DISPLAY_SIZEH=768
+ENV DISPLAY_REFRESH=60
+ENV DISPLAY_DPI=96
+ENV DISPLAY_CDEPTH=24
+ENV VIDEO_PORT=DFP
+
 # Force TERM to xterm because sometimes it gets set to "dumb" for some reason ???
 ENV TERM=xterm
 
@@ -87,6 +95,10 @@ COPY ./data/reg/system.reg /.wine/
 
 # Copy nvidia init script
 COPY ./scripts/install_nvidia_deps.sh /opt/scripts/
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+    xcvt xserver-xorg-core
 
 COPY entrypoint.sh /usr/bin/entrypoint
 ENTRYPOINT ["/usr/bin/entrypoint"]

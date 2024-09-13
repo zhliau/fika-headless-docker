@@ -71,6 +71,7 @@ else
         export GPU_SELECT="$(nvidia-smi --query-gpu=uuid --format=csv,noheader | head -n1)"
     fi
 fi
+echo "selected GPU $GPU_SELECT"
 
 if [ -z "$GPU_SELECT" ]; then
     echo "No NVIDIA GPUs detected or nvidia-container-toolkit not configured. Exiting."
@@ -89,6 +90,7 @@ fi
 HEX_ID="$(nvidia-smi --query-gpu=pci.bus_id --id="$GPU_SELECT" --format=csv,noheader | head -n1)"
 IFS=":." ARR_ID=($HEX_ID)
 unset IFS
+echo "hex id $HEX_ID, arr_id $ARR_ID"
 BUS_ID="PCI:$((16#${ARR_ID[1]}))@$((16#${ARR_ID[0]})):$((16#${ARR_ID[2]})):$((16#${ARR_ID[3]}))"
 
 # A custom modeline should be generated because there is no monitor to fetch this information normally
