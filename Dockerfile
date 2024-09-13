@@ -1,17 +1,5 @@
-# Dedicated client docker
-# Host must have nvidia-container-toolkit if using Nvidia DGPU
-# 
-# Mount Fika client at /opt/tarkov
-# Make sure Fika.Core and Fika.dedicated are in plugins folder
-# Mount live files to /opt/live
-# 
-# TODO
-# - Port forwards? Do we need to set a new port for this dedicated client?
-# - modify fika core config as part of dockerfile?
+FROM debian:bookworm
 
-FROM ubuntu:24.04
-
-# ENV WINE_MONO_VERSION 9.2.0
 USER root
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -45,50 +33,21 @@ RUN apt-get update \
     vulkan-tools \
     sudo \
     iproute2 \
-
+    procps \
     # Nvidia driver install deps
     kmod \
     libc6-dev \
     libpci3 \
     libelf-dev \
     dbus-x11 \
-
-    # OpenGL libraries
-    #libxau6 \
-    #libxdmcp6 \
-    #libxcb1 \
-    #libxext6 \
-    #libx11-6 \
-    #libxv1 \
-    #libxtst6 \
-    #libdrm2 \
-    #libegl1 \
-    #libgl1 \
-    #libopengl0 \
-    #libgles1 \
-    #libgles2 \
-    #libglvnd0 \
-    #libglx0 \
-    #libglu1 \
-    #libsm6 \
-
-    #x11-apps \
-    x11-utils \
-    x11-xserver-utils \
-    xserver-xorg-video-all \
-    xcvt \
+    xauth \
     xvfb
-
-# Disable screen lock
-RUN echo "[Daemon]\n\
-    Autolock=false\n\
-    LockOnResume=false" > /etc/xdg/kscreenlockerrc
 
 ARG WINE_BRANCH="devel"
 
 # Add wine repos and install stable wine
 RUN wget -nv -O- https://dl.winehq.org/wine-builds/winehq.key | APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1 apt-key add - \
-    && echo "deb https://dl.winehq.org/wine-builds/ubuntu/ $(grep VERSION_CODENAME= /etc/os-release | cut -d= -f2) main" >> /etc/apt/sources.list \
+    && echo "deb https://dl.winehq.org/wine-builds/debian/ $(grep VERSION_CODENAME= /etc/os-release | cut -d= -f2) main" >> /etc/apt/sources.list \
     && dpkg --add-architecture i386 \
     && apt-get update \
     && DEBIAN_FRONTEND="noninteractive" apt-get install -y --install-recommends winehq-${WINE_BRANCH} \
@@ -117,8 +76,6 @@ RUN xvfb-run -a winetricks -q vcrun2019 dotnetdesktop8
 ENV PROFILE_ID=test
 ENV SERVER_URL=127.0.0.1
 ENV SERVER_PORT=6969
-
-ENV XDG_RUNTIME_DIR=/tmp/runtime-ubuntu
 
 # Force TERM to xterm because sometimes it gets set to "dumb" for some reason ???
 ENV TERM=xterm

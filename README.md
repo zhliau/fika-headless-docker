@@ -34,6 +34,7 @@ Probably will not work on ARM hosts either.
 Tested with both SPT 3.8.3 and SPT 3.9.x and the associated Fika versions. 
 
 ### Requirements
+- An SPT backend server running somewhere reachable by your docker host. Best if running on the same host.
 - A host with a CPU capable of running EFT+SPT. This will be a disaster running on something like a Pi since the dedicated client is a full fledged client that will run all of the AI and raid logic.
 - A directory on your host containing a **working copy of the FIKA SPT Client**.
   - This is the folder including the `BepInEx` folder with all your plugins, and the `EscapeFromTarkov.exe` binary. You can copy your working install from wherever you normally run your Fika client.
@@ -54,7 +55,7 @@ Tested with both SPT 3.8.3 and SPT 3.9.x and the associated Fika versions.
     - `USE_MODSYNC` env var set to `true` if you wish to use the excellent [Corter-ModSync](https://github.com/c-orter/modsync/) plugin on your dedicated client.
 
 E.g
-```Shell
+```shell
 docker run --name fika_dedicated \
   -v /path/to/fika:/opt/tarkov \
   -e PROFILE_ID=blah \
@@ -75,7 +76,7 @@ services:
       - /host/path/to/fika:/opt/tarkov
     environment:
       - PROFILE_ID=adadadadadadaadadadad
-      - SERVER_URL=localhost
+      - SERVER_URL=your.spt.backend.ip
       - SERVER_PORT=6969
       - USE_MODSYNC=true # If you want to use modsync on this dedicated client
     ports:
