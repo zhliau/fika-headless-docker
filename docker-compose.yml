@@ -12,9 +12,6 @@ services:
       - /host/path/to/serverfiles:/opt/server
     ports:
       - 6969:6969
-      - 6970:6970
-      - 6971:6971
-      - 6972:6972
     restart: unless-stopped
  
   # Dedicated client container
@@ -22,24 +19,13 @@ services:
     image: ghcr.io/zhliau/fika-headless-docker:master
     container_name: fika_dedi
     volumes:
-      # If you have SELinux enabled on the host you want the :z option to re-label the mount with the correct SELinux context
-      # or else the container can't read these mounted directories. Be VERY careful with this option!
+      # Set this to the path on the host to the FIKA client files
       - /host/path/to/fika:/opt/tarkov
     environment:
       - PROFILE_ID=adadadadadadaadadadad
       # Use service name from above, docker-compose resolves this to the SPT server container
       - SERVER_URL=spt_server
       - SERVER_PORT=6969
-      # Debug section. See the README under the Debug section
-      #
-      # Disable the -nographics parameter.
-      #- USE_GRAPHICS=true
-      #
-      # Disable the -batchmode parameter.
-      #- DISABLE_BATCHMODE=true
-      #
-      # Disable the -noDynamicAI parameter
-      #- DISABLE_NODYNAMICAI=true
     ports:
       - 25565:25565/udp
 

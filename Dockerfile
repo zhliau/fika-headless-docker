@@ -1,17 +1,5 @@
-# Dedicated client docker
-# Host must have nvidia-container-toolkit if using Nvidia DGPU
-# 
-# Mount Fika client at /opt/tarkov
-# Make sure Fika.Core and Fika.dedicated are in plugins folder
-# Mount live files to /opt/live
-# 
-# TODO
-# - Port forwards? Do we need to set a new port for this dedicated client?
-# - modify fika core config as part of dockerfile?
+FROM debian:bookworm
 
-FROM ubuntu:24.04
-
-# ENV WINE_MONO_VERSION 9.2.0
 USER root
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -44,60 +32,23 @@ RUN apt-get update \
     libvulkan-dev \
     vulkan-tools \
     sudo \
-
-    # Nvidia driver install deps
+    iproute2 \
+    procps \
     kmod \
     libc6-dev \
     libpci3 \
     libelf-dev \
     dbus-x11 \
-
-    # OpenGL libraries
-    libxau6 \
-    libxdmcp6 \
-    libxcb1 \
-    libxext6 \
-    libx11-6 \
-    libxv1 \
-    libxtst6 \
-    libdrm2 \
-    libegl1 \
-    libgl1 \
-    libopengl0 \
-    libgles1 \
-    libgles2 \
-    libglvnd0 \
-    libglx0 \
-    libglu1 \
-    libsm6 \
-
-    x11-apps \
-    x11-utils \
-    x11-xserver-utils \
-    xserver-xorg-video-all \
+    xauth \
     xcvt \
+    xserver-xorg-core \
     xvfb
-
-# Install VirtualGL
-#RUN wget -q -O- https://packagecloud.io/dcommander/virtualgl/gpgkey | \
-#  gpg --dearmor >/etc/apt/trusted.gpg.d/VirtualGL.gpg
-#RUN wget -nv https://raw.githubusercontent.com/VirtualGL/repo/main/VirtualGL.list -O /etc/apt/sources.list.d/VirtualGL.list
-#RUN apt update && apt install -y virtualgl
-
-# Install TurboVNC
-#RUN wget -nv https://github.com/TurboVNC/turbovnc/releases/download/3.1.1/turbovnc_3.1.1_amd64.deb -O /opt/turbovnc.deb
-#RUN apt install -y -f /opt/turbovnc.deb
-
-# Disable screen lock
-RUN echo "[Daemon]\n\
-    Autolock=false\n\
-    LockOnResume=false" > /etc/xdg/kscreenlockerrc
 
 ARG WINE_BRANCH="devel"
 
 # Add wine repos and install stable wine
 RUN wget -nv -O- https://dl.winehq.org/wine-builds/winehq.key | APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1 apt-key add - \
-    && echo "deb https://dl.winehq.org/wine-builds/ubuntu/ $(grep VERSION_CODENAME= /etc/os-release | cut -d= -f2) main" >> /etc/apt/sources.list \
+    && echo "deb https://dl.winehq.org/wine-builds/debian/ $(grep VERSION_CODENAME= /etc/os-release | cut -d= -f2) main" >> /etc/apt/sources.list \
     && dpkg --add-architecture i386 \
     && apt-get update \
     && DEBIAN_FRONTEND="noninteractive" apt-get install -y --install-recommends winehq-${WINE_BRANCH} \
@@ -127,7 +78,13 @@ ENV PROFILE_ID=test
 ENV SERVER_URL=127.0.0.1
 ENV SERVER_PORT=6969
 
-ENV XDG_RUNTIME_DIR=/tmp/runtime-ubuntu
+# Nvidia container toolkit stuff, for nvidia-xconfig
+ENV DISPLAY_SIZEW=1024
+ENV DISPLAY_SIZEH=768
+ENV DISPLAY_REFRESH=60
+ENV DISPLAY_DPI=96
+ENV DISPLAY_CDEPTH=24
+ENV VIDEO_PORT=DFP
 
 # Force TERM to xterm because sometimes it gets set to "dumb" for some reason ???
 ENV TERM=xterm
