@@ -34,13 +34,14 @@ RUN apt-get update \
     sudo \
     iproute2 \
     procps \
-    # Nvidia driver install deps
     kmod \
     libc6-dev \
     libpci3 \
     libelf-dev \
     dbus-x11 \
     xauth \
+    xcvt \
+    xserver-xorg-core \
     xvfb
 
 ARG WINE_BRANCH="devel"
@@ -95,10 +96,6 @@ COPY ./data/reg/system.reg /.wine/
 
 # Copy nvidia init script
 COPY ./scripts/install_nvidia_deps.sh /opt/scripts/
-
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-    xcvt xserver-xorg-core
 
 COPY entrypoint.sh /usr/bin/entrypoint
 ENTRYPOINT ["/usr/bin/entrypoint"]
