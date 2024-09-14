@@ -183,7 +183,7 @@ services:
   fika:
     image: fikadockerimagehere:latest
   fika_dedicated:
-    image: fika-dedicated:master
+    image: ghcr.io/zhliau/fika-headless-docker:master
     container_name: fika_ded
     volumes:
       - /host/path/to/fika:/opt/tarkov
