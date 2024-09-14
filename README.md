@@ -165,8 +165,9 @@ fika_dedi  | Fallback handler could not load library Z:/opt/tarkov/EscapeFromTar
 
 # Development
 ### Building
-Run the `build` script, optionally setting a `VERSION` env var to tag the image. The image is tagged `fika-dedicated:master`, or whatever version is provided in the env var.
+Run the `build` script, optionally setting a `VERSION` env var to tag the image. The image is tagged `fika-dedicated:latest`, or whatever version is provided in the env var.
 ```
+# image tagged as fika-dedicated:0.1
 $ VERSION=0.1 ./build
 ```
 
