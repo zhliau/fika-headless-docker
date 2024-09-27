@@ -21,9 +21,9 @@
     + [Using an Nvidia GPU in the container](#using-an-nvidia-gpu-in-the-container)
 
 # Releases
-The image build is triggered off commits to master and hosted on ghcr.
+The image build is triggered off git tags and hosted on ghcr. `latest` will always point to the latest version.
 ```
-docker pull ghcr.io/zhliau/fika-headless-docker:master
+docker pull ghcr.io/zhliau/fika-headless-docker:latest
 ```
 
 # Running
@@ -62,7 +62,7 @@ docker run --name fika_dedicated \
   -e SERVER_URL=your.spt.server.ip \
   -e SERVER_PORT=6969 \
   -p 25565:25565/udp \
-  ghcr.io/zhliau/fika-headless-docker:master
+  ghcr.io/zhliau/fika-headless-docker:latest
 ```
 
 ### docker-compose
@@ -70,7 +70,7 @@ Or better yet use a docker-compose file
 ```yaml
 services:
   fika_dedicated:
-    image: ghcr.io/zhliau/fika-headless-docker:master
+    image: ghcr.io/zhliau/fika-headless-docker:latest
     container_name: fika_dedi
     volumes:
       - /host/path/to/fika:/opt/tarkov
@@ -89,7 +89,7 @@ services:
   fika:
     image: fikadockerimagehere:latest
   fika_dedicated:
-    image: ghcr.io/zhliau/fika-headless-docker:master
+    image: ghcr.io/zhliau/fika-headless-docker:latest
     # ...
     environment:
       # ...
@@ -183,7 +183,7 @@ services:
   fika:
     image: fikadockerimagehere:latest
   fika_dedicated:
-    image: ghcr.io/zhliau/fika-headless-docker:master
+    image: ghcr.io/zhliau/fika-headless-docker:latest
     container_name: fika_ded
     volumes:
       - /host/path/to/fika:/opt/tarkov
