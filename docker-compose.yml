@@ -4,8 +4,9 @@
 services:
   # SPT Server container
   spt_server:
-    # Replace with an SPT docker image of your choice
-    image: spt_docker_image:latest
+    # See https://github.com/zhliau/fika-spt-server-docker
+    # This is my own SPT server image, but you can choose to use any other working SPT docker image
+    image: ghcr.io/zhliau/fika-spt-server-docker:latest
     container_name: spt_server
     volumes:
       # I like to mount my server files from the host into the container so I can easily add/change mods

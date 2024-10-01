@@ -35,6 +35,7 @@ Tested with both SPT 3.8.3 and SPT 3.9.x and the associated Fika versions.
 
 ### Requirements
 - An SPT backend server running somewhere reachable by your docker host. Best if running on the same host.
+  - You can use my other docker image for running SPT server + Fika: [fika-spt-server-docker](https://github.com/zhliau/fika-spt-server-docker)
 - A host with a CPU capable of running EFT+SPT. This will be a disaster running on something like a Pi since the dedicated client is a full fledged client that will run all of the AI and raid logic.
 - A directory on your host containing a **working copy of the FIKA SPT Client**.
   - This is the folder including the `BepInEx` folder with all your plugins, and the `EscapeFromTarkov.exe` binary. You can copy your working install from wherever you normally run your Fika client.
@@ -87,7 +88,9 @@ If you are running the SPT server in docker, you can make use of docker-compose'
 ```yaml
 services:
   fika:
-    image: fikadockerimagehere:latest
+    # See https://github.com/zhliau/fika-spt-server-docker
+    image: ghcr.io/zhliau/fika-spt-server-docker:latest
+    # ...
   fika_dedicated:
     image: ghcr.io/zhliau/fika-headless-docker:latest
     # ...
@@ -181,7 +184,9 @@ If you want to pass in your host Nvidia GPU, make sure you have the following:
 ```yaml
 services:
   fika:
-    image: fikadockerimagehere:latest
+    # My own SPT image but you can use any other
+    image: ghcr.io/zhliau/fika-spt-server-docker:latest
+    # ...
   fika_dedicated:
     image: ghcr.io/zhliau/fika-headless-docker:latest
     container_name: fika_ded
