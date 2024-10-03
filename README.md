@@ -165,6 +165,8 @@ fika_dedi  |
 fika_dedi  | Fallback handler could not load library Z:/opt/tarkov/EscapeFromTarkov_Data/Mono/data-00007D86E24EA790.dll
 ```
 - Double check your server is reachable at whatever you set `SERVER_URL` to. If the client can't reach the backend, it tends to hang here.
+- If you are using ProxMox to spin up a VM to run this image, make sure nested virtualization is enabled.
+- Make sure you have both Fika.Core.dll and Fika.Dedicated.dll in the dedicated client's `BepInEx/plugins` folder! You need both for the dedicated client!
 
 # Development
 ### Building
