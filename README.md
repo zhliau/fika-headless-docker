@@ -47,13 +47,12 @@ Tested with both SPT 3.8.3 and SPT 3.9.x and the associated Fika versions.
    - You can find the profiles in the server `user/profiles` directory. The profileID is the filename of the profile, excluding the `.json` extension
 2. Make sure your `Force Bind IP` and `Force IP` values in the `BepInEx/config/com.fika.core.cfg` config file on the dedicated client are set correctly.
    I found it sufficient to set `Force Bind IP` to `Disabled`, and to set `Force IP` to the IP of my host interface. If you are running a VPN, this is your VPN IP.
-3. Ensure you have the `Fika.Dedicated.dll` plugin file in the dedicated client's plugins folder `BepInEx/plugins`.
+3. Ensure you have the `Fika.Core.dll` and `Fika.Dedicated.dll` plugin files in the dedicated client's plugins folder `BepInEx/plugins`.
 5. Run the docker image, making sure you have the following configured:
     - Fika Client directory mounted to `/opt/tarkov` in the container.
     - `PROFILE_ID` env var set to the profile you created in step 1
     - `SERVER_URL` env var set to your server URL
     - `SERVER_PORT` env var set to your server's port
-    - `USE_MODSYNC` env var set to `true` if you wish to use the excellent [Corter-ModSync](https://github.com/c-orter/modsync/) plugin on your dedicated client.
 
 E.g
 ```shell
@@ -90,7 +89,10 @@ services:
   fika:
     # See https://github.com/zhliau/fika-spt-server-docker
     image: ghcr.io/zhliau/fika-spt-server-docker:latest
-    # ...
+    volumes:
+      - /host/path/to/serverfiles:/opt/server
+    ports:
+      - 6969:6969
   fika_dedicated:
     image: ghcr.io/zhliau/fika-headless-docker:latest
     # ...
@@ -149,8 +151,8 @@ The start script will then:
 ### Container immediately exits
 Crashing with stacktrace in container, permissions errors, wine unable to find EscapeFromTarkov.exe, or wine throwing a page fault on read access to 0000000000000000 exception?
 - If you are using Corter-ModSync to keep plugin files up to date, make sure you set the `USE_MODSYNC` env var to `true` or the plugin updater will not be able to run properly and the container will keep exiting!
-- If you are using Amands.Graphics, remove it from the dedicated client's plugins. Sometimes, it causes an NPE on ending a raid and stops the client from returning to the main menu, preventing any new raids from starting.
-- Double check that you have the `Fika.Dedicated.dll` file in the client's `BepInEx/plugins` folder! The game will crash in the container if you don't have this plugin.
+- Make sure you do not have an invalid plugin in the Dedicated client's plugins folder. You can see the list of invalid plugins [here](https://github.com/project-fika/Fika-Dedicated/blob/fa420874753e6d0adf3e31f8404fa855855cd339/Fika.Dedicated/FikaDedicatedPlugin.cs#L179)
+- Double check that you have both the `Fika.Core.dll` and `Fika.Dedicated.dll` plugins in the client's `BepInEx/plugins` folder! The game will crash in the container if you don't have both plugins!
 - Check your docker logs output. Maybe you haven't mounted your FIKA client directory properly? Verify the contents of the Fika Client directory to make sure all expected files are there. You must mount a working copy of the Fika client to `/opt/tarkov`.
 - Double check that your file permissions for the Fika client directory and its contents are correct. The container runs as the user `root`, so it should be able to read any mounted files as long as you don't have anything unusual with your file permissions.
 - If you have SELinux enabled on the host, the container may not be able to read the mounted directories unless you provide the :z option to re-label the mount with the correct SELinux context.
@@ -166,7 +168,8 @@ fika_dedi  | Fallback handler could not load library Z:/opt/tarkov/EscapeFromTar
 ```
 - Double check your server is reachable at whatever you set `SERVER_URL` to. If the client can't reach the backend, it tends to hang here.
 - If you are using ProxMox to spin up a VM to run this image, make sure nested virtualization is enabled.
-- Make sure you have both Fika.Core.dll and Fika.Dedicated.dll in the dedicated client's `BepInEx/plugins` folder! You need both for the dedicated client!
+- Double check that you have both the `Fika.Core.dll` and `Fika.Dedicated.dll` plugins in the client's `BepInEx/plugins` folder! The game will crash in the container if you don't have both plugins!
+- Ensure your server contains a profile json file with filename matching the `PROFILE_ID` you provided to the container
 
 # Development
 ### Building
