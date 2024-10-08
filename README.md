@@ -16,6 +16,7 @@
 - [Troubleshooting](#troubleshooting)
     + [Container immediately exits](#container-immediately-exits)
     + [Stuck right after BepInEx preloader finished](#stuck-right-after-bepinex-preloader-finished)
+    + [Crash with assertion in virtual.c](#crash-with-assertion-in-virtualc)
 - [Development](#development)
     + [Building](#building)
     + [Using an Nvidia GPU in the container](#using-an-nvidia-gpu-in-the-container)
@@ -170,6 +171,20 @@ fika_dedi  | Fallback handler could not load library Z:/opt/tarkov/EscapeFromTar
 - If you are using ProxMox to spin up a VM to run this image, make sure nested virtualization is enabled.
 - Double check that you have both the `Fika.Core.dll` and `Fika.Dedicated.dll` plugins in the client's `BepInEx/plugins` folder! The game will crash in the container if you don't have both plugins!
 - Ensure your server contains a profile json file with filename matching the `PROFILE_ID` you provided to the container
+
+### Crash with assertion in virtual.c
+```
+../src-wine/dlls/ntdll/unix/virtual.c:1907: create_view: Assertion `!((UINT_PTR)base & page_mask)' failed.
+```
+If the dedicated client container crashes with this error, this usually means your max memory map count is too low.
+- Set the value higher and then try restarting the dedicated client
+  
+  `sudo sysctl -w vm.max_map_count=2147483642`
+  
+  Make this persist between reboots by creating a file `/etc/sysctl.d/80-vm-mmax.conf` with the following contents:
+  ```
+  vm.max_map_count = 2147483642
+  ```
 
 # Development
 ### Building
