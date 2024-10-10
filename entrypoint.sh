@@ -1,38 +1,38 @@
 #!/bin/bash -e
 
-EFT_BINARY=/opt/tarkov/EscapeFromTarkov.exe
-XVFB_RUN="xvfb-run -a"
-NOGRAPHICS="-nographics"
-BATCHMODE="-batchmode"
-NODYNAMICAI="-noDynamicAI"
+eft_binary=/opt/tarkov/EscapeFromTarkov.exe
+xvfb_run="xvfb-run -a"
+nographics="-nographics"
+batchmode="-batchmode"
+nodynamicai="-noDynamicAI"
 
-XLOCKFILE=/tmp/.X0-lock
+xlockfile=/tmp/.X0-lock
 # Overriden if you use DGPU
 export DISPLAY=:0.0
 
 if [ "$XVFB_DEBUG" == "true" ]; then
     echo "Xvfb debug is ON. This is only supported for Xvfb running in foreground"
-    XVFB_RUN="$XVFB_RUN -e /dev/stdout"
+    xvfb_run="$xvfb_run -e /dev/stdout"
 fi
 
 if [ "$USE_GRAPHICS" == "true" ]; then
     echo "Using graphics"
-    NOGRAPHICS=""
+    nographics=""
 fi
 
 if [ "$DISABLE_BATCHMODE" == "true" ]; then
     echo "Disabling batchmode"
-    BATCHMODE=""
+    batchmode=""
 fi
 
 if [ "$DISABLE_NODYNAMICAI" == "true" ]; then
     echo "Allowing dynamic AI"
-    NODYNAMICAI=""
+    nodynamicai=""
 fi
 
 if [ "$USE_MODSYNC" == "true" ]; then
     echo "Running Xvfb in background for modsync"
-    XVFB_RUN=""
+    xvfb_run=""
 fi
 
 if [ "$USE_DGPU" == "true" ]; then
@@ -44,11 +44,11 @@ if [ "$USE_DGPU" == "true" ]; then
 
     # Wait for X server to start
     echo 'Waiting for X Socket' && until [ -S "/tmp/.X11-unix/X${DISPLAY#*:}" ]; do sleep 0.5; done && echo 'X Server is ready'
-    unset XVFB_RUN
+    unset xvfb_run
 fi
 
-if [ ! -f $EFT_BINARY ]; then
-    echo "EFT Binary $EFT_BINARY not found! Please make sure you have mounted the Fika client directory to /opt/tarkov"
+if [ ! -f $eft_binary ]; then
+    echo "EFT Binary $eft_binary not found! Please make sure you have mounted the Fika client directory to /opt/tarkov"
     exit 1
 fi
 
@@ -62,8 +62,20 @@ run_client() {
         echo "Xvfb process not found. Restarting Xvfb."
         run_xvfb
     fi
-    WINEDEBUG=-all $XVFB_RUN $WINE $EFT_BINARY $BATCHMODE $NOGRAPHICS $NODYNAMICAI -token="$PROFILE_ID" -config="{'BackendUrl':'http://$SERVER_URL:$SERVER_PORT', 'Version':'live'}"
+    WINEDEBUG=-all $xvfb_run $WINE $eft_binary $batchmode $nographics $nodynamicai -token="$PROFILE_ID" -config="{'BackendUrl':'http://$SERVER_URL:$SERVER_PORT', 'Version':'live'}"
 }
+
+start_crond() {
+    echo "Starting crond"
+    /etc/init.d/cron reload
+    /etc/init.d/cron start
+}
+
+if [[ "$ENABLE_LOG_PURGE" == "true" ]]; then
+    echo "Enabling log purge"
+    cp /opt/cron/cron_purge_logs /etc/cron.d/
+    start_crond
+fi
 
 if [ "$USE_MODSYNC" == "true" ]; then
     while true; do
@@ -74,16 +86,16 @@ if [ "$USE_MODSYNC" == "true" ]; then
             echo "Cleaning up old xvfb processes"
             pkill Xvfb
         fi
-        if [ -f "$XLOCKFILE" ]; then rm -f $XLOCKFILE; fi
+        if [ -f "$xlockfile" ]; then rm -f $xlockfile; fi
 
         echo "Starting Xvfb in background"
         run_xvfb
-        XVFB_PID=$!
+        xvfb_pid=$!
 
-        echo "Starting client. Xvfb running PID is $XVFB_PID"
+        echo "Starting client. Xvfb running PID is $xvfb_pid"
         run_client
         echo "Dedi client closed with exit code $?. Restarting.." >&2
-        kill -9 $XVFB_PID
+        kill -9 $xvfb_pid
         sleep 5
     done
 else

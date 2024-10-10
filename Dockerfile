@@ -100,10 +100,14 @@ COPY ./scripts/install_nvidia_deps.sh /opt/scripts/
 # wine-ge
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
+    cron \
     xz-utils
 RUN mkdir /wine-ge && \
     curl -sL "https://github.com/GloriousEggroll/wine-ge-custom/releases/download/GE-Proton8-26/wine-lutris-GE-Proton8-26-x86_64.tar.xz" | tar xvJ -C /wine-ge
 ENV WINE=/wine-ge/lutris-GE-Proton8-26-x86_64/bin/wine
+
+COPY ./scripts/purge_logs.sh /usr/bin/purge_logs
+COPY ./data/cron/cron_purge_logs /opt/cron/cron_purge_logs
 
 COPY entrypoint.sh /usr/bin/entrypoint
 ENTRYPOINT ["/usr/bin/entrypoint"]
