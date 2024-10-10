@@ -134,11 +134,12 @@ The start script will then:
 
 ## Optional
 
-| Env var       | Description                                                                                                                                            |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `USE_DGPU`    | If set to `true`, enable passing a GPU resource into the container with `nvidia-container-toolkit`. Make sure you have the required dependencies installed for your host |
+| Env var                | Description                                                                                                                                            |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `USE_DGPU`             | If set to `true`, enable passing a GPU resource into the container with `nvidia-container-toolkit`. Make sure you have the required dependencies installed for your host |
 | `DISABLE_NODYNAMICAI`  | If set to `true`, removes the `-noDynamicAI` parameter when starting the client, allowing the use of Fika's dynamic AI feature. Can help with dedicated client performance if you notice server FPS dropping below 30 |
-| `USE_MODSYNC`  | If set to `true`, enables support for Corter-ModSync 0.8.1+ and the external updater. On container start, the dedicated client will close and start the updater the modsync plugin detects changes. On completion, the script will start the dedicated client up again |
+| `USE_MODSYNC`          | If set to `true`, enables support for Corter-ModSync 0.8.1+ and the external updater. On container start, the dedicated client will close and start the updater the modsync plugin detects changes. On completion, the script will start the dedicated client up again |
+| `ENABLE_LOG_PURGE`     | If set to `true`, automatically purge the EFT `Logs/` directory every 00:00 UTC, to clear out large logfiles due to logspam. |
 
 ## Debug
 
