@@ -58,6 +58,12 @@ run_xvfb() {
     /usr/bin/Xvfb :0 -screen 0 1024x768x16 2>&1 &
 }
 
+start_crond() {
+    echo "Starting crond"
+    /etc/init.d/cron reload
+    /etc/init.d/cron start
+}
+
 # Main client function. Should block until client has exited
 # Since we now run EFT client in background, end function
 # via watching for raid end (if autorestart is enabled)
@@ -79,17 +85,11 @@ run_client() {
         grep -q "Destroyed FikaServer" <(tail -F -n 0 $logfile) \
             && echo "Raid ended, restarting dedicated client" \
             && sleep 10 \
-            && exit 0
+            && kill -9 $eft_pid
     else
         echo "Waiting for EFT to exit"
         tail --pid=$eft_pid -f /dev/null
     fi
-}
-
-start_crond() {
-    echo "Starting crond"
-    /etc/init.d/cron reload
-    /etc/init.d/cron start
 }
 
 if [[ "$ENABLE_LOG_PURGE" == "true" ]]; then
@@ -98,9 +98,9 @@ if [[ "$ENABLE_LOG_PURGE" == "true" ]]; then
     start_crond
 fi
 
-if [ "$USE_MODSYNC" == "true" ]; then
+if [ "$USE_MODSYNC" == "true" || "$AUTO_RESTART_ON_RAID_END" == "true" ]; then
     while true; do
-        # Anticipate the client exiting due to modsync, and restart it after modsync external updater has done its thing
+        # Anticipate the client exiting due to modsync or raid end, and restart it
         # I don't know why, but it seems on second run of the client it always fails to create a batchmode window,
         # so we have to restart xvfb after each run
         if pgrep -x "Xvfb" > /dev/null; then
