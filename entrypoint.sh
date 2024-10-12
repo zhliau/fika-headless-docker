@@ -121,6 +121,6 @@ if [[ "$USE_MODSYNC" == "true" || "$AUTO_RESTART_ON_RAID_END" == "true" ]]; then
         sleep 5
     done
 else
-    run_xvfb
+    #run_xvfb
     run_client
 fi
