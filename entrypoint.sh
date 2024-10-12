@@ -1,6 +1,8 @@
 #!/bin/bash -e
 
-eft_binary=/opt/tarkov/EscapeFromTarkov.exe
+eft_dir=/opt/tarkov
+eft_binary=$eft_dir/EscapeFromTarkov.exe
+logfile=$eft_dir/BepInEx/LogOutput.log
 xvfb_run="xvfb-run -a"
 nographics="-nographics"
 batchmode="-batchmode"
@@ -56,13 +58,29 @@ run_xvfb() {
     /usr/bin/Xvfb :0 -screen 0 1024x768x16 2>&1 &
 }
 
+# Main client function. Should block until client has exited
+# Since we now run EFT client in background, end function
+# via watching for raid end (if autorestart is enabled)
+# or via watching the PID
 run_client() {
     echo "Using wine executable $WINE"
     if ! pgrep Xvfb; then
         echo "Xvfb process not found. Restarting Xvfb."
         run_xvfb
     fi
-    WINEDEBUG=-all $xvfb_run $WINE $eft_binary $batchmode $nographics $nodynamicai -token="$PROFILE_ID" -config="{'BackendUrl':'http://$SERVER_URL:$SERVER_PORT', 'Version':'live'}"
+    WINEDEBUG=-all $xvfb_run $WINE $eft_binary $batchmode $nographics $nodynamicai -token="$PROFILE_ID" -config="{'BackendUrl':'http://$SERVER_URL:$SERVER_PORT', 'Version':'live'}" &
+
+    eft_pid=$!
+    echo "EFT PID is $eft_pid"
+
+    # Blocking function
+    if [[ "$AUTO_RESTART_ON_RAID_END" == "true" ]]; then
+        echo "Starting logfile watch for auto-restart on raid end"
+        grep -q "Destroyed FikaServer" <(tail -F -n 0 $logfile) && exit 0
+    else
+        echo "Waiting for EFT to exit"
+        tail --pid=$eft_pid -f /dev/null
+    fi
 }
 
 start_crond() {
