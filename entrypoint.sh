@@ -76,7 +76,10 @@ run_client() {
     # Blocking function
     if [[ "$AUTO_RESTART_ON_RAID_END" == "true" ]]; then
         echo "Starting logfile watch for auto-restart on raid end"
-        grep -q "Destroyed FikaServer" <(tail -F -n 0 $logfile) && exit 0
+        grep -q "Destroyed FikaServer" <(tail -F -n 0 $logfile) \
+            && echo "Raid ended, restarting dedicated client" \
+            && sleep 10 \
+            && exit 0
     else
         echo "Waiting for EFT to exit"
         tail --pid=$eft_pid -f /dev/null
