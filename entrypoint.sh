@@ -37,6 +37,11 @@ if [ "$USE_MODSYNC" == "true" ]; then
     xvfb_run=""
 fi
 
+if [ "$AUTO_RESTART_ON_RAID_END" == "true" ]; then
+    echo "Running Xvfb in background for raid end autorestart"
+    xvfb_run=""
+fi
+
 if [ "$USE_DGPU" == "true" ]; then
     source /opt/scripts/install_nvidia_deps.sh
 
@@ -55,6 +60,11 @@ if [ ! -f $eft_binary ]; then
 fi
 
 run_xvfb() {
+    if pgrep -x "Xvfb" > /dev/null; then
+        echo "Cleaning up old xvfb processes"
+        pkill Xvfb
+    fi
+    if [ -f "$xlockfile" ]; then rm -f $xlockfile; fi
     /usr/bin/Xvfb :0 -screen 0 1024x768x16 2>&1 &
 }
 
@@ -70,10 +80,6 @@ start_crond() {
 # or via watching the PID
 run_client() {
     echo "Using wine executable $WINE"
-    if ! pgrep Xvfb; then
-        echo "Xvfb process not found. Restarting Xvfb."
-        run_xvfb
-    fi
     WINEDEBUG=-all $xvfb_run $WINE $eft_binary $batchmode $nographics $nodynamicai -token="$PROFILE_ID" -config="{'BackendUrl':'http://$SERVER_URL:$SERVER_PORT', 'Version':'live'}" &
 
     eft_pid=$!
@@ -98,16 +104,11 @@ if [[ "$ENABLE_LOG_PURGE" == "true" ]]; then
     start_crond
 fi
 
-if [ "$USE_MODSYNC" == "true" || "$AUTO_RESTART_ON_RAID_END" == "true" ]; then
+if [[ "$USE_MODSYNC" == "true" || "$AUTO_RESTART_ON_RAID_END" == "true" ]]; then
     while true; do
         # Anticipate the client exiting due to modsync or raid end, and restart it
         # I don't know why, but it seems on second run of the client it always fails to create a batchmode window,
         # so we have to restart xvfb after each run
-        if pgrep -x "Xvfb" > /dev/null; then
-            echo "Cleaning up old xvfb processes"
-            pkill Xvfb
-        fi
-        if [ -f "$xlockfile" ]; then rm -f $xlockfile; fi
 
         echo "Starting Xvfb in background"
         run_xvfb
@@ -120,6 +121,6 @@ if [ "$USE_MODSYNC" == "true" || "$AUTO_RESTART_ON_RAID_END" == "true" ]; then
         sleep 5
     done
 else
-    # run_xvfb
+    run_xvfb
     run_client
 fi
