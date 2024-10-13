@@ -21,6 +21,13 @@
     + [Building](#building)
     + [Using an Nvidia GPU in the container](#using-an-nvidia-gpu-in-the-container)
 
+# Features
+- Run Fika Dedicated client fully headless in docker container, with or without GPU on the docker host.
+- Supports [Corter-ModSync](https://github.com/c-orter/modsync/), to automatically keep dedicated client mods up to date
+- Automatic restart on raid end, to manage container memory usage
+- Automatic purging of EFT `Logs/` dir, to clear out large logfiles due to logspam
+- Optionally use Nvidia GPU when running the client, still completely headless without a real display
+
 # Releases
 The image build is triggered off git tags and hosted on ghcr. `latest` will always point to the latest version.
 ```
