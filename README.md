@@ -18,6 +18,7 @@
     + [Crash with assertion in virtual.c](#crash-with-assertion-in-virtualc)
     + [Container stalls at wine: RLIMIT_NICE <= 20](#container-stalls-at-wine-rlimit_nice-is-20)
     + [My container memory usage keeps going up until I run out of memory](#my-container-memory-usage-keeps-going-up-until-i-run-out-of-memory)
+    + [Server output shows `cannot read properties of undefined (reading info)`](#server-output-shows-cannot-read-properties-of-undefined-reading-info)
 - [💻 Development](#-development)
     + [Building](#building)
     + [Using an Nvidia GPU in the container](#using-an-nvidia-gpu-in-the-container)
@@ -206,6 +207,10 @@ This happens sometimes on first boot or when the container is force-recreated e.
   This should effectively reset container memory usage back to the ~3Gb required on first boot, after each raid.
 - EFT is extremely memory hungry, if you are running out of memory while in raid, try to remove some mods that may be memory intensive to see if memory usage improves.
 - There may be no better solution than to simply add more RAM to the docker host.
+
+### Server output shows `Cannot read properties of undefined (reading 'info')`
+- This usually means your dedicated profile didn't generate properly. You can try deleting the dedicated profile and restarting the server to regenerate a new profile
+  - MAKE ABSOLUTELY SURE IT'S THE DEDICATED PROFILE. Its username will start with `dedicated_` with password `fika-dedicated`
 
 # 💻 Development
 ### Building
