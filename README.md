@@ -1,24 +1,25 @@
 # About
 :new_moon_with_face: Run the FIKA dedicated client as a headless service, in a docker container! :new_moon_with_face:
 
-:star: NEW: With :arrows_counterclockwise: [Corter-ModSync support](#corter-modsync-support) :arrows_counterclockwise:!
-
 - [Dedicated Client](#dedicated-client)
-- [Releases](#releases)
-- [Running](#running)
+- [🧙 Features](#-features)
+- [📦 Releases](#-releases)
+- [🚤 Running](#-running)
     + [Requirements](#requirements)
     + [Steps](#steps)
     + [docker-compose](#docker-compose)
   * [Corter-Modsync support](#corter-modsync-support)
-- [Environment variables](#environment-variables)
+- [🌐 Environment variables](#-environment-variables)
   * [Required](#required)
   * [Optional](#optional)
   * [Debug](#debug)
-- [Troubleshooting](#troubleshooting)
+- [🧰 Troubleshooting](#-troubleshooting)
     + [Container immediately exits](#container-immediately-exits)
     + [Stuck right after BepInEx preloader finished](#stuck-right-after-bepinex-preloader-finished)
     + [Crash with assertion in virtual.c](#crash-with-assertion-in-virtualc)
-- [Development](#development)
+    + [Container stalls at wine: RLIMIT_NICE <= 20](#container-stalls-at-wine-rlimit_nice-is-20)
+    + [My container memory usage keeps going up until I run out of memory](my-container-memory-usage-keeps-going-up-until-i-run-out-of-memory)
+- [💻 Development](#-development)
     + [Building](#building)
     + [Using an Nvidia GPU in the container](#using-an-nvidia-gpu-in-the-container)
 
@@ -42,13 +43,20 @@ A dedicated client in the context of FIKA and SPT is essentially a separate inst
 - **Complex Setup**: Involves setting up and maintaining a separate server environment, which can be complex for those unfamiliar with Docker or server management.
 - **Cost**: Running a dedicated server may incur additional costs, especially if using cloud services.
 
-# Releases
+# 🧙 Features
+- 🐎 Run Fika Dedicated client fully headless in docker container, with or without GPU on the docker host.
+- 🔄 Supports [Corter-ModSync](https://github.com/c-orter/modsync/), to automatically keep dedicated client mods up to date
+- 🔨 Automatic restart on raid end, to manage container memory usage
+- 🚚 Automatic purging of EFT `Logs/` dir, to clear out large logfiles due to logspam
+- 🍬 Optionally use Nvidia GPU when running the client, still completely headless without a real display
+
+# 📦 Releases
 The image build is triggered off git tags and hosted on ghcr. `latest` will always point to the latest version.
 ```
 docker pull ghcr.io/zhliau/fika-headless-docker:latest
 ```
 
-# Running
+# 🚤 Running
 I've only tested this on my linux hosts (Arch kernel 6.9.8 and Fedora 6.7.10).
 This won't work on Windows because of permission issues with WSL2.
 Probably will not work on ARM hosts either.
@@ -214,7 +222,7 @@ The start script will then:
 > via a periodic restarter script or a cron job. You can mount the docker socket into a `docker:cli` image and run a simple bash while loop or something.
 > See the example docker-compose.yml in this repo for details
 
-# Environment variables
+# 🌐 Environment variables
 ## Required
 
 | Env var       | Description                                                                                                                                |
@@ -225,12 +233,13 @@ The start script will then:
 
 ## Optional
 
-| Env var                | Description                                                                                                                                            |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `USE_DGPU`             | If set to `true`, enable passing a GPU resource into the container with `nvidia-container-toolkit`. Make sure you have the required dependencies installed for your host |
-| `DISABLE_NODYNAMICAI`  | If set to `true`, removes the `-noDynamicAI` parameter when starting the client, allowing the use of Fika's dynamic AI feature. Can help with dedicated client performance if you notice server FPS dropping below 30 |
-| `USE_MODSYNC`          | If set to `true`, enables support for Corter-ModSync 0.8.1+ and the external updater. On container start, the dedicated client will close and start the updater the modsync plugin detects changes. On completion, the script will start the dedicated client up again |
-| `ENABLE_LOG_PURGE`     | If set to `true`, automatically purge the EFT `Logs/` directory every 00:00 UTC, to clear out large logfiles due to logspam. |
+| Env var                        | Description                                                                                                                                            |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `USE_DGPU`                     | If set to `true`, enable passing a GPU resource into the container with `nvidia-container-toolkit`. Make sure you have the required dependencies installed for your host |
+| `DISABLE_NODYNAMICAI`          | If set to `true`, removes the `-noDynamicAI` parameter when starting the client, allowing the use of Fika's dynamic AI feature. Can help with dedicated client performance if you notice server FPS dropping below 30 |
+| `USE_MODSYNC`                  | If set to `true`, enables support for Corter-ModSync 0.8.1+ and the external updater. On container start, the dedicated client will close and start the updater the modsync plugin detects changes. On completion, the script will start the dedicated client up again |
+| `ENABLE_LOG_PURGE`             | If set to `true`, automatically purge the EFT `Logs/` directory every 00:00 UTC, to clear out large logfiles due to logspam. |
+| `AUTO_RESTART_ON_RAID_END`     | If set to `true`, auto restart the client on raid end, freeing all memory that isn't cleared properly on raid end |
 
 ## Debug
 
@@ -240,7 +249,7 @@ The start script will then:
 | `DISABLE_BATCHMODE` | If set to `true`, disable the `-batchmode` parameter when starting the client. This will significantly increase resource usage.                                                                                       |
 | `XVFB_DEBUG`        | If set to `true`, enables debug output for xvfb (the virtual framebuffer)                                                                                                                                             |
 
-# Troubleshooting
+# 🧰 Troubleshooting
 ### Container immediately exits
 Crashing with stacktrace in container, permissions errors, wine unable to find EscapeFromTarkov.exe, or wine throwing a page fault on read access to 0000000000000000 exception?
 - If you are using Corter-ModSync to keep plugin files up to date, make sure you set the `USE_MODSYNC` env var to `true` or the plugin updater will not be able to run properly and the container will keep exiting!
@@ -278,7 +287,18 @@ If the dedicated client container crashes with this error, this usually means yo
   vm.max_map_count = 2147483642
   ```
 
-# Development
+### Container stalls at wine: RLIMIT_NICE is <=20
+This happens sometimes on first boot or when the container is force-recreated e.g. by `docker-compose up --force-recreate`. I have no idea why it happens, but to solve it you can
+- Just wait. Almost exactly 5 minutes after this line is emitted, the client will resume starting normally
+- Restart the container with `docker restart` or `docker-compose restart`. This will force the client to start up immediately.
+
+### My container memory usage keeps going up until I run out of memory
+- Try setting the `AUTO_RESTART_ON_RAID_END` env var to `true`, to have the client restart itself after each raid is completed and all players have extracted.
+  This should effectively reset container memory usage back to the ~3Gb required on first boot, after each raid.
+- EFT is extremely memory hungry, if you are running out of memory while in raid, try to remove some mods that may be memory intensive to see if memory usage improves.
+- There may be no better solution than to simply add more RAM to the docker host.
+
+# 💻 Development
 ### Building
 Run the `build` script, optionally setting a `VERSION` env var to tag the image. The image is tagged `fika-dedicated:latest`, or whatever version is provided in the env var.
 ```
