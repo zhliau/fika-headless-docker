@@ -1,8 +1,6 @@
 # About
 :new_moon_with_face: Run the FIKA dedicated client as a headless service, in a docker container! :new_moon_with_face:
 
-:star: NEW: With :arrows_counterclockwise: [Corter-ModSync support](#corter-modsync-support) :arrows_counterclockwise:!
-
 - [🧙 Features](#-features)
 - [📦 Releases](#-releases)
 - [🚤 Running](#-running)
