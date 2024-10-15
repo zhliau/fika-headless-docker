@@ -3,7 +3,7 @@
 eft_dir=/opt/tarkov
 eft_binary=$eft_dir/EscapeFromTarkov.exe
 logfile=$eft_dir/BepInEx/LogOutput.log
-xvfb_run="xvfb-run -a"
+xvfb_run=""
 nographics="-nographics"
 batchmode="-batchmode"
 nodynamicai="-noDynamicAI"
@@ -11,11 +11,6 @@ nodynamicai="-noDynamicAI"
 xlockfile=/tmp/.X0-lock
 # Overriden if you use DGPU
 export DISPLAY=:0.0
-
-if [ "$XVFB_DEBUG" == "true" ]; then
-    echo "Xvfb debug is ON. This is only supported for Xvfb running in foreground"
-    xvfb_run="$xvfb_run -e /dev/stdout"
-fi
 
 if [ "$USE_GRAPHICS" == "true" ]; then
     echo "Using graphics"
@@ -42,6 +37,11 @@ if [ "$AUTO_RESTART_ON_RAID_END" == "true" ]; then
     xvfb_run=""
 fi
 
+if [ "$XVFB_DEBUG" == "true" ]; then
+    echo "Xvfb debug is ON. This will start xvfb in the foreground. Not supported if DGPU is enabled."
+    xvfb_run="xvfb-run -a -e /dev/stdout"
+fi
+
 if [ "$USE_DGPU" == "true" ]; then
     source /opt/scripts/install_nvidia_deps.sh
 
@@ -60,12 +60,17 @@ if [ ! -f $eft_binary ]; then
 fi
 
 run_xvfb() {
+    # I'm not sure why, but each time the client exits
+    # we have to restart xvfb otherwise it'll fail to create a batchmode window
     if pgrep -x "Xvfb" > /dev/null; then
         echo "Cleaning up old xvfb processes"
         pkill Xvfb
     fi
     if [ -f "$xlockfile" ]; then rm -f $xlockfile; fi
+    echo "Starting Xvfb in background"
     /usr/bin/Xvfb :0 -screen 0 1024x768x16 2>&1 &
+    xvfb_pid=$!
+    echo "Xvfb running PID is $xvfb_pid"
 }
 
 start_crond() {
@@ -107,20 +112,12 @@ fi
 if [[ "$USE_MODSYNC" == "true" || "$AUTO_RESTART_ON_RAID_END" == "true" ]]; then
     while true; do
         # Anticipate the client exiting due to modsync or raid end, and restart it
-        # I don't know why, but it seems on second run of the client it always fails to create a batchmode window,
-        # so we have to restart xvfb after each run
-
-        echo "Starting Xvfb in background"
         run_xvfb
-        xvfb_pid=$!
-
-        echo "Starting client. Xvfb running PID is $xvfb_pid"
         run_client
         echo "Dedi client closed with exit code $?. Restarting.." >&2
-        kill -9 $xvfb_pid
         sleep 5
     done
 else
-    #run_xvfb
+    run_xvfb
     run_client
 fi
