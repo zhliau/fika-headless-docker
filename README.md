@@ -21,6 +21,13 @@
     + [Building](#building)
     + [Using an Nvidia GPU in the container](#using-an-nvidia-gpu-in-the-container)
 
+# Features
+- Run Fika Dedicated client fully headless in docker container, with or without GPU on the docker host.
+- Supports [Corter-ModSync](https://github.com/c-orter/modsync/), to automatically keep dedicated client mods up to date
+- Automatic restart on raid end, to manage container memory usage
+- Automatic purging of EFT `Logs/` dir, to clear out large logfiles due to logspam
+- Optionally use Nvidia GPU when running the client, still completely headless without a real display
+
 # Releases
 The image build is triggered off git tags and hosted on ghcr. `latest` will always point to the latest version.
 ```
@@ -134,12 +141,13 @@ The start script will then:
 
 ## Optional
 
-| Env var                | Description                                                                                                                                            |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `USE_DGPU`             | If set to `true`, enable passing a GPU resource into the container with `nvidia-container-toolkit`. Make sure you have the required dependencies installed for your host |
-| `DISABLE_NODYNAMICAI`  | If set to `true`, removes the `-noDynamicAI` parameter when starting the client, allowing the use of Fika's dynamic AI feature. Can help with dedicated client performance if you notice server FPS dropping below 30 |
-| `USE_MODSYNC`          | If set to `true`, enables support for Corter-ModSync 0.8.1+ and the external updater. On container start, the dedicated client will close and start the updater the modsync plugin detects changes. On completion, the script will start the dedicated client up again |
-| `ENABLE_LOG_PURGE`     | If set to `true`, automatically purge the EFT `Logs/` directory every 00:00 UTC, to clear out large logfiles due to logspam. |
+| Env var                        | Description                                                                                                                                            |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `USE_DGPU`                     | If set to `true`, enable passing a GPU resource into the container with `nvidia-container-toolkit`. Make sure you have the required dependencies installed for your host |
+| `DISABLE_NODYNAMICAI`          | If set to `true`, removes the `-noDynamicAI` parameter when starting the client, allowing the use of Fika's dynamic AI feature. Can help with dedicated client performance if you notice server FPS dropping below 30 |
+| `USE_MODSYNC`                  | If set to `true`, enables support for Corter-ModSync 0.8.1+ and the external updater. On container start, the dedicated client will close and start the updater the modsync plugin detects changes. On completion, the script will start the dedicated client up again |
+| `ENABLE_LOG_PURGE`             | If set to `true`, automatically purge the EFT `Logs/` directory every 00:00 UTC, to clear out large logfiles due to logspam. |
+| `AUTO_RESTART_ON_RAID_END`     | If set to `true`, detects the line `Destroyed FikaServer` in the BepInEx logs to auto restart the client on raid end, clearing memory |
 
 ## Debug
 
@@ -186,6 +194,17 @@ If the dedicated client container crashes with this error, this usually means yo
   ```
   vm.max_map_count = 2147483642
   ```
+
+### Container stalls at wine: RLIMIT_NICE is <=20
+This happens sometimes on first boot or when the container is force-recreated e.g. by `docker-compose up --force-recreate`. I have no idea why it happens, but to solve it you can
+- Just wait. Almost exactly 5 minutes after this line is emitted, the client will resume starting normally
+- Restart the container with `docker restart` or `docker-compose restart`. This will force the client to start up immediately.
+
+### My container memory usage keeps going up until I run out of memory
+- Try setting the `AUTO_RESTART_ON_RAID_END` env var to `true`, to have the client restart itself after each raid is completed and all players have extracted.
+  This should effectively reset container memory usage back to the ~3Gb required on first boot, after each raid.
+- EFT is extremely memory hungry, if you are running out of memory while in raid, try to remove some mods that may be memory intensive to see if memory usage improves.
+- There may be no better solution than to simply add more RAM to the docker host.
 
 # Development
 ### Building

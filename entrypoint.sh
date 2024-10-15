@@ -1,7 +1,9 @@
 #!/bin/bash -e
 
-eft_binary=/opt/tarkov/EscapeFromTarkov.exe
-xvfb_run="xvfb-run -a"
+eft_dir=/opt/tarkov
+eft_binary=$eft_dir/EscapeFromTarkov.exe
+logfile=$eft_dir/BepInEx/LogOutput.log
+xvfb_run=""
 nographics="-nographics"
 batchmode="-batchmode"
 nodynamicai="-noDynamicAI"
@@ -9,11 +11,6 @@ nodynamicai="-noDynamicAI"
 xlockfile=/tmp/.X0-lock
 # Overriden if you use DGPU
 export DISPLAY=:0.0
-
-if [ "$XVFB_DEBUG" == "true" ]; then
-    echo "Xvfb debug is ON. This is only supported for Xvfb running in foreground"
-    xvfb_run="$xvfb_run -e /dev/stdout"
-fi
 
 if [ "$USE_GRAPHICS" == "true" ]; then
     echo "Using graphics"
@@ -35,6 +32,16 @@ if [ "$USE_MODSYNC" == "true" ]; then
     xvfb_run=""
 fi
 
+if [ "$AUTO_RESTART_ON_RAID_END" == "true" ]; then
+    echo "Running Xvfb in background for raid end autorestart"
+    xvfb_run=""
+fi
+
+if [ "$XVFB_DEBUG" == "true" ]; then
+    echo "Xvfb debug is ON. This will start xvfb in the foreground. Not supported if DGPU is enabled."
+    xvfb_run="xvfb-run -a -e /dev/stdout"
+fi
+
 if [ "$USE_DGPU" == "true" ]; then
     source /opt/scripts/install_nvidia_deps.sh
 
@@ -53,16 +60,17 @@ if [ ! -f $eft_binary ]; then
 fi
 
 run_xvfb() {
-    /usr/bin/Xvfb :0 -screen 0 1024x768x16 2>&1 &
-}
-
-run_client() {
-    echo "Using wine executable $WINE"
-    if ! pgrep Xvfb; then
-        echo "Xvfb process not found. Restarting Xvfb."
-        run_xvfb
+    # I'm not sure why, but each time the client exits
+    # we have to restart xvfb otherwise it'll fail to create a batchmode window
+    if pgrep -x "Xvfb" > /dev/null; then
+        echo "Cleaning up old xvfb processes"
+        pkill Xvfb
     fi
-    WINEDEBUG=-all $xvfb_run $WINE $eft_binary $batchmode $nographics $nodynamicai -token="$PROFILE_ID" -config="{'BackendUrl':'http://$SERVER_URL:$SERVER_PORT', 'Version':'live'}"
+    if [ -f "$xlockfile" ]; then rm -f $xlockfile; fi
+    echo "Starting Xvfb in background"
+    /usr/bin/Xvfb :0 -screen 0 1024x768x16 2>&1 &
+    xvfb_pid=$!
+    echo "Xvfb running PID is $xvfb_pid"
 }
 
 start_crond() {
@@ -71,34 +79,45 @@ start_crond() {
     /etc/init.d/cron start
 }
 
+# Main client function. Should block until client has exited
+# Since we now run EFT client in background, end function
+# via watching for raid end (if autorestart is enabled)
+# or via watching the PID
+run_client() {
+    echo "Using wine executable $WINE"
+    WINEDEBUG=-all $xvfb_run $WINE $eft_binary $batchmode $nographics $nodynamicai -token="$PROFILE_ID" -config="{'BackendUrl':'http://$SERVER_URL:$SERVER_PORT', 'Version':'live'}" &
+
+    eft_pid=$!
+    echo "EFT PID is $eft_pid"
+
+    # Blocking function
+    # TODO to make this more extensible, can these be turned into functions and have this function wait for them to complete?
+    if [[ "$AUTO_RESTART_ON_RAID_END" == "true" ]]; then
+        echo "Starting logfile watch for auto-restart on raid end"
+        grep -q "Destroyed FikaServer" <(tail -F -n 0 $logfile) \
+            && echo "Raid ended, restarting dedicated client" \
+            && sleep 10 \
+            && kill -9 $eft_pid
+    else
+        echo "Waiting for EFT to exit"
+        tail --pid=$eft_pid -f /dev/null
+    fi
+}
+
 if [[ "$ENABLE_LOG_PURGE" == "true" ]]; then
     echo "Enabling log purge"
     cp /opt/cron/cron_purge_logs /etc/cron.d/
     start_crond
 fi
 
-if [ "$USE_MODSYNC" == "true" ]; then
+run_xvfb
+if [[ "$USE_MODSYNC" == "true" || "$AUTO_RESTART_ON_RAID_END" == "true" ]]; then
     while true; do
-        # Anticipate the client exiting due to modsync, and restart it after modsync external updater has done its thing
-        # I don't know why, but it seems on second run of the client it always fails to create a batchmode window,
-        # so we have to restart xvfb after each run
-        if pgrep -x "Xvfb" > /dev/null; then
-            echo "Cleaning up old xvfb processes"
-            pkill Xvfb
-        fi
-        if [ -f "$xlockfile" ]; then rm -f $xlockfile; fi
-
-        echo "Starting Xvfb in background"
-        run_xvfb
-        xvfb_pid=$!
-
-        echo "Starting client. Xvfb running PID is $xvfb_pid"
+        # Anticipate the client exiting due to modsync or raid end, and restart it
         run_client
         echo "Dedi client closed with exit code $?. Restarting.." >&2
-        kill -9 $xvfb_pid
         sleep 5
     done
 else
-    # run_xvfb
     run_client
 fi
