@@ -91,6 +91,7 @@ run_client() {
     echo "EFT PID is $eft_pid"
 
     # Blocking function
+    # TODO to make this more extensible, can these be turned into functions and have this function wait for them to complete?
     if [[ "$AUTO_RESTART_ON_RAID_END" == "true" ]]; then
         echo "Starting logfile watch for auto-restart on raid end"
         grep -q "Destroyed FikaServer" <(tail -F -n 0 $logfile) \

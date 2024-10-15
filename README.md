@@ -195,6 +195,11 @@ If the dedicated client container crashes with this error, this usually means yo
   vm.max_map_count = 2147483642
   ```
 
+### Container stalls at wine: RLIMIT_NICE is <=20
+This happens sometimes when the container is force-recreated e.g. by `docker-compose up --force-recreate`. I have no idea why it happens, but to solve it you can
+- Just wait. Almost exactly 5 minutes after this line is emitted, the client will resume starting normally
+- Recreate the container again by stopping and deleting it, then bringing it back up with `docker run` or `docker-compose up`
+
 # Development
 ### Building
 Run the `build` script, optionally setting a `VERSION` env var to tag the image. The image is tagged `fika-dedicated:latest`, or whatever version is provided in the env var.
