@@ -110,15 +110,14 @@ if [[ "$ENABLE_LOG_PURGE" == "true" ]]; then
     start_crond
 fi
 
+run_xvfb
 if [[ "$USE_MODSYNC" == "true" || "$AUTO_RESTART_ON_RAID_END" == "true" ]]; then
     while true; do
         # Anticipate the client exiting due to modsync or raid end, and restart it
-        run_xvfb
         run_client
         echo "Dedi client closed with exit code $?. Restarting.." >&2
         sleep 5
     done
 else
-    run_xvfb
     run_client
 fi
