@@ -17,7 +17,7 @@
     + [Stuck right after BepInEx preloader finished](#stuck-right-after-bepinex-preloader-finished)
     + [Crash with assertion in virtual.c](#crash-with-assertion-in-virtualc)
     + [Container stalls at wine: RLIMIT_NICE <= 20](#container-stalls-at-wine-rlimit_nice-is-20)
-    + [My container memory usage keeps going up until I run out of memory](my-container-memory-usage-keeps-going-up-until-i-run-out-of-memory)
+    + [My container memory usage keeps going up until I run out of memory](#my-container-memory-usage-keeps-going-up-until-i-run-out-of-memory)
 - [💻 Development](#-development)
     + [Building](#building)
     + [Using an Nvidia GPU in the container](#using-an-nvidia-gpu-in-the-container)
