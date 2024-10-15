@@ -200,6 +200,12 @@ This happens sometimes on first boot or when the container is force-recreated e.
 - Just wait. Almost exactly 5 minutes after this line is emitted, the client will resume starting normally
 - Restart the container with `docker restart` or `docker-compose restart`. This will force the client to start up immediately.
 
+### My container memory usage keeps going up until I run out of memory
+- Try setting the `AUTO_RESTART_ON_RAID_END` env var to `true`, to have the client restart itself after each raid is completed and all players have extracted.
+  This should effectively reset container memory usage back to the ~3Gb required on first boot, after each raid.
+- EFT is extremely memory hungry, if you are running out of memory while in raid, try to remove some mods that may be memory intensive to see if memory usage improves.
+- There may be no better solution than to simply add more RAM to the docker host.
+
 # Development
 ### Building
 Run the `build` script, optionally setting a `VERSION` env var to tag the image. The image is tagged `fika-dedicated:latest`, or whatever version is provided in the env var.
