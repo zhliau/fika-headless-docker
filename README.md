@@ -31,7 +31,7 @@ A dedicated client in the context of FIKA and SPT is essentially a separate inst
 
 - **Offloading Raid Hosting**: By using a dedicated client, the computational load of hosting a raid is offloaded from the player's machine to the dedicated client. This can improve performance for players, especially those with less powerful hardware.
 - **Consistent Hosting**: Ensures that the raid hosting environment is consistent, as it runs on a dedicated server with stable resources.
-- **Centralized Mod Management**: With ModSync, mods can be managed centrally on the server, ensuring all clients have the correct versions.
+- **Standardized Raid Settings**: The dedicated client allows for centralized control over raid settings such as AI behavior, difficulty, and spawning. This ensures a uniform experience for all players, as these settings are managed in one place.
 
 ## Pros
 - **Performance**: Reduces the CPU and RAM load on the player's machine, potentially improving FPS and game performance.
