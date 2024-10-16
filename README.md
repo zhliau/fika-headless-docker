@@ -170,7 +170,7 @@ Tested with both SPT 3.8.3 and SPT 3.9.x and the associated Fika versions.
            - 25565:25565/udp
      ```
 
-     If you are running the SPT server in docker, you can make use of docker-compose's network DNS to connect the dedicated client to the SPT server:
+     If you are running the SPT server as a service in the same docker-compose stack, you can make use of docker-compose's network DNS to resolve the SPT server from the dedicated client:
 
      ```yaml
      services:
