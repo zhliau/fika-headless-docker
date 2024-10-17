@@ -1,8 +1,8 @@
 # About
 :new_moon_with_face: Run the FIKA dedicated client as a headless service, in a docker container! :new_moon_with_face:
 
-- [👻 Dedicated Client](#-dedicated-client)
 - [🧙 Features](#-features)
+- [👻 Dedicated Client](#-dedicated-client)
 - [📦 Releases](#-releases)
 - [🚤 Running](#-running)
     + [Requirements](#requirements)
@@ -23,6 +23,13 @@
     + [Building](#building)
     + [Using an Nvidia GPU in the container](#using-an-nvidia-gpu-in-the-container)
 
+# 🧙 Features
+- 🐎 Run Fika Dedicated client fully headless in docker container, with or without GPU on the docker host.
+- 🔄 Supports [Corter-ModSync](https://github.com/c-orter/modsync/), to automatically keep dedicated client mods up to date
+- 🔨 Automatic restart on raid end, to manage container memory usage
+- 🚚 Automatic purging of EFT `Logs/` dir, to clear out large logfiles due to logspam
+- 🍬 Optionally use Nvidia GPU when running the client, still completely headless without a real display
+
 # 👻 Dedicated Client
 
 ## What is a Dedicated Client?
@@ -42,13 +49,6 @@ A dedicated client in the context of FIKA and SPT is essentially a separate inst
 - **Resource Intensive**: Requires a server with significant resources (CPU, RAM, and storage) to run effectively.
 - **Complex Setup**: Involves setting up and maintaining a separate server environment, which can be complex for those unfamiliar with Docker or server management.
 - **Cost**: Running a dedicated server may incur additional costs, especially if using cloud services.
-
-# 🧙 Features
-- 🐎 Run Fika Dedicated client fully headless in docker container, with or without GPU on the docker host.
-- 🔄 Supports [Corter-ModSync](https://github.com/c-orter/modsync/), to automatically keep dedicated client mods up to date
-- 🔨 Automatic restart on raid end, to manage container memory usage
-- 🚚 Automatic purging of EFT `Logs/` dir, to clear out large logfiles due to logspam
-- 🍬 Optionally use Nvidia GPU when running the client, still completely headless without a real display
 
 # 📦 Releases
 The image build is triggered off git tags and hosted on ghcr. `latest` will always point to the latest version.
