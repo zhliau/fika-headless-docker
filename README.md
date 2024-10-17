@@ -1,14 +1,13 @@
 # About
 :new_moon_with_face: Run the FIKA dedicated client as a headless service, in a docker container! :new_moon_with_face:
 
-- [Dedicated Client](#dedicated-client)
+- [👻 Dedicated Client](#-dedicated-client)
 - [🧙 Features](#-features)
 - [📦 Releases](#-releases)
 - [🚤 Running](#-running)
     + [Requirements](#requirements)
     + [Steps](#steps)
-    + [docker-compose](#docker-compose)
-  * [Corter-Modsync support](#corter-modsync-support)
+    + [Corter-Modsync support](#corter-modsync-support)
 - [🌐 Environment variables](#-environment-variables)
   * [Required](#required)
   * [Optional](#optional)
@@ -24,7 +23,7 @@
     + [Building](#building)
     + [Using an Nvidia GPU in the container](#using-an-nvidia-gpu-in-the-container)
 
-# Dedicated Client
+# 👻 Dedicated Client
 
 ## What is a Dedicated Client?
 
