@@ -110,9 +110,6 @@ run_client() {
     fi
 }
 
-echo "Update using wineboot. See $wine_logfile_name for logs."
-$WINE_BIN_PATH/wineboot --update &> $wine_logfile
-
 if [[ "$ENABLE_LOG_PURGE" == "true" ]]; then
     echo "Enabling log purge"
     cp /opt/cron/cron_purge_logs /etc/cron.d/
