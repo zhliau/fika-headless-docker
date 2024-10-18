@@ -3,6 +3,10 @@
 eft_dir=/opt/tarkov
 eft_binary=$eft_dir/EscapeFromTarkov.exe
 logfile=$eft_dir/BepInEx/LogOutput.log
+
+wine_logfile_name=wine.log
+wine_logfile=$eft_dir/$wine_logfile_name
+
 xvfb_run=""
 nographics="-nographics"
 batchmode="-batchmode"
@@ -84,8 +88,8 @@ start_crond() {
 # via watching for raid end (if autorestart is enabled)
 # or via watching the PID
 run_client() {
-    echo "Using wine executable $WINE"
-    WINEDEBUG=-all $xvfb_run $WINE $eft_binary $batchmode $nographics $nodynamicai -token="$PROFILE_ID" -config="{'BackendUrl':'http://$SERVER_URL:$SERVER_PORT', 'Version':'live'}" &
+    echo "Using wine executable $WINE_BIN_PATH/wine"
+    WINEDEBUG=-all $xvfb_run $WINE_BIN_PATH/wine $eft_binary $batchmode $nographics $nodynamicai -token="$PROFILE_ID" -config="{'BackendUrl':'http://$SERVER_URL:$SERVER_PORT', 'Version':'live'}" &
 
     eft_pid=$!
     echo "EFT PID is $eft_pid"
@@ -103,6 +107,9 @@ run_client() {
         tail --pid=$eft_pid -f /dev/null
     fi
 }
+
+echo "Update using wineboot. See $wine_logfile_name for logs."
+$WINE_BIN_PATH/wineboot --update &> $wine_logfile
 
 if [[ "$ENABLE_LOG_PURGE" == "true" ]]; then
     echo "Enabling log purge"
