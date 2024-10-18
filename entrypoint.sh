@@ -108,7 +108,7 @@ run_client() {
     fi
 }
 
-echo "Update using wineboot. See $wine_logfile_name for logs."
+echo "Running wineboot update. Please wait ~60s. See $wine_logfile_name for logs."
 $WINE_BIN_PATH/wineboot --update &> $wine_logfile
 
 if [[ "$ENABLE_LOG_PURGE" == "true" ]]; then
