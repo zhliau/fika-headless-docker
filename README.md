@@ -2,12 +2,12 @@
 :new_moon_with_face: Run the FIKA dedicated client as a headless service, in a docker container! :new_moon_with_face:
 
 - [🧙 Features](#-features)
+- [👻 Dedicated Client](#-dedicated-client)
 - [📦 Releases](#-releases)
 - [🚤 Running](#-running)
     + [Requirements](#requirements)
     + [Steps](#steps)
-    + [docker-compose](#docker-compose)
-  * [Corter-Modsync support](#corter-modsync-support)
+    + [Corter-Modsync support](#corter-modsync-support)
 - [🌐 Environment variables](#-environment-variables)
   * [Required](#required)
   * [Optional](#optional)
@@ -30,6 +30,26 @@
 - 🚚 Automatic purging of EFT `Logs/` dir, to clear out large logfiles due to logspam
 - 🍬 Optionally use Nvidia GPU when running the client, still completely headless without a real display
 
+# 👻 Dedicated Client
+
+## What is a Dedicated Client?
+
+A dedicated client in the context of FIKA and SPT is essentially a separate instance of the game client that runs in a headless mode to host raids. It acts as a "silent player" that hosts the raid, allowing other players to join without one of them having to host the raid on their own machine.
+
+- **Offloading Raid Hosting**: By using a dedicated client, the computational load of hosting a raid is offloaded from the player's machine to the dedicated client. This can improve performance for players, especially those with less powerful hardware.
+- **Consistent Hosting**: Ensures that the raid hosting environment is consistent, as it runs on a dedicated server with stable resources.
+- **Standardized Raid Settings**: The dedicated client allows for centralized control over raid settings such as AI behavior, difficulty, and spawning. This ensures a uniform experience for all players, as these settings are managed in one place.
+
+## Pros
+- **Performance**: Reduces the CPU and RAM load on the player's machine, potentially improving FPS and game performance.
+- **Stability**: Provides a stable environment for hosting raids, reducing the risk of crashes or performance drops.
+- **Scalability**: Allows for more players to join without impacting the host's performance.
+
+## Cons
+- **Resource Intensive**: Requires a server with significant resources (CPU, RAM, and storage) to run effectively.
+- **Complex Setup**: Involves setting up and maintaining a separate server environment, which can be complex for those unfamiliar with Docker or server management.
+- **Cost**: Running a dedicated server may incur additional costs, especially if using cloud services.
+
 # 📦 Releases
 The image build is triggered off git tags and hosted on ghcr. `latest` will always point to the latest version.
 ```
@@ -51,68 +71,138 @@ Tested with both SPT 3.8.3 and SPT 3.9.x and the associated Fika versions.
   - This is the folder including the `BepInEx` folder with all your plugins, and the `EscapeFromTarkov.exe` binary. You can copy your working install from wherever you normally run your Fika client.
 - The `Fika.Dedicated.dll` plugin file in the FIKA SPT Client's `BepInEx/plugins` folder.
 
+
 ### Steps
-1. Create a profile that the dedicated client will login as. Copy its profileID and set it aside.
-   - If you are on Fika for SPT 3.9.x, the server will generate this profie for you as long as you set the `dedicated > profiles > amount` option to some value greater than 0 in the server config.
-   - You can find the profiles in the server `user/profiles` directory. The profileID is the filename of the profile, excluding the `.json` extension
-2. Make sure your `Force Bind IP` and `Force IP` values in the `BepInEx/config/com.fika.core.cfg` config file on the dedicated client are set correctly.
-   I found it sufficient to set `Force Bind IP` to `Disabled`, and to set `Force IP` to the IP of my host interface. If you are running a VPN, this is your VPN IP.
-3. Ensure you have the `Fika.Core.dll` and `Fika.Dedicated.dll` plugin files in the dedicated client's plugins folder `BepInEx/plugins`.
-5. Run the docker image, making sure you have the following configured:
-    - Fika Client directory mounted to `/opt/tarkov` in the container.
-    - `PROFILE_ID` env var set to the profile you created in step 1
-    - `SERVER_URL` env var set to your server URL
-    - `SERVER_PORT` env var set to your server's port
 
-E.g
-```shell
-docker run --name fika_dedicated \
-  -v /path/to/fika:/opt/tarkov \
-  -e PROFILE_ID=blah \
-  -e SERVER_URL=your.spt.server.ip \
-  -e SERVER_PORT=6969 \
-  -p 25565:25565/udp \
-  ghcr.io/zhliau/fika-headless-docker:latest
-```
+1. **Prepare a Dedicated Client Installation**
 
-### docker-compose
-Or better yet use a docker-compose file
-```yaml
-services:
-  fika_dedicated:
-    image: ghcr.io/zhliau/fika-headless-docker:latest
-    container_name: fika_dedi
-    volumes:
-      - /host/path/to/fika:/opt/tarkov
-    environment:
-      - PROFILE_ID=adadadadadadaadadadad
-      - SERVER_URL=your.spt.server.ip
-      - SERVER_PORT=6969
-      - USE_MODSYNC=true # If you want to use modsync on this dedicated client
-    ports:
-      - 25565:25565/udp
-```
+   - **Copy SPT Installation**: Locate your existing SPT installation folder (where you play SPTarkov + Fika) and create a copy of it in another location. This will serve as the dedicated client's installation. For example, if your SPT install is at `D:\Games\SPT3.9`, copy it to `D:\Games\SPT3.9Dedicated`. Or install a fresh SPT + Fika installation in a different directory.
 
-If you are running the SPT server in docker, you can make use of docker-compose's network DNS 
-```yaml
-services:
-  fika:
-    # See https://github.com/zhliau/fika-spt-server-docker
-    image: ghcr.io/zhliau/fika-spt-server-docker:latest
-    volumes:
-      - /host/path/to/serverfiles:/opt/server
-    ports:
-      - 6969:6969
-  fika_dedicated:
-    image: ghcr.io/zhliau/fika-headless-docker:latest
-    # ...
-    environment:
-      # ...
-      # Use service DNS name instead of IP
-      - SERVER_URL=fika
-      - SERVER_PORT=6969
-    # ...
-```
+2. **Install Fika Dedicated Client Plugin**
+
+   - **Download Fika Dedicated Plugin**: Download the `Fika.Dedicated.dll` plugin from the [Fika Dedicated Releases](https://github.com/project-fika/Fika-Dedicated/releases).
+
+   - **Install the Plugin**: Place the `Fika.Dedicated.dll` plugin into the dedicated client's `BepInEx/plugins` folder.
+
+   - **Ensure Fika Core Plugin is Installed**: Verify that the `Fika.Core.dll` plugin is also present in the dedicated client's `BepInEx/plugins` folder.
+
+3. **Generate the Dedicated Client Profile and Launch Script**
+
+   - **Stop the SPT Server**: If your SPT + Fika server is running, close it.
+
+   - **Edit Fika Configuration**: Open the `fika.jsonc` file located at `<SPT server folder>/user/mods/fika-server/assets/configs/fika.jsonc` in a text editor.
+
+     - Find the `"dedicated"` section and set `"amount"` to `1`:
+
+       ```jsonc
+       "dedicated": {
+           "profiles": {
+               "amount": 1 // the amount of dedicated profiles to generate automatically
+           },
+           "scripts": {
+               "generate": true, // generate the launch script
+               "forceIp": "" // set to your dedicated client's IP address if needed
+           }
+       }
+       ```
+
+   - **Start the SPT Server**: Launch the SPT + Fika server (e.g. `SPT.Server.exe` or `fika-spt-server-docker` container) and wait until it fully loads. It should generate the dedicated client profile and launch script. Look for a message like `Created 1 dedicated client profiles!` in the server logs.
+
+   - **Retrieve Profile ID**: The profile ID is the filename (excluding the `.json` extension) of the profile generated in the server's `user/profiles` directory. For example, if the profile is named `670c0b1a00014a7192a983f9.json`, the profile ID is `670c0b1a00014a7192a983f9`.
+
+4. **Configure the Dedicated Client**
+
+   - **Edit Fika Core Configuration**: Open the `com.fika.core.cfg` file located in the dedicated client's `BepInEx/config/` directory.
+
+     - Update values for `Force Bind IP` and/or `Force IP`. It might be sufficient to set `Force Bind IP` to `Disabled`, and to set `Force IP` to the IP of the host interface.
+       If you are running a VPN, then this is your VPN IP.
+
+       ```
+       ## Force Bind IP
+       # Set to Disabled
+       Force Bind IP = Disabled
+
+       ## Force IP
+       # Set to the IP address of your host interface (e.g., your LAN IP or VPN IP)
+       Force IP = your.host.interface.ip
+       ```
+
+5. **Run the Docker Image**
+
+   - **Mount the Fika Client Directory**: Ensure that your dedicated client installation directory is mounted to `/opt/tarkov` in the container. If you are running the dedicated client on a server, you will need to copy and transfer the dedicated client installation to the server (~40GB).
+
+   - **Set Environment Variables**: When running the docker image, set the following environment variables:
+
+     - `PROFILE_ID` to the profile ID obtained in step 3.
+
+     - `SERVER_URL` to your server's URL or IP address.
+
+     - `SERVER_PORT` to your server's port (usually `6969`).
+
+     - Optionally, set `USE_MODSYNC` to `true` if you are using [Corter-ModSync](https://github.com/c-orter/modsync/) for plugin synchronization.
+
+   - **Run the Docker Container**:
+
+     ```shell
+     docker run --name fika_dedicated \
+       -v /path/to/fika:/opt/tarkov \
+       -e PROFILE_ID=blah \
+       -e SERVER_URL=your.spt.server.ip \
+       -e SERVER_PORT=6969 \
+       -p 25565:25565/udp \
+       ghcr.io/zhliau/fika-headless-docker:latest
+     ```
+
+     With docker-compose file:
+     ```yaml
+     services:
+       fika_dedicated:
+         image: ghcr.io/zhliau/fika-headless-docker:latest
+         container_name: fika_dedi
+         volumes:
+           - /host/path/to/fika:/opt/tarkov
+         environment:
+           - PROFILE_ID=adadadadadadaadadadad
+           - SERVER_URL=your.spt.server.ip
+           - SERVER_PORT=6969
+           - USE_MODSYNC=true # If you want to use modsync on this dedicated client
+         ports:
+           - 25565:25565/udp
+     ```
+
+     If you are running the SPT server as a service in the same docker-compose stack, you can make use of docker-compose's network DNS to resolve the SPT server from the dedicated client:
+
+     ```yaml
+     services:
+       fika:
+         # See https://github.com/zhliau/fika-spt-server-docker
+         image: ghcr.io/zhliau/fika-spt-server-docker:latest
+         volumes:
+           - /host/path/to/serverfiles:/opt/server
+         ports:
+           - 6969:6969
+       fika_dedicated:
+         image: ghcr.io/zhliau/fika-headless-docker:latest
+         # ...
+         environment:
+           # ...
+           # Use service DNS name instead of IP
+           - SERVER_URL=fika
+           - SERVER_PORT=6969
+         # ...
+     ```
+
+6. **Verify the Dedicated Client is Running**
+
+   - **Check Server Logs**: Look for messages in the server logs indicating that the dedicated client has connected. Note that this may take a few minutes to happen (~5 minutes).
+
+   - **Start a Raid Using Dedicated Host**:
+
+     - Launch your SPT + Fika client, log in, and go to the raid selection screen.
+
+     - Click on `Host Raid` and ensure that the `Use Dedicated Host` option is available (not greyed out).
+
+     - Proceed to host a raid using the dedicated client.
 
 ## Corter-Modsync support
 This image supports the unique plugin updater process that [Corter-ModSync](https://github.com/c-orter/modsync/) employs to update client plugins.
