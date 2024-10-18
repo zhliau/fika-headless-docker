@@ -109,7 +109,7 @@ RUN apt-get update \
     xz-utils
 RUN mkdir /wine-ge && \
     curl -sL "https://github.com/GloriousEggroll/wine-ge-custom/releases/download/GE-Proton8-26/wine-lutris-GE-Proton8-26-x86_64.tar.xz" | tar xvJ -C /wine-ge
-ENV WINE=/wine-ge/lutris-GE-Proton8-26-x86_64/bin/wine
+ENV WINE_BIN_PATH=/wine-ge/lutris-GE-Proton8-26-x86_64/bin
 
 COPY ./scripts/purge_logs.sh /usr/bin/purge_logs
 COPY ./data/cron/cron_purge_logs /opt/cron/cron_purge_logs
