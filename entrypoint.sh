@@ -112,7 +112,7 @@ run_client() {
     fi
     if [[ "$save_log_on_exit" == "true" ]]; then
         timestamp=$(date +%Y%m%dT%H%M)
-        cp $logfile $eft_dir/BepInEx/LogOutput-$timestamp.log
+        cp $bepinex_logfile $eft_dir/BepInEx/LogOutput-$timestamp.log
         echo "Saved log as LogOutput-$timestamp.log"
     fi
 }
