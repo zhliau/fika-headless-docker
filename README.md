@@ -243,11 +243,12 @@ The start script will then:
 
 ## Debug
 
-| Env var             | Description                                                                                                                                                                                         |
-| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `USE_GRAPHICS`      | If set to `true`, disables the `-nographics` parameter when starting the dedicated client. This will significantly increase resource usage.                                                                           |
-| `DISABLE_BATCHMODE` | If set to `true`, disable the `-batchmode` parameter when starting the client. This will significantly increase resource usage.                                                                                       |
-| `XVFB_DEBUG`        | If set to `true`, enables debug output for xvfb (the virtual framebuffer)                                                                                                                                             |
+| Env var                    | Description                                                                                                                                                                                         |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `USE_GRAPHICS`             | If set to `true`, disables the `-nographics` parameter when starting the dedicated client. This will significantly increase resource usage.                                                                           |
+| `DISABLE_BATCHMODE`        | If set to `true`, disable the `-batchmode` parameter when starting the client. This will significantly increase resource usage.                                                                                       |
+| `XVFB_DEBUG`               | If set to `true`, enables debug output for xvfb (the virtual framebuffer)                                                                                                                                             |
+| `SAVE_LOG_ON_EXIT`         | If set to `true`, save a copy of the BepInEx `LogOutput.log` as `LogOutput-$timestamp.log` on client exit to preserve logs from previous client runs, since this file is truncated each time the client starts |
 
 # 🧰 Troubleshooting
 ### Container immediately exits

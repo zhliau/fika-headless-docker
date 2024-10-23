@@ -11,6 +11,8 @@ nographics="-nographics"
 batchmode="-batchmode"
 nodynamicai="-noDynamicAI"
 
+save_log_on_exit=${SAVE_LOG_ON_EXIT:-false}
+
 xlockfile=/tmp/.X0-lock
 # Overriden if you use DGPU
 export DISPLAY=:0.0
@@ -107,6 +109,11 @@ run_client() {
     else
         echo "Waiting for EFT to exit"
         tail --pid=$eft_pid -f /dev/null
+    fi
+    if [[ "$save_log_on_exit" == "true" ]]; then
+        timestamp=$(date +%Y%m%dT%H%M)
+        cp $logfile $eft_dir/BepInEx/LogOutput-$timestamp.log
+        echo "Saved log as LogOutput-$timestamp.log"
     fi
 }
 
