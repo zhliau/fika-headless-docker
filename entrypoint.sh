@@ -2,8 +2,7 @@
 
 eft_dir=/opt/tarkov
 eft_binary=$eft_dir/EscapeFromTarkov.exe
-logfile=$eft_dir/BepInEx/LogOutput.log
-
+bepinex_logfile=$eft_dir/BepInEx/LogOutput.log
 wine_logfile_name=wine.log
 wine_logfile=$eft_dir/$wine_logfile_name
 
@@ -89,16 +88,19 @@ start_crond() {
 # or via watching the PID
 run_client() {
     echo "Using wine executable $WINE_BIN_PATH/wine"
-    WINEDEBUG=-all $xvfb_run $WINE_BIN_PATH/wine $eft_binary $batchmode $nographics $nodynamicai -token="$PROFILE_ID" -config="{'BackendUrl':'http://$SERVER_URL:$SERVER_PORT', 'Version':'live'}" &
+    WINEDEBUG=-all $xvfb_run $WINE_BIN_PATH/wine $eft_binary $batchmode $nographics $nodynamicai -token="$PROFILE_ID" -config="{'BackendUrl':'http://$SERVER_URL:$SERVER_PORT', 'Version':'live'}" &> $wine_logfile &
 
     eft_pid=$!
     echo "EFT PID is $eft_pid"
 
+    # Show BepInEx logs in docker logs.
+    tail -f $bepinex_logfile &
+
     # Blocking function
     # TODO to make this more extensible, can these be turned into functions and have this function wait for them to complete?
     if [[ "$AUTO_RESTART_ON_RAID_END" == "true" ]]; then
-        echo "Starting logfile watch for auto-restart on raid end"
-        grep -q "Destroyed FikaServer" <(tail -F -n 0 $logfile) \
+        echo "Starting BepInEx/LogOutput.log watch for auto-restart on raid end"
+        grep -q "Destroyed FikaServer" <(tail -F -n 0 $bepinex_logfile) \
             && echo "Raid ended, restarting dedicated client" \
             && sleep 10 \
             && kill -9 $eft_pid
