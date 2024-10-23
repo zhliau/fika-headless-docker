@@ -84,6 +84,14 @@ start_crond() {
     /etc/init.d/cron start
 }
 
+raid_end_routine() {
+    echo "Starting BepInEx/LogOutput.log watch for auto-restart on raid end"
+    grep -q "Destroyed FikaServer" <(tail -F -n 0 $bepinex_logfile) \
+        && echo "Raid ended, restarting dedicated client" \
+        && sleep 10 \
+        && kill -9 $eft_pid
+}
+
 # Main client function. Should block until client has exited
 # Since we now run EFT client in background, end function
 # via watching for raid end (if autorestart is enabled)
@@ -98,18 +106,14 @@ run_client() {
     # Show BepInEx logs in docker logs.
     tail -f $bepinex_logfile &
 
-    # Blocking function
-    # TODO to make this more extensible, can these be turned into functions and have this function wait for them to complete?
     if [[ "$AUTO_RESTART_ON_RAID_END" == "true" ]]; then
-        echo "Starting BepInEx/LogOutput.log watch for auto-restart on raid end"
-        grep -q "Destroyed FikaServer" <(tail -F -n 0 $bepinex_logfile) \
-            && echo "Raid ended, restarting dedicated client" \
-            && sleep 10 \
-            && kill -9 $eft_pid
-    else
-        echo "Waiting for EFT to exit"
-        tail --pid=$eft_pid -f /dev/null
+        raid_end_routine &
     fi
+
+    # Blocking function
+    echo "Waiting for EFT to exit"
+    tail --pid=$eft_pid -f /dev/null
+
     if [[ "$save_log_on_exit" == "true" ]]; then
         timestamp=$(date +%Y%m%dT%H%M)
         cp $bepinex_logfile $eft_dir/BepInEx/LogOutput-$timestamp.log
