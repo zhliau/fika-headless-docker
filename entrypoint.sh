@@ -12,10 +12,26 @@ batchmode="-batchmode"
 nodynamicai="-noDynamicAI"
 
 save_log_on_exit=${SAVE_LOG_ON_EXIT:-false}
+esync=${ESYNC:-false}
+fsync=${FSYNC:-false}
 
 xlockfile=/tmp/.X0-lock
 # Overriden if you use DGPU
 export DISPLAY=:0.0
+
+if [[ "$esync" == "true" ]]; then
+    echo "Enabling wine esync"
+    export WINEESYNC=1
+fi
+
+if [[ "$fsync" == "true" ]]; then
+    # fsync takes precedence
+    if [[ "$esync" == "true" ]]; then
+        export WINEESYNC=0
+    fi
+    echo "Enabling wine fsync"
+    export WINEFSYNC=1
+fi
 
 if [ "$USE_GRAPHICS" == "true" ]; then
     echo "Using graphics"

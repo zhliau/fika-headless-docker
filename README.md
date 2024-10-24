@@ -240,6 +240,8 @@ The start script will then:
 | `USE_MODSYNC`                  | If set to `true`, enables support for Corter-ModSync 0.8.1+ and the external updater. On container start, the dedicated client will close and start the updater the modsync plugin detects changes. On completion, the script will start the dedicated client up again |
 | `ENABLE_LOG_PURGE`             | If set to `true`, automatically purge the EFT `Logs/` directory every 00:00 UTC, to clear out large logfiles due to logspam. |
 | `AUTO_RESTART_ON_RAID_END`     | If set to `true`, auto restart the client on raid end, freeing all memory that isn't cleared properly on raid end |
+| `ESYNC`                        | If set to `true`, enable wine esync, to use eventfd based synchronization instead of wineserver. This can improve client performance. Check compatibility by `ulimit -Hn`. If this value is less than `524288`, you need to increase your system's process file descriptor limit. |
+| `FSYNC`                        | If set to `true`, enable wine fsync, to use futex based synchronization instead of wineserver. This can dramatically improve client performance. Takes precedence over ESYNC. Requires linux kernel version >= 5.16. Check compatibility via kernel syscall availability with `cat /proc/kallsyms | grep futex_waitv`. |
 
 ## Debug
 
@@ -302,6 +304,9 @@ This happens sometimes on first boot or when the container is force-recreated e.
 ### Server output shows `Cannot read properties of undefined (reading 'info')`
 - This usually means your dedicated profile didn't generate properly. You can try deleting the dedicated profile and restarting the server to regenerate a new profile
   - MAKE ABSOLUTELY SURE IT'S THE DEDICATED PROFILE. Its username will start with `dedicated_` with password `fika-dedicated`
+
+### I'm using ESYNC, but my client crashes
+- Increase your system file descriptor limit. See [this doc](https://github.com/lutris/docs/blob/master/HowToEsync.md) for more information.
 
 # 💻 Development
 ### Building
