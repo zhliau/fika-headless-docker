@@ -19,6 +19,7 @@
     + [Container stalls at wine: RLIMIT_NICE <= 20](#container-stalls-at-wine-rlimit_nice-is-20)
     + [My container memory usage keeps going up until I run out of memory](#my-container-memory-usage-keeps-going-up-until-i-run-out-of-memory)
     + [Server output shows `cannot read properties of undefined (reading info)`](#server-output-shows-cannot-read-properties-of-undefined-reading-info)
+    + [I'm using esync but my client crashes](#im-using-esync-but-my-client-crashes)
 - [💻 Development](#-development)
     + [Building](#building)
     + [Using an Nvidia GPU in the container](#using-an-nvidia-gpu-in-the-container)
@@ -240,8 +241,8 @@ The start script will then:
 | `USE_MODSYNC`                  | If set to `true`, enables support for Corter-ModSync 0.8.1+ and the external updater. On container start, the dedicated client will close and start the updater the modsync plugin detects changes. On completion, the script will start the dedicated client up again |
 | `ENABLE_LOG_PURGE`             | If set to `true`, automatically purge the EFT `Logs/` directory every 00:00 UTC, to clear out large logfiles due to logspam. |
 | `AUTO_RESTART_ON_RAID_END`     | If set to `true`, auto restart the client on raid end, freeing all memory that isn't cleared properly on raid end |
-| `ESYNC`                        | If set to `true`, enable wine esync, to use eventfd based synchronization instead of wineserver. This can improve client performance. Check compatibility by `ulimit -Hn`. If this value is less than `524288`, you need to increase your system's process file descriptor limit. |
-| `FSYNC`                        | If set to `true`, enable wine fsync, to use futex based synchronization instead of wineserver. This can dramatically improve client performance. Takes precedence over ESYNC. Requires linux kernel version >= 5.16. Check compatibility via kernel syscall availability with `cat /proc/kallsyms | grep futex_waitv`. |
+| `ESYNC`                        | If set to `true`, enable wine esync, to use eventfd based synchronization instead of wineserver. This can improve client performance. Check compatibility by `ulimit -Hn`. If this value is less than `524288`, you need to increase your system's process file descriptor limit. See this [troubleshooting tip](#im-using-esync-but-my-client-crashes). |
+| `FSYNC`                        | If set to `true`, enable wine fsync, to use futex based synchronization instead of wineserver. This can dramatically improve client performance. Takes precedence over ESYNC. Requires linux kernel version >= 5.16. Check compatibility via kernel syscall availability with `cat /proc/kallsyms \| grep futex_waitv`. |
 
 ## Debug
 
