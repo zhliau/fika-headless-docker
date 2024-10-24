@@ -104,13 +104,31 @@ COPY ./data/reg/system.reg /.wine/
 COPY ./scripts/install_nvidia_deps.sh /opt/scripts/
 
 # wine-ge
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-    cron \
-    xz-utils
-RUN mkdir /wine-ge && \
-    curl -sL "https://github.com/GloriousEggroll/wine-ge-custom/releases/download/GE-Proton8-26/wine-lutris-GE-Proton8-26-x86_64.tar.xz" | tar xvJ -C /wine-ge
-ENV WINE_BIN_PATH=/wine-ge/lutris-GE-Proton8-26-x86_64/bin
+#RUN apt-get update \
+#    && apt-get install -y --no-install-recommends \
+#    cron \
+#    xz-utils
+#RUN mkdir /wine-ge && \
+#    curl -sL "https://github.com/GloriousEggroll/wine-ge-custom/releases/download/GE-Proton8-26/wine-lutris-GE-Proton8-26-x86_64.tar.xz" | tar xvJ -C /wine-ge
+#ENV WINE_BIN_PATH=/wine-ge/lutris-GE-Proton8-26-x86_64/bin
+
+# system wine
+#ENV WINE_BIN_PATH=/usr/bin
+#ENV WINE=/usr/bin/wine
+
+# wine-tkg
+#RUN mkdir /wine-tkg && \
+#    curl -sL "https://github.com/Kron4ek/Wine-Builds/releases/download/9.20/wine-9.20-staging-tkg-amd64.tar.xz" | tar xvJ -C /wine-tkg
+#ENV WINE_BIN_PATH=/wine-tkg/wine-9.20-staging-tkg-amd64/bin
+#ENV WINE=$WINE_BIN_PATH/wine
+#ENV PATH=$WINE_BIN_PATH:$PATH
+
+# proton9
+RUN mkdir /proton && \
+    curl -sL "https://github.com/Kron4ek/Wine-Builds/releases/download/proton-9.0-3/wine-proton-9.0-3-amd64.tar.xz" | tar xvJ -C /proton
+ENV WINE_BIN_PATH=/proton/wine-proton-9.0-3-amd64/bin
+ENV WINE=$WINE_BIN_PATH/wine
+ENV PATH=$WINE_BIN_PATH:$PATH
 
 COPY ./scripts/purge_logs.sh /usr/bin/purge_logs
 COPY ./data/cron/cron_purge_logs /opt/cron/cron_purge_logs
