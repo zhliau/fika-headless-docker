@@ -100,12 +100,13 @@ start_crond() {
     /etc/init.d/cron start
 }
 
+# Accepts EFT client PID as first arg
 raid_end_routine() {
     echo "Starting BepInEx/LogOutput.log watch for auto-restart on raid end"
     grep -q "Destroyed FikaServer" <(tail -F -n 0 $bepinex_logfile) \
         && echo "Raid ended, restarting dedicated client" \
         && sleep 10 \
-        && kill -9 $eft_pid
+        && kill -9 $1
 }
 
 # Main client function. Should block until client has exited
@@ -121,9 +122,10 @@ run_client() {
 
     # Show BepInEx logs in docker logs.
     tail -f $bepinex_logfile &
+    logwatch_pid=$!
 
     if [[ "$AUTO_RESTART_ON_RAID_END" == "true" ]]; then
-        raid_end_routine &
+        raid_end_routine $eft_pid &
     fi
 
     # Blocking function
@@ -135,6 +137,9 @@ run_client() {
         cp $bepinex_logfile $eft_dir/BepInEx/LogOutput-$timestamp.log
         echo "Saved log as LogOutput-$timestamp.log"
     fi
+
+    # Cleanup
+    kill -9 $logwatch_pid
 }
 
 echo "Running wineboot update. Please wait ~60s. See $wine_logfile_name for logs."
