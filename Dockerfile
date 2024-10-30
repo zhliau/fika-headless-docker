@@ -103,31 +103,38 @@ COPY ./data/reg/system.reg /.wine/
 # Copy nvidia init script
 COPY ./scripts/install_nvidia_deps.sh /opt/scripts/
 
+RUN winetricks dxvk wmp9
+RUN winetricks vd=1920x1080
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+    cron \
+    xz-utils
+
 # wine-ge
-#RUN apt-get update \
-#    && apt-get install -y --no-install-recommends \
-#    cron \
-#    xz-utils
-#RUN mkdir /wine-ge && \
-#    curl -sL "https://github.com/GloriousEggroll/wine-ge-custom/releases/download/GE-Proton8-26/wine-lutris-GE-Proton8-26-x86_64.tar.xz" | tar xvJ -C /wine-ge
-#ENV WINE_BIN_PATH=/wine-ge/lutris-GE-Proton8-26-x86_64/bin
+RUN mkdir /wine-ge && \
+    curl -sL "https://github.com/GloriousEggroll/wine-ge-custom/releases/download/GE-Proton8-26/wine-lutris-GE-Proton8-26-x86_64.tar.xz" | tar xvJ -C /wine-ge
+ENV WINE_BIN_PATH=/wine-ge/lutris-GE-Proton8-26-x86_64/bin
 
 # system wine
 #ENV WINE_BIN_PATH=/usr/bin
-#ENV WINE=/usr/bin/wine
 
 # wine-tkg
 #RUN mkdir /wine-tkg && \
 #    curl -sL "https://github.com/Kron4ek/Wine-Builds/releases/download/9.20/wine-9.20-staging-tkg-amd64.tar.xz" | tar xvJ -C /wine-tkg
 #ENV WINE_BIN_PATH=/wine-tkg/wine-9.20-staging-tkg-amd64/bin
-#ENV WINE=$WINE_BIN_PATH/wine
-#ENV PATH=$WINE_BIN_PATH:$PATH
 
 # proton9
-RUN mkdir /proton && \
-    curl -sL "https://github.com/Kron4ek/Wine-Builds/releases/download/proton-9.0-3/wine-proton-9.0-3-amd64.tar.xz" | tar xvJ -C /proton
-ENV WINE_BIN_PATH=/proton/wine-proton-9.0-3-amd64/bin
-ENV WINE=$WINE_BIN_PATH/wine
+#RUN mkdir /proton && \
+#    curl -sL "https://github.com/Kron4ek/Wine-Builds/releases/download/proton-9.0-3/wine-proton-9.0-3-amd64.tar.xz" | tar xvJ -C /proton
+#ENV WINE_BIN_PATH=/proton/wine-proton-9.0-3-amd64/bin
+
+# proton-exp
+#RUN mkdir /proton-exp && \
+#    curl -sL "https://github.com/Kron4ek/Wine-Builds/releases/download/proton-exp-9.0/wine-proton-exp-9.0-amd64.tar.xz" | tar xvJ -C /proton-exp
+#ENV WINE_BIN_PATH=/proton-exp/wine-proton-exp-9.0-amd64/bin
+
+ENV WINE=$WINE_BIN_PATH/wine64
 ENV PATH=$WINE_BIN_PATH:$PATH
 
 COPY ./scripts/purge_logs.sh /usr/bin/purge_logs
