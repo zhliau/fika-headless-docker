@@ -30,6 +30,7 @@
 - 🔨 Automatic restart on raid end, to manage container memory usage
 - 🚚 Automatic purging of EFT `Logs/` dir, to clear out large logfiles due to logspam
 - 🍬 Optionally use Nvidia GPU when running the client, still completely headless without a real display
+- 🧪 Tested and works on SPT 3.9.x, 3.10.0
 
 # 👻 Dedicated Client
 
