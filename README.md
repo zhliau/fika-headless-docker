@@ -310,6 +310,12 @@ This happens sometimes on first boot or when the container is force-recreated e.
 ### I'm using ESYNC, but my client crashes
 - Increase your system file descriptor limit. See [this doc](https://github.com/lutris/docs/blob/master/HowToEsync.md) for more information.
 
+### Bots are sliding when moving! Performance of my dedicated client is awful!
+Bots sliding or "ice-skating" when moving indicates dedicated client FPS < 30. You can see the dedicated client FPS in-raid by opening the console and entering `debug t`
+Here are a few tips to potentially improve performance.
+- Set either `ESYNC=true` or `FSYNC=true` in the container environment variables to use wine esync/fsync. This uses a different synchronization method than default and may help the client perform better.
+- Set your CPU governer to `performance`. On linux this can be achieved with the `cpupower` tool, search up on how to do this.
+
 # 💻 Development
 ### Building
 Run the `build` script, optionally setting a `VERSION` env var to tag the image. The image is tagged `fika-dedicated:latest`, or whatever version is provided in the env var.
