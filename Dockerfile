@@ -49,88 +49,63 @@ FROM archlinux:latest AS wine-builder
 
 ENV XDG_CACHE_HOME /tmp/.cache
 
-# Build wine-tkg with ntsync
-RUN echo -e "[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf
-RUN pacman -Syu --noconfirm base-devel sudo git
-RUN curl -o /usr/include/linux/ntsync.h https://raw.githubusercontent.com/zen-kernel/zen-kernel/6.8/main/include/uapi/linux/ntsync.h
-RUN useradd -m user -G wheel && echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-
-USER user 
-
-WORKDIR /home/user
+# Build wine-tkg-ntsync
+FROM debian:bookworm as wine-builder
+USER root
+WORKDIR /opt
+RUN dpkg --add-architecture i386 && apt update
+RUN apt install -y aptitude curl git tar
+RUN aptitude remove -y '?narrow(?installed,?version(deb.sury.org))'
+RUN curl --create-dirs -o /usr/include/linux/ntsync.h https://raw.githubusercontent.com/zen-kernel/zen-kernel/6.8/main/include/uapi/linux/ntsync.h
 RUN git clone https://github.com/kangtastic/wine-tkg-ntsync.git
 
-WORKDIR /home/user/wine-tkg-ntsync/wine-tkg-git
+WORKDIR /opt/wine-tkg-ntsync/
+RUN ls -thora
+RUN cd wine-tkg-git && \
+    sed -i 's/ntsync="false"/ntsync="true"/' ./customization.cfg && \
+    sed -i 's/esync="true"/esync="false"/' ./customization.cfg && \
+    sed -i 's/fsync="true"/fsync="false"/' ./customization.cfg && \
+    sed -i 's/_NOLIB32="false"/_NOLIB32="wow64"/' ./wine-tkg-profiles/advanced-customization.cfg && \
+    echo '_ci_build="true"' >> ./customization.cfg
 
-RUN sed -i 's/wayland_driver="false"/wayland_driver="true"/' customization.cfg
-RUN sed -i 's/ntsync="false"/ntsync="true"/' customization.cfg
-RUN sed -i 's/esync="true"/esync="false"/' customization.cfg
-RUN sed -i 's/fsync="true"/fsync="false"/' customization.cfg
-RUN yes|PKGDEST=/home/user/wine-tkg-build makepkg --noconfirm -s
-RUN ls -thora /home/user/wine-tkg-build
-RUN mv $(find /home/user/wine-tkg-build -name *.tar.zst) /home/user/wine-tkg-ntsync.tar.zst
-
-#RUN sudo dpkg --add-architecture i386 && sudo apt update
-#RUN sudo apt install -y aptitude
-#RUN sudo aptitude remove -y '?narrow(?installed,?version(deb.sury.org))'
-#RUN sudo curl --create-dirs -o /usr/include/linux/ntsync.h https://raw.githubusercontent.com/zen-kernel/zen-kernel/6.8/main/include/uapi/linux/ntsync.h
-#RUN git clone https://github.com/kangtastic/wine-tkg-ntsync.git
-#
-#WORKDIR /opt/wine-tkg-ntsync/
-#RUN cd wine-tkg-git && \
-#    sed -i 's/ntsync="false"/ntsync="true"/' ./customization.cfg && \
-#    sed -i 's/esync="true"/esync="false"/' ./customization.cfg && \
-#    sed -i 's/fsync="true"/fsync="false"/' ./customization.cfg && \
-#    sed -i 's/_NOLIB32="false"/_NOLIB32="wow64"/' ./wine-tkg-profiles/advanced-customization.cfg && \
-#    echo '_ci_build="true"' >> ./customization.cfg
-#
-#RUN cd wine-tkg-git && touch tarplz
-#RUN cd wine-tkg-git && yes|./non-makepkg-build.sh
-#RUN mkdir -p /wine-tkg-ntsync
-#RUN find ./wine-tkg-git/non-makepkg-builds -name *.tar
-#RUN tar xvf $(find ./wine-tkg-git/non-makepkg-builds -name *.tar) --directory=/wine-tkg-ntsync 
+RUN cd wine-tkg-git && yes|./non-makepkg-build.sh
+RUN ls ./wine-tkg-git/non-makepkg-builds
+RUN cp -r $(find . -type d -name wine-tkg-staging-ntsync-git*) /wine-tkg-ntsync
 
 FROM base
 
 ARG WINE_BRANCH="devel"
 
-# Add wine repos and install stable wine
-RUN sudo mkdir -pm755 /etc/apt/keyrings \
-    && sudo wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key \
-    && sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/debian/dists/bookworm/winehq-bookworm.sources \
-    && dpkg --add-architecture i386 \
-    && apt-get update \
-    && DEBIAN_FRONTEND="noninteractive" apt-get install -y --install-recommends winehq-${WINE_BRANCH} zstd \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY --from=wine-builder /home/user/wine-tkg-ntsync.tar.zst /
+COPY --from=wine-builder /wine-tkg-ntsync /wine-tkg-ntsync
 WORKDIR /
-RUN mkdir /wine-tkg-ntsync && tar --zstd -xvf wine-tkg-ntsync.tar.zst --directory=/wine-tkg-ntsync
+RUN ls -thora /wine-tkg-ntsync
+ENV PATH=/wine-tkg-ntsync/bin:$PATH
+RUN which wine
+
+# Add wine repos and install stable wine
+#RUN sudo mkdir -pm755 /etc/apt/keyrings \
+#    && sudo wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key \
+#    && sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/debian/dists/bookworm/winehq-bookworm.sources \
+#    && dpkg --add-architecture i386 \
+#    && apt-get update \
+#    && DEBIAN_FRONTEND="noninteractive" apt-get install -y --install-recommends winehq-${WINE_BRANCH} zstd libc-bin libc6 \
+#    && rm -rf /var/lib/apt/lists/*
 
 # latest winetricks
 RUN curl -SL 'https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks' -o /usr/local/bin/winetricks \
     && chmod +x /usr/local/bin/winetricks
 
 RUN locale-gen en_US.UTF-8
-ENV LANG en_US.UTF-8
+ENV LANG=en_US.UTF-8
 
-ENV HOME /
-ENV WINEPREFIX /.wine
-
-# winetricks dotnet48 doesn't install on win64
-ENV WINEARCH win64
+ENV HOME=/
+ENV WINEPREFIX=/.wine
+ENV WINEARCH=win64
 
 WORKDIR /
 
-#RUN mkdir /.wine && chown -R 1000:1000 /.wine
-
 # Install wineprefix deps
-#USER 1000:1000
-# Have to run these separately for some reason or else they fail
-#RUN winetricks fonts list
-RUN PATH=$(find /wine-tkg-ntsync -type d -name wine-tkg-staging-ntsync-git-9.22*)/bin/:$PATH which wine
 RUN winecfg && winetricks -q arial times
-#wine wineboot && xvfb-run -a wineserver -w && 
 # Cache vcredist installer direct from MS to bypass downloading from web.archive.org
 RUN mkdir -p /.cache/winetricks/ucrtbase2019
 RUN curl -SL 'https://download.visualstudio.microsoft.com/download/pr/85d47aa9-69ae-4162-8300-e6b7e4bf3cf3/14563755AC24A874241935EF2C22C5FCE973ACB001F99E524145113B2DC638C1/VC_redist.x86.exe' \
@@ -151,7 +126,6 @@ ENV DISPLAY_DPI=96
 ENV DISPLAY_CDEPTH=24
 ENV VIDEO_PORT=DFP
 
-# Force TERM to xterm because sometimes it gets set to "dumb" for some reason ???
 ENV TERM=xterm
 
 # Copy over all modified reg files to prefix in container
@@ -163,13 +137,15 @@ COPY ./data/reg/system.reg /.wine/
 COPY ./scripts/install_nvidia_deps.sh /opt/scripts/
 
 # wine-ge
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-    cron \
-    xz-utils
-RUN mkdir /wine-ge && \
-    curl -sL "https://github.com/GloriousEggroll/wine-ge-custom/releases/download/GE-Proton8-26/wine-lutris-GE-Proton8-26-x86_64.tar.xz" | tar xvJ -C /wine-ge
-ENV WINE_BIN_PATH=/wine-ge/lutris-GE-Proton8-26-x86_64/bin
+#RUN apt-get update \
+#    && apt-get install -y --no-install-recommends \
+#    cron \
+#    xz-utils
+#RUN mkdir /wine-ge && \
+#    curl -sL "https://github.com/GloriousEggroll/wine-ge-custom/releases/download/GE-Proton8-26/wine-lutris-GE-Proton8-26-x86_64.tar.xz" | tar xvJ -C /wine-ge
+#ENV WINE_BIN_PATH=/wine-ge/lutris-GE-Proton8-26-x86_64/bin
+ENV WINE_BIN_PATH=/wine-tkg-ntsync/bin
+ENV WINE=$WINE_BIN_PATH/wine
 
 COPY ./scripts/purge_logs.sh /usr/bin/purge_logs
 COPY ./data/cron/cron_purge_logs /opt/cron/cron_purge_logs
