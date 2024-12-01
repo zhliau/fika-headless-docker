@@ -354,3 +354,7 @@ services:
               count: 1
               capabilities: [gpu]
 ```
+
+### Using ntsync
+- Make sure you have ntsync support for your host OS's kernel. On Arch there is a kernel module for it `pacman -S ntsync-dkms`
+- Mount the `/dev/ntsync` device in the container
