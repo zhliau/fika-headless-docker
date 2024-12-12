@@ -243,6 +243,7 @@ The start script will then:
 | `AUTO_RESTART_ON_RAID_END`     | If set to `true`, auto restart the client on raid end, freeing all memory that isn't cleared properly on raid end |
 | `ESYNC`                        | If set to `true`, enable wine esync, to use eventfd based synchronization instead of wineserver. This can improve client performance. Check compatibility by `ulimit -Hn`. If this value is less than `524288`, you need to increase your system's process file descriptor limit. See this [troubleshooting tip](#im-using-esync-but-my-client-crashes). |
 | `FSYNC`                        | If set to `true`, enable wine fsync, to use futex based synchronization instead of wineserver. This can dramatically improve client performance. Takes precedence over ESYNC. Requires linux kernel version >= 5.16. Check compatibility via kernel syscall availability with `cat /proc/kallsyms \| grep futex_waitv`. |
+| `NTSYNC`                       | If set to `true`, enable wine ntsync, to use a wine binary compiled with support for kernel level implementation of Windows NT synchronization primitives, the latest and potentially highest performing synchronization method. This can dramatically improve client performance. Takes precedence over FSYNC or ESYNC. Requires ntsync support in your host kernel. See [this section](#using-ntsync) for details |
 
 ## Debug
 
@@ -358,3 +359,18 @@ services:
 ### Using ntsync
 - Make sure you have ntsync support for your host OS's kernel. On Arch there is a kernel module for it `pacman -S ntsync-dkms`
 - Mount the `/dev/ntsync` device in the container
+- Set the `NTSYNC` env var to `true` in the container
+When you start the container, watch the `wine.log` in the client directory. You will see the line `wine: using fast synchronization` if you are successfully using ntsync.
+
+```yaml
+services:
+  fika_dedicated:
+    image: ghcr.io/zhliau/fika-headless-docker:latest
+    # ...
+    environment:
+      # ...
+      - NTSYNC=true
+    devices:
+      - /dev/ntsync:/dev/ntsync
+
+```

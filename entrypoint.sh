@@ -14,6 +14,7 @@ nodynamicai="-noDynamicAI"
 save_log_on_exit=${SAVE_LOG_ON_EXIT:-false}
 esync=${ESYNC:-false}
 fsync=${FSYNC:-false}
+ntsync=${NTSYNC:-false}
 
 xlockfile=/tmp/.X0-lock
 # Overriden if you use DGPU
@@ -24,7 +25,10 @@ if [[ "$esync" == "true" ]]; then
     export WINEESYNC=1
 fi
 
-if [[ "$fsync" == "true" ]]; then
+if [[ "$ntsync" == "true" ]]; then
+    echo "Using ntsync wine. Make sure your host has a kernel that supports ntsync."
+    WINE_BIN_PATH=$WINE_NTSYNC_BIN_PATH
+elif [[ "$fsync" == "true" ]]; then
     # fsync takes precedence
     if [[ "$esync" == "true" ]]; then
         export WINEESYNC=0
