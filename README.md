@@ -8,6 +8,7 @@
     + [Requirements](#requirements)
     + [Steps](#steps)
     + [Corter-Modsync support](#corter-modsync-support)
+    + [Wine Synchronization methods](#wine-synchronization-methods)
 - [🌐 Environment variables](#-environment-variables)
   * [Required](#required)
   * [Optional](#optional)
@@ -62,7 +63,7 @@ I've only tested this on my linux hosts (Arch kernel 6.9.8 and Fedora 6.7.10).
 This won't work on Windows because of permission issues with WSL2.
 Probably will not work on ARM hosts either.
 
-Tested with both SPT 3.8.3 and SPT 3.9.x and the associated Fika versions. 
+Tested with both SPT 3.8.3 and SPT 3.9.x and the associated Fika versions.
 
 ### Requirements
 - An SPT backend server running somewhere reachable by your docker host. Best if running on the same host.
@@ -223,6 +224,37 @@ The start script will then:
 > via a periodic restarter script or a cron job. You can mount the docker socket into a `docker:cli` image and run a simple bash while loop or something.
 > See the example docker-compose.yml in this repo for details
 
+## Wine Synchronization Methods
+This image supports enabling esync, fsync, and ntsync alternative synchronization methods with Wine. These methods can potentially improve performance in the dedicated client.
+To enable them, set one of either `NTSYNC`, `FSYNC`, or `ESYNC` environment variables to `true`. If none of these env vars are set, this image will fall back to the default wineserver based sync.
+### `NTSYNC`
+Kernel level implementation of Windows NT synchronization primitives. The latest and potentially highest performing sync method. Takes precedence over all other sync methods.
+
+- Requires `ntsync` support in the host kernel. Make sure you have ntsync support either by installing a kernel module (on Arch there is a kernel module for it `pacman -S ntsync-dkms`) or using a kernel compiled with ntsync.
+- Mount the `/dev/ntsync` device in the container
+- Set the `NTSYNC` env var to `true` in the container
+When you start the container, watch the `wine.log` in the client directory. You will see the line `wine: using fast synchronization` if you are successfully using ntsync.
+
+### `FSYNC`
+Futex based sychronization. Takes precedence over ESYNC. Requires linux kernel version >= 5.16. Check compatibility via kernel syscall availability with `cat /proc/kallsyms \| grep futex_waitv`.
+
+### `ESYNC`
+Eventfd based synchronization.
+Check compatibility by `ulimit -Hn`. If this value is less than `524288`, you need to increase your system's process file descriptor limit. See this [troubleshooting tip](#im-using-esync-but-my-client-crashes).
+
+```yaml
+services:
+  fika_dedicated:
+    image: ghcr.io/zhliau/fika-headless-docker:latest
+    # ...
+    environment:
+      # ...
+      - NTSYNC=true
+    devices:
+      - /dev/ntsync:/dev/ntsync
+
+```
+
 # 🌐 Environment variables
 ## Required
 
@@ -354,23 +386,4 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
-```
-
-### Using ntsync
-- Make sure you have ntsync support for your host OS's kernel. On Arch there is a kernel module for it `pacman -S ntsync-dkms`
-- Mount the `/dev/ntsync` device in the container
-- Set the `NTSYNC` env var to `true` in the container
-When you start the container, watch the `wine.log` in the client directory. You will see the line `wine: using fast synchronization` if you are successfully using ntsync.
-
-```yaml
-services:
-  fika_dedicated:
-    image: ghcr.io/zhliau/fika-headless-docker:latest
-    # ...
-    environment:
-      # ...
-      - NTSYNC=true
-    devices:
-      - /dev/ntsync:/dev/ntsync
-
 ```
