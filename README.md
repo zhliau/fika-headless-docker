@@ -235,16 +235,6 @@ Kernel level implementation of Windows NT synchronization primitives. The latest
 - Set the `NTSYNC` env var to `true` in the container
 When you start the container, watch the `wine.log` in the client directory. You will see the line `wine: using fast synchronization` if you are successfully using ntsync.
 
-### `FSYNC`
-Futex based sychronization. Takes precedence over ESYNC.
-
-Requires linux kernel version >= 5.16. Check compatibility via kernel syscall availability with `cat /proc/kallsyms | grep futex_waitv`.
-
-### `ESYNC`
-Eventfd based synchronization.
-
-Check compatibility by `ulimit -Hn`. If this value is less than `524288`, you need to increase your system's process file descriptor limit. See this [troubleshooting tip](#im-using-esync-but-my-client-crashes).
-
 ```yaml
 services:
   fika_dedicated:
@@ -256,6 +246,16 @@ services:
     devices:
       - /dev/ntsync:/dev/ntsync
 ```
+
+### `FSYNC`
+Futex based sychronization. Takes precedence over ESYNC.
+
+Requires linux kernel version >= 5.16. Check compatibility via kernel syscall availability with `cat /proc/kallsyms | grep futex_waitv`.
+
+### `ESYNC`
+Eventfd based synchronization.
+
+Check compatibility by `ulimit -Hn`. If this value is less than `524288`, you need to increase your system's process file descriptor limit. See this [troubleshooting tip](#im-using-esync-but-my-client-crashes).
 
 # 🌐 Environment variables
 ## Required
