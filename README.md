@@ -252,7 +252,6 @@ services:
       - NTSYNC=true
     devices:
       - /dev/ntsync:/dev/ntsync
-
 ```
 
 # 🌐 Environment variables

@@ -116,8 +116,6 @@ RUN mv /wine-ge/lutris-GE-Proton8-26-x86_64/* /wine-ge
 ENV WINE_NTSYNC_BIN_PATH=/wine-tkg-ntsync/bin
 ENV WINE_BIN_PATH=/wine-ge/bin
 
-#ENV PATH=$WINE_NTSYNC_BIN_PATH:$WINE_BIN_PATH:$PATH
-
 # Add wine repos and install stable wine
 # This is required to run wineboot properly
 RUN sudo mkdir -pm755 /etc/apt/keyrings \
@@ -138,7 +136,6 @@ RUN curl -SL 'https://download.visualstudio.microsoft.com/download/pr/85d47aa9-6
     -o /.cache/winetricks/ucrtbase2019/VC_redist.x64.exe
 RUN winecfg && wineboot --update && xvfb-run -a winetricks -q vcrun2019 dotnetdesktop8
 
-
 COPY ./scripts/purge_logs.sh /usr/bin/purge_logs
 COPY ./data/cron/cron_purge_logs /opt/cron/cron_purge_logs
 
@@ -149,7 +146,6 @@ COPY ./data/reg/system.reg /.wine/
 
 # Copy nvidia init script
 COPY ./scripts/install_nvidia_deps.sh /opt/scripts/
-
 
 COPY entrypoint.sh /usr/bin/entrypoint
 ENTRYPOINT ["/usr/bin/entrypoint"]
