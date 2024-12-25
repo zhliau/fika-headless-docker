@@ -327,9 +327,8 @@ If the dedicated client container crashes with this error, this usually means yo
   ```
 
 ### Container stalls at wine: RLIMIT_NICE is <=20
-This happens sometimes on first boot or when the container is force-recreated e.g. by `docker-compose up --force-recreate`. I have no idea why it happens, but to solve it you can
-- Just wait. Almost exactly 5 minutes after this line is emitted, the client will resume starting normally
-- Restart the container with `docker restart` or `docker-compose restart`. This will force the client to start up immediately.
+This happens sometimes on first boot or when the container is force-recreated e.g. by `docker-compose up --force-recreate`. This is because wine needs to run wineboot to on container initialization.
+- Just wait. after roughly 60s, the client will resume starting normally
 
 ### My container memory usage keeps going up until I run out of memory
 - Try setting the `AUTO_RESTART_ON_RAID_END` env var to `true`, to have the client restart itself after each raid is completed and all players have extracted.
@@ -343,6 +342,10 @@ This happens sometimes on first boot or when the container is force-recreated e.
 
 ### I'm using ESYNC, but my client crashes
 - Increase your system file descriptor limit. See [this doc](https://github.com/lutris/docs/blob/master/HowToEsync.md) for more information.
+
+### After loading plugins, SPT.Custom throws an error
+`The type initializer for 'SPT.Custom.Patches.EasyAssetsPatch' threw an exception`
+- Try running the client and getting to the main menu before using/copying the EFT client files to the docker host. This usually means the client has not been run before.
 
 # 💻 Development
 ### Building
