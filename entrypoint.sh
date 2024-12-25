@@ -6,7 +6,7 @@ bepinex_logfile=$eft_dir/BepInEx/LogOutput.log
 wine_logfile_name=wine.log
 wine_logfile=$eft_dir/$wine_logfile_name
 
-xvfb_run=""
+xvfb_run="xvfb-run -a"
 nographics="-nographics"
 batchmode="-batchmode"
 nodynamicai="-noDynamicAI"
