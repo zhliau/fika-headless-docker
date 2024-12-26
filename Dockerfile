@@ -59,9 +59,9 @@ RUN aptitude remove -y '?narrow(?installed,?version(deb.sury.org))'
 RUN curl --create-dirs -o /usr/include/linux/ntsync.h https://raw.githubusercontent.com/zen-kernel/zen-kernel/6.8/main/include/uapi/linux/ntsync.h
 RUN git clone --depth 1 https://github.com/kangtastic/wine-tkg-ntsync.git
 
+WORKDIR /opt/wine-tkg-ntsync/
 # Temporarily fix build failure ever since pulling from upstream wine-tkg-git
 RUN git checkout 26c0f63b0b1e5a699e181ccb40599ca36ae30a5b
-WORKDIR /opt/wine-tkg-ntsync/
 RUN cd wine-tkg-git && \
     sed -i 's/ntsync="false"/ntsync="true"/' ./customization.cfg && \
     sed -i 's/esync="true"/esync="false"/' ./customization.cfg && \
