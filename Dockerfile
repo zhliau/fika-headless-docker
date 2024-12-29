@@ -129,7 +129,7 @@ RUN sudo mkdir -pm755 /etc/apt/keyrings \
     && rm -rf /var/lib/apt/lists/*
 
 # Install wineprefix deps
-RUN winetricks -q arial times
+RUN winecfg && wineboot --update && xvfb-run -a winetricks -q arial times
 # Cache vcredist installer direct from MS to bypass downloading from web.archive.org
 RUN mkdir -p /.cache/winetricks/ucrtbase2019
 RUN curl -SL 'https://download.visualstudio.microsoft.com/download/pr/85d47aa9-69ae-4162-8300-e6b7e4bf3cf3/14563755AC24A874241935EF2C22C5FCE973ACB001F99E524145113B2DC638C1/VC_redist.x86.exe' \
