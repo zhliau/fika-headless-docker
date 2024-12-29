@@ -327,7 +327,7 @@ If the dedicated client container crashes with this error, this usually means yo
   ```
 
 ### Container stalls at wine: RLIMIT_NICE is <=20
-This happens sometimes on first boot or when the container is force-recreated e.g. by `docker-compose up --force-recreate`. This is because wine needs to run wineboot to on container initialization.
+This happens sometimes on first boot or when the container is force-recreated e.g. by `docker-compose up --force-recreate`. This is because wine needs to run wineboot on container initialization.
 - Just wait. after roughly 60s, the client will resume starting normally
 
 ### My container memory usage keeps going up until I run out of memory

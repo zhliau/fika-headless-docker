@@ -1,4 +1,4 @@
-FROM debian:bookworm-slim as base
+FROM debian:bookworm-slim AS base
 USER root
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -43,14 +43,9 @@ RUN apt-get update \
     xserver-xorg-core \
     xvfb
 
-ARG WINE_BRANCH="devel"
-
-FROM archlinux:latest AS wine-builder
-
-ENV XDG_CACHE_HOME /tmp/.cache
-
 # Build wine-tkg-ntsync
-FROM debian:bookworm as wine-builder
+FROM debian:bookworm AS wine-builder
+
 USER root
 WORKDIR /opt
 RUN dpkg --add-architecture i386 && apt update
@@ -74,7 +69,7 @@ RUN cp -r $(find . -type d -name wine-tkg-staging-ntsync-git*) /wine-tkg-ntsync
 
 FROM base
 
-ARG WINE_BRANCH="devel"
+ARG WINE_BRANCH="stable"
 
 COPY --from=wine-builder /wine-tkg-ntsync /wine-tkg-ntsync
 WORKDIR /
