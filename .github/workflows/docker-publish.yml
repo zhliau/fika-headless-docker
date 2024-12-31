@@ -8,7 +8,7 @@ name: Docker
 on:
   push:
     # Publish semver tags as releases.
-    tags: [ 'v*.*.*' ]
+    tags: [ 'v*.*.*', '*-dev' ]
   pull_request:
     branches: [ "master" ]
 
@@ -30,6 +30,9 @@ jobs:
       id-token: write
 
     steps:
+      - name: Delete huge unnecessary tools folder
+        run: rm -rf /opt/hostedtoolcache
+
       - name: Checkout repository
         uses: actions/checkout@v4
 

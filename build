@@ -2,4 +2,4 @@
 
 version_tag=${VERSION:-latest}
 
-docker build . -t fika-dedicated:$version_tag
+docker build . -t fika-dedicated:$version_tag $@
