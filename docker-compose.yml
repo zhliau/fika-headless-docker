@@ -13,6 +13,13 @@ services:
       - /host/path/to/serverfiles:/opt/server
     ports:
       - 6969:6969
+    # Mark the container as healthy once the server has started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6969/launcher/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
     restart: unless-stopped
  
   # Dedicated client container
@@ -27,6 +34,10 @@ services:
       # Use service name from above, docker-compose resolves this to the SPT server container
       - SERVER_URL=spt_server
       - SERVER_PORT=6969
+    # Wait to start the dedicated client until the server is healthy
+    depends_on:
+      spt_server:
+        condition: service_healthy
     ports:
       - 25565:25565/udp
 
