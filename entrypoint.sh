@@ -5,6 +5,7 @@ eft_binary=$eft_dir/EscapeFromTarkov.exe
 bepinex_logfile=$eft_dir/BepInEx/LogOutput.log
 wine_logfile_name=wine.log
 wine_logfile=$eft_dir/$wine_logfile_name
+umu=${UMU:-false}
 
 xvfb_run=""
 nographics="-nographics"
@@ -115,7 +116,11 @@ raid_end_routine() {
 # or via watching the PID
 run_client() {
     echo "Using wine executable $WINE_BIN_PATH/wine"
-    WINEDEBUG=-all $xvfb_run $WINE_BIN_PATH/wine $eft_binary $batchmode $nographics $nodynamicai -token="$PROFILE_ID" -config="{'BackendUrl':'http://$SERVER_URL:$SERVER_PORT', 'Version':'live'}" &> $wine_logfile &
+    if [[ "$umu" != "true" ]]; then
+        WINEDEBUG=-all $xvfb_run $WINE_BIN_PATH/wine $eft_binary $batchmode $nographics $nodynamicai -token="$PROFILE_ID" -config="{'BackendUrl':'http://$SERVER_URL:$SERVER_PORT', 'Version':'live'}" &> $wine_logfile &
+    else
+        WINEDEBUG=-all GAMEID=eft WINEPREFIX=/umu-eft umu-run PROTONPATH=GE-Proton $eft_binary $batchmode $nographics $nodynamicai -token="$PROFILE_ID" -config="{'BackendUrl':'http://$SERVER_URL:$SERVER_PORT', 'Version':'live'}" &> $wine_logfile &
+    fi
 
     eft_pid=$!
     echo "EFT PID is $eft_pid"

@@ -116,6 +116,22 @@ RUN mkdir /wine-ge && \
     curl -sL "https://github.com/GloriousEggroll/wine-ge-custom/releases/download/GE-Proton8-26/wine-lutris-GE-Proton8-26-x86_64.tar.xz" | tar xvJ -C /wine-ge
 ENV WINE_BIN_PATH=/wine-ge/lutris-GE-Proton8-26-x86_64/bin
 
+# umu
+RUN useradd -m umu
+RUN mkdir /umu && \
+    curl -sL "https://github.com/Open-Wine-Components/umu-launcher/releases/download/1.2.3/umu-launcher-1.2.3-zipapp.tar" | tar xv -C /umu
+#ENV WINE_BIN_PATH=/wine-ge/lutris-GE-Proton8-26-x86_64/bin
+RUN mkdir /home/umu/umu-eft
+RUN chown -R umu /umu && chown -R umu /home/umu/umu-eft
+ENV UMU_PATH=/umu/umu
+ENV PATH=$PATH:/umu/umu
+USER umu
+RUN echo $HOME && whoami
+RUN ls /home/umu
+RUN WINEPREFIX=/home/umu/umu-eft GAMEID=0 PROTONPATH=GE-Proton umu-run ""
+RUN WINEPREFIX=/home/umu/umu-eft GAMEID=0 PROTONPATH=GE-Proton winetricks -q arial times
+RUN WINEPREFIX=/home/umu/umu-eft GAMEID=0 PROTONPATH=GE-Proton xvfb-run -a winetricks -q vcrun2019 dotnetdesktop8
+
 # system wine
 #ENV WINE_BIN_PATH=/usr/bin
 
