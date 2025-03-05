@@ -90,6 +90,7 @@ WORKDIR /
 ENV PROFILE_ID=test
 ENV SERVER_URL=127.0.0.1
 ENV SERVER_PORT=6969
+ENV HTTPS=true
 
 # Nvidia container toolkit stuff, for nvidia-xconfig
 ENV DISPLAY_SIZEW=1024

@@ -15,10 +15,16 @@ save_log_on_exit=${SAVE_LOG_ON_EXIT:-false}
 esync=${ESYNC:-false}
 fsync=${FSYNC:-false}
 ntsync=${NTSYNC:-false}
+https=${HTTPS:-true}
+proto=https
 
 xlockfile=/tmp/.X0-lock
 # Overriden if you use DGPU
 export DISPLAY=:0.0
+
+if [[ "$https" != "true" ]]; then
+    proto=http
+fi
 
 if [[ "$esync" == "true" ]]; then
     echo "Enabling wine esync"
@@ -93,7 +99,7 @@ run_xvfb() {
     fi
     if [ -f "$xlockfile" ]; then rm -f $xlockfile; fi
     echo "Starting Xvfb in background"
-    /usr/bin/Xvfb :0 -screen 0 1024x768x16 2>&1 &
+    /usr/bin/Xvfb :0 -screen 0 1024x768x24 -ac +extension GLX +render -noreset 2>&1 &
     xvfb_pid=$!
     echo "Xvfb running PID is $xvfb_pid"
 }
@@ -119,7 +125,7 @@ raid_end_routine() {
 # or via watching the PID
 run_client() {
     echo "Using wine executable $WINE_BIN_PATH/wine"
-    WINEDEBUG=-all $xvfb_run $WINE_BIN_PATH/wine $eft_binary $batchmode $nographics $nodynamicai -token="$PROFILE_ID" -config="{'BackendUrl':'http://$SERVER_URL:$SERVER_PORT', 'Version':'live'}" &> $wine_logfile &
+    WINEDEBUG=-all $xvfb_run $WINE_BIN_PATH/wine $eft_binary $batchmode $nographics $nodynamicai -token="$PROFILE_ID" -config="{'BackendUrl':'$proto://$SERVER_URL:$SERVER_PORT', 'Version':'live'}" &> $wine_logfile &
 
     eft_pid=$!
     echo "EFT PID is $eft_pid"
