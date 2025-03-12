@@ -1,12 +1,10 @@
 # About
-:new_moon_with_face: Run the FIKA dedicated client as a headless service, in a docker container! :new_moon_with_face:
+:new_moon_with_face: Run the FIKA headless client in a docker container! :new_moon_with_face:
 
 - [🧙 Features](#-features)
-- [👻 Dedicated Client](#-dedicated-client)
+- [👻 Headless Client](#-headless-client)
 - [📦 Releases](#-releases)
 - [🚤 Running](#-running)
-    + [Requirements](#requirements)
-    + [Steps](#steps)
     + [Corter-Modsync support](#corter-modsync-support)
     + [Wine Synchronization methods](#wine-synchronization-methods)
 - [🌐 Environment variables](#-environment-variables)
@@ -14,44 +12,32 @@
   * [Optional](#optional)
   * [Debug](#debug)
 - [🧰 Troubleshooting](#-troubleshooting)
-    + [Container immediately exits](#container-immediately-exits)
-    + [Stuck right after BepInEx preloader finished](#stuck-right-after-bepinex-preloader-finished)
-    + [Crash with assertion in virtual.c](#crash-with-assertion-in-virtualc)
-    + [Container stalls at wine: RLIMIT_NICE <= 20](#container-stalls-at-wine-rlimit_nice-is-20)
-    + [My container memory usage keeps going up until I run out of memory](#my-container-memory-usage-keeps-going-up-until-i-run-out-of-memory)
-    + [Server output shows `cannot read properties of undefined (reading info)`](#server-output-shows-cannot-read-properties-of-undefined-reading-info)
-    + [I'm using esync but my client crashes](#im-using-esync-but-my-client-crashes)
 - [💻 Development](#-development)
     + [Building](#building)
     + [Using an Nvidia GPU in the container](#using-an-nvidia-gpu-in-the-container)
 
 # 🧙 Features
-- 🐎 Run Fika Dedicated client fully headless in docker container, with or without GPU on the docker host.
-- 🔄 Supports [Corter-ModSync](https://github.com/c-orter/modsync/), to automatically keep dedicated client mods up to date
+- 🐎 Run Fika Headless client without display server in docker container, with or without GPU.
+- 🔄 Supports [Corter-ModSync](https://github.com/c-orter/modsync/), to automatically keep headless client mods up to date
 - 🔨 Automatic restart on raid end, to manage container memory usage
 - 🚚 Automatic purging of EFT `Logs/` dir, to clear out large logfiles due to logspam
 - 🍬 Optionally use Nvidia GPU when running the client, still completely headless without a real display
 - 🧪 Tested and works on SPT 3.9.x, 3.10.0
 
-# 👻 Dedicated Client
+# 👻 Headless Client
 
-## What is a Dedicated Client?
+## What is a Headless Client?
 
-A dedicated client in the context of FIKA and SPT is essentially a separate instance of the game client that runs in a headless mode to host raids. It acts as a "silent player" that hosts the raid, allowing other players to join without one of them having to host the raid on their own machine.
+The Fika headless client is a separate instance of the game client that runs without a display. It acts as a "silent player" that hosts the raid, allowing other players to join raids without one of them having to host the raid on their own machine.
 
-- **Offloading Raid Hosting**: By using a dedicated client, the computational load of hosting a raid is offloaded from the player's machine to the dedicated client. This can improve performance for players, especially those with less powerful hardware.
-- **Consistent Hosting**: Ensures that the raid hosting environment is consistent, as it runs on a dedicated server with stable resources.
-- **Standardized Raid Settings**: The dedicated client allows for centralized control over raid settings such as AI behavior, difficulty, and spawning. This ensures a uniform experience for all players, as these settings are managed in one place.
+- **Offloading Raid Hosting**: By using a headless client, the computational load of hosting a raid is offloaded from the players' machines to the headless client. This can improve performance for players, especially those with less powerful hardware.
+- **Consistent Hosting**: Ensures that raids run with consistent performance, as raids are hosted on a dedicated machine.
+- **Standardized Raid Settings**: The headless client allows for centralized control over raid settings such as AI behavior, difficulty, and spawning. This ensures a uniform experience for all players, as these settings are managed in one place.
 
-## Pros
+## Why should I use a headless client?
 - **Performance**: Reduces the CPU and RAM load on the player's machine, potentially improving FPS and game performance.
-- **Stability**: Provides a stable environment for hosting raids, reducing the risk of crashes or performance drops.
+- **Stability**: Provides a stable environment for hosting raids, reducing the risk of crashes or performance drops. In the event the headless client crashes, all players can still extract from the raid and save progress.
 - **Scalability**: Allows for more players to join without impacting the host's performance.
-
-## Cons
-- **Resource Intensive**: Requires a server with significant resources (CPU, RAM, and storage) to run effectively.
-- **Complex Setup**: Involves setting up and maintaining a separate server environment, which can be complex for those unfamiliar with Docker or server management.
-- **Cost**: Running a dedicated server may incur additional costs, especially if using cloud services.
 
 # 📦 Releases
 The image build is triggered off git tags and hosted on ghcr. `latest` will always point to the latest version.
@@ -60,64 +46,61 @@ docker pull ghcr.io/zhliau/fika-headless-docker:latest
 ```
 
 # 🚤 Running
-I've only tested this on my linux hosts (Arch kernel 6.9.8 and Fedora 6.7.10).
-This won't work on Windows because of permission issues with WSL2.
-Probably will not work on ARM hosts either.
+> [!NOTE]
+> This image is confirmed to work on Unraid, Proxmox, but there may be issues with the client stalling.
+>
+> This image will **not** run on WSL2 because of permissions issues.
+>
+> This image will **not** run on ARM hosts, since it uses wine built on x86.
 
-Tested with both SPT 3.8.3 and SPT 3.9.x and the associated Fika versions.
-
-### Requirements
+## Prerequisites
 - An SPT backend server running somewhere reachable by your docker host. Best if running on the same host.
   - You can use my other docker image for running SPT server + Fika: [fika-spt-server-docker](https://github.com/zhliau/fika-spt-server-docker)
-- A host with a CPU capable of running EFT+SPT. This will be a disaster running on something like a Pi since the dedicated client is a full fledged client that will run all of the AI and raid logic.
-- A directory on your host containing a **working copy of the FIKA SPT Client**.
-  - This is the folder including the `BepInEx` folder with all your plugins, and the `EscapeFromTarkov.exe` binary. You can copy your working install from wherever you normally run your Fika client.
-- The `Fika.Dedicated.dll` plugin file in the FIKA SPT Client's `BepInEx/plugins` folder.
+- A host with a CPU capable of running EFT+SPT Client (**the actual game itself**). This will be a disaster running on something underpowered like a Pi since the headless client will host the raid and run all of the AI and raid logic.
+- A directory on your docker host containing a **working copy of the FIKA SPT Client**.
+  - This is the folder including the `BepInEx` folder with all your plugins, and the `EscapeFromTarkov.exe` binary. This copy must have been run at least once to be considered working. You can copy your working install from wherever you normally run your Fika client.
+- The `Fika.Headless.dll` plugin file (or `Fika.Dedicated.dll` if running SPT version < 3.11.0) in the FIKA SPT Client's `BepInEx/plugins` folder.
 
 
-### Steps
+## Steps
+### 1. **Prepare a Headless Client Installation**
 
-1. **Prepare a Dedicated Client Installation**
+   - **Copy SPT Installation**: Locate your existing SPT installation folder (where you play SPTarkov + Fika) and copy it to the machine you will use to run this image. This will serve as the headless client's installation.
 
-   - **Copy SPT Installation**: Locate your existing SPT installation folder (where you play SPTarkov + Fika) and create a copy of it in another location. This will serve as the dedicated client's installation. For example, if your SPT install is at `D:\Games\SPT3.9`, copy it to `D:\Games\SPT3.9Dedicated`. Or install a fresh SPT + Fika installation in a different directory.
+### 2. **Install Fika Headless Client Plugin**
 
-2. **Install Fika Dedicated Client Plugin**
+   - **Download Fika Headless Plugin**: Download the `Fika.Headless.dll` plugin file (or `Fika.Dedicated.dll` if running SPT version < 3.11.0) from the [Fika Dedicated Releases](https://github.com/project-fika/Fika-Dedicated/releases).
 
-   - **Download Fika Dedicated Plugin**: Download the `Fika.Dedicated.dll` plugin from the [Fika Dedicated Releases](https://github.com/project-fika/Fika-Dedicated/releases).
+   - **Install the Plugin**: Place the plugin file into the headless client's `BepInEx/plugins` folder.
 
-   - **Install the Plugin**: Place the `Fika.Dedicated.dll` plugin into the dedicated client's `BepInEx/plugins` folder.
+   - **Ensure Fika Core Plugin is Installed**: Verify that the `Fika.Core.dll` plugin is also present in the headless client's `BepInEx/plugins` folder.
 
-   - **Ensure Fika Core Plugin is Installed**: Verify that the `Fika.Core.dll` plugin is also present in the dedicated client's `BepInEx/plugins` folder.
-
-3. **Generate the Dedicated Client Profile and Launch Script**
+### 3. **Generate the Headless Client Profile and Launch Script**
 
    - **Stop the SPT Server**: If your SPT + Fika server is running, close it.
 
    - **Edit Fika Configuration**: Open the `fika.jsonc` file located at `<SPT server folder>/user/mods/fika-server/assets/configs/fika.jsonc` in a text editor.
 
-     - Find the `"dedicated"` section and set `"amount"` to `1`:
+     - Find the `headless` section (or `dedicated` if SPT version < 3.11) and set `"amount"` to `1`:
 
        ```jsonc
-       "dedicated": {
+       "headless": {
            "profiles": {
-               "amount": 1 // the amount of dedicated profiles to generate automatically
+               "amount": 1
            },
-           "scripts": {
-               "generate": true, // generate the launch script
-               "forceIp": "" // set to your dedicated client's IP address if needed
-           }
+           // ...
        }
        ```
 
-   - **Start the SPT Server**: Launch the SPT + Fika server (e.g. `SPT.Server.exe` or `fika-spt-server-docker` container) and wait until it fully loads. It should generate the dedicated client profile and launch script. Look for a message like `Created 1 dedicated client profiles!` in the server logs.
+   - **Start the SPT Server**: Launch the SPT + Fika server (e.g. `SPT.Server.exe` or `fika-spt-server-docker` container) and wait until it fully loads. It should generate the headless client profile and launch script. Look for a message like `Created 1 headless client profiles!` in the server logs.
 
-   - **Retrieve Profile ID**: The profile ID is the filename (excluding the `.json` extension) of the profile generated in the server's `user/profiles` directory. For example, if the profile is named `670c0b1a00014a7192a983f9.json`, the profile ID is `670c0b1a00014a7192a983f9`.
+   - **Retrieve Profile ID**: The newly generated profile will have a username starting with `headless_`. The profile ID is the filename (excluding the `.json` extension) of the profile generated in the server's `user/profiles` directory. For example, if the profile is named `670c0b1a00014a7192a983f9.json`, the profile ID is `670c0b1a00014a7192a983f9`.
 
-4. **Configure the Dedicated Client**
+### 4. **Configure the Headless Client**
 
-   - **Edit Fika Core Configuration**: Open the `com.fika.core.cfg` file located in the dedicated client's `BepInEx/config/` directory.
+   - **Edit Fika Core Configuration**: Open the `com.fika.core.cfg` file located in the headless client's `BepInEx/config/` directory.
 
-     - Update values for `Force Bind IP` and/or `Force IP`. It might be sufficient to set `Force Bind IP` to `Disabled`, and to set `Force IP` to the IP of the host interface.
+     - Update values for `Force Bind IP` and/or `Force IP`. Set `Force Bind IP` to `Disabled`, and set `Force IP` to the IP of the docker host's interface.
        If you are running a VPN, then this is your VPN IP.
 
        ```
@@ -130,9 +113,9 @@ Tested with both SPT 3.8.3 and SPT 3.9.x and the associated Fika versions.
        Force IP = your.host.interface.ip
        ```
 
-5. **Run the Docker Image**
+### 5. **Run the Docker Image**
 
-   - **Mount the Fika Client Directory**: Ensure that your dedicated client installation directory is mounted to `/opt/tarkov` in the container. If you are running the dedicated client on a server, you will need to copy and transfer the dedicated client installation to the server (~40GB).
+   - **Mount the Fika Client Directory**: Ensure that your headless client installation directory is mounted to the directory `/opt/tarkov` in the container.
 
    - **Set Environment Variables**: When running the docker image, set the following environment variables:
 
@@ -142,12 +125,10 @@ Tested with both SPT 3.8.3 and SPT 3.9.x and the associated Fika versions.
 
      - `SERVER_PORT` to your server's port (usually `6969`).
 
-     - Optionally, set `USE_MODSYNC` to `true` if you are using [Corter-ModSync](https://github.com/c-orter/modsync/) for plugin synchronization.
-
    - **Run the Docker Container**:
 
      ```shell
-     docker run --name fika_dedicated \
+     docker run --name fika_headless \
        -v /path/to/fika:/opt/tarkov \
        -e PROFILE_ID=blah \
        -e SERVER_URL=your.spt.server.ip \
@@ -159,21 +140,19 @@ Tested with both SPT 3.8.3 and SPT 3.9.x and the associated Fika versions.
      With docker-compose file:
      ```yaml
      services:
-       fika_dedicated:
+       fika_headless:
          image: ghcr.io/zhliau/fika-headless-docker:latest
-         container_name: fika_dedi
          volumes:
            - /host/path/to/fika:/opt/tarkov
          environment:
-           - PROFILE_ID=adadadadadadaadadadad
+           - PROFILE_ID=deadbeeffeed
            - SERVER_URL=your.spt.server.ip
            - SERVER_PORT=6969
-           - USE_MODSYNC=true # If you want to use modsync on this dedicated client
          ports:
            - 25565:25565/udp
      ```
 
-     If you are running the SPT server as a service in the same docker-compose stack, you can make use of docker-compose's network DNS to resolve the SPT server from the dedicated client:
+     If you are running the SPT server as a service in the same docker-compose stack, you can make use of docker-compose's network DNS to resolve the SPT server from the headless client:
 
      ```yaml
      services:
@@ -184,7 +163,7 @@ Tested with both SPT 3.8.3 and SPT 3.9.x and the associated Fika versions.
            - /host/path/to/serverfiles:/opt/server
          ports:
            - 6969:6969
-       fika_dedicated:
+       fika_headless:
          image: ghcr.io/zhliau/fika-headless-docker:latest
          # ...
          environment:
@@ -195,75 +174,31 @@ Tested with both SPT 3.8.3 and SPT 3.9.x and the associated Fika versions.
          # ...
      ```
 
-6. **Verify the Dedicated Client is Running**
+### 6. **Verify the Headless Client is Running**
 
-   - **Check Server Logs**: Look for messages in the server logs indicating that the dedicated client has connected. Note that this may take a few minutes to happen (~5 minutes).
+   - **Check Server Logs**: Look for messages in the server logs indicating that the headless client has connected. Note that this may take a few minutes to happen (~5 minutes).
 
-   - **Start a Raid Using Dedicated Host**:
+   - **Start a Raid Using Headless Client**:
 
      - Launch your SPT + Fika client, log in, and go to the raid selection screen.
 
-     - Click on `Host Raid` and ensure that the `Use Dedicated Host` option is available (not greyed out).
+     - Click on `Host Raid` and ensure that the `Use Headless Host` checkbox is available (not greyed out).
 
-     - Proceed to host a raid using the dedicated client.
+     - Check the box to host a raid using the headless client.
+
 
 ## Corter-Modsync support
-This image supports the unique plugin updater process that [Corter-ModSync](https://github.com/c-orter/modsync/) employs to update client plugins.
-To enable support:
-- Copy the `Fika.Dedicated.dll` plugin file into the **server's BepInEx directory** (the directory that modsync treats as the source of truth).
-- **(IMPORTANT)** Ensure you have `"BepInEx/plugins/Fika.Dedicated.dll"` in the `commonModExclusions` list in the ModSync server configuration. It should already be there by default.
-  This is to ensure that ModSync does not push the Dedicated plugin to clients nor delete it from the container, especially if you are enforcing the `BepInEx/plugins` path on all connecting clients
-- Set the `USE_MODSYNC` env var to `true` when starting the container.
-
-The start script will then:
-- Start Xvfb in the background to make it available to all running container processes
-- Anticipate that ModSync may close the dedicated client for an update
-- On client plugin update, the script will restart the dedicated client.
-
-> [!NOTE]
-> Enabling `USE_MODSYNC` does NOT mean that the dedicated client will periodically restart to check for updates to plugins. If you wish to do this, you must build it
-> via a periodic restarter script or a cron job. You can mount the docker socket into a `docker:cli` image and run a simple bash while loop or something.
-> See the example docker-compose.yml in this repo for details
+See [this wiki article](https://github.com/zhliau/fika-headless-docker/wiki/Corter%E2%80%90Modsync-support) for information on how to enable Corter-Modsync support.
 
 ## Wine Synchronization Methods
-This image supports enabling esync, fsync, and ntsync alternative synchronization methods with Wine. These methods can potentially improve performance in the dedicated client.
-To enable them, set one of either `NTSYNC`, `FSYNC`, or `ESYNC` environment variables to `true`. If none of these env vars are set, this image will fall back to the default wineserver based sync.
-### `NTSYNC`
-Kernel level implementation of Windows NT synchronization primitives. The latest and potentially highest performing sync method. Takes precedence over all other sync methods.
-
-- Requires `ntsync` support in the host kernel. Make sure you have ntsync support either by installing a kernel module (on Arch there is a kernel module for it `pacman -S ntsync-dkms`) or using a kernel compiled with ntsync.
-- Mount the `/dev/ntsync` device in the container
-- Set the `NTSYNC` env var to `true` in the container
-When you start the container, watch the `wine.log` in the client directory. You will see the line `wine: using fast synchronization` if you are successfully using ntsync.
-
-```yaml
-services:
-  fika_dedicated:
-    image: ghcr.io/zhliau/fika-headless-docker:latest
-    # ...
-    environment:
-      # ...
-      - NTSYNC=true
-    devices:
-      - /dev/ntsync:/dev/ntsync
-```
-
-### `FSYNC`
-Futex based sychronization. Takes precedence over ESYNC.
-
-Requires linux kernel version >= 5.16. Check compatibility via kernel syscall availability with `cat /proc/kallsyms | grep futex_waitv`.
-
-### `ESYNC`
-Eventfd based synchronization.
-
-Check compatibility by `ulimit -Hn`. If this value is less than `524288`, you need to increase your system's process file descriptor limit. See this [troubleshooting tip](#im-using-esync-but-my-client-crashes).
+See [this wiki page](https://github.com/zhliau/fika-headless-docker/wiki/Wine-synchronization-methods) on the supported winesync methods and how to enable t hem.
 
 # 🌐 Environment variables
 ## Required
 
 | Env var       | Description                                                                                                                                |
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `PROFILE_ID`  | ProfileID of the dedicated client you created in step 1                                                                                    |
+| `PROFILE_ID`  | ProfileID of the headless profile to start the client with                                                                                 |
 | `SERVER_URL`  | Server URL, or the name of the service that runs the Fika server if you have it in the same docker-compose stack                           |
 | `SERVER_PORT` | Server port, usually `6969`                                                                                                                |
 
@@ -272,8 +207,8 @@ Check compatibility by `ulimit -Hn`. If this value is less than `524288`, you ne
 | Env var                        | Description                                                                                                                                            |
 | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `USE_DGPU`                     | If set to `true`, enable passing a GPU resource into the container with `nvidia-container-toolkit`. Make sure you have the required dependencies installed for your host |
-| `DISABLE_NODYNAMICAI`          | If set to `true`, removes the `-noDynamicAI` parameter when starting the client, allowing the use of Fika's dynamic AI feature. Can help with dedicated client performance if you notice server FPS dropping below 30 |
-| `USE_MODSYNC`                  | If set to `true`, enables support for Corter-ModSync 0.8.1+ and the external updater. On container start, the dedicated client will close and start the updater the modsync plugin detects changes. On completion, the script will start the dedicated client up again |
+| `DISABLE_NODYNAMICAI`          | If set to `true`, removes the `-noDynamicAI` parameter when starting the client, allowing the use of Fika's dynamic AI feature. Can help with headless client performance if you notice server FPS dropping below 30 |
+| `USE_MODSYNC`                  | If set to `true`, enables support for Corter-ModSync 0.8.1+ and the external updater. On container start, the headless client will close and start the updater the modsync plugin detects changes. On completion, the script will start the headless client up again |
 | `ENABLE_LOG_PURGE`             | If set to `true`, automatically purge the EFT `Logs/` directory every 00:00 UTC, to clear out large logfiles due to logspam. |
 | `AUTO_RESTART_ON_RAID_END`     | If set to `true`, auto restart the client on raid end, freeing all memory that isn't cleared properly on raid end |
 | `ESYNC`                        | If set to `true`, enable wine esync, to use eventfd based synchronization instead of wineserver. This can improve client performance. Check compatibility by `ulimit -Hn`. If this value is less than `524288`, you need to increase your system's process file descriptor limit. See this [troubleshooting tip](#im-using-esync-but-my-client-crashes). |
@@ -284,69 +219,13 @@ Check compatibility by `ulimit -Hn`. If this value is less than `524288`, you ne
 
 | Env var                    | Description                                                                                                                                                                                         |
 | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `USE_GRAPHICS`             | If set to `true`, disables the `-nographics` parameter when starting the dedicated client. This will significantly increase resource usage.                                                                           |
+| `USE_GRAPHICS`             | If set to `true`, disables the `-nographics` parameter when starting the headless client. This will significantly increase resource usage.                                                                           |
 | `DISABLE_BATCHMODE`        | If set to `true`, disable the `-batchmode` parameter when starting the client. This will significantly increase resource usage.                                                                                       |
 | `XVFB_DEBUG`               | If set to `true`, enables debug output for xvfb (the virtual framebuffer)                                                                                                                                             |
 | `SAVE_LOG_ON_EXIT`         | If set to `true`, save a copy of the BepInEx `LogOutput.log` as `LogOutput-$timestamp.log` on client exit to preserve logs from previous client runs, since this file is truncated each time the client starts |
 
 # 🧰 Troubleshooting
-### Container immediately exits
-Crashing with stacktrace in container, permissions errors, wine unable to find EscapeFromTarkov.exe, or wine throwing a page fault on read access to 0000000000000000 exception?
-- If you are using Corter-ModSync to keep plugin files up to date, make sure you set the `USE_MODSYNC` env var to `true` or the plugin updater will not be able to run properly and the container will keep exiting!
-- Make sure you do not have an invalid plugin in the Dedicated client's plugins folder. You can see the list of invalid plugins [here](https://github.com/project-fika/Fika-Dedicated/blob/fa420874753e6d0adf3e31f8404fa855855cd339/Fika.Dedicated/FikaDedicatedPlugin.cs#L179)
-- Double check that you have both the `Fika.Core.dll` and `Fika.Dedicated.dll` plugins in the client's `BepInEx/plugins` folder! The game will crash in the container if you don't have both plugins!
-- Check your docker logs output. Maybe you haven't mounted your FIKA client directory properly? Verify the contents of the Fika Client directory to make sure all expected files are there. You must mount a working copy of the Fika client to `/opt/tarkov`.
-- Double check that your file permissions for the Fika client directory and its contents are correct. The container runs as the user `root`, so it should be able to read any mounted files as long as you don't have anything unusual with your file permissions.
-- If you have SELinux enabled on the host, the container may not be able to read the mounted directories unless you provide the :z option to re-label the mount with the correct SELinux context.
-  Be VERY careful with this option! I will not be responsible for anything that happens if you choose to do this.
-- Make sure your Fika client files have the winhttp.dll in the root folder. This is required for any plugins (even SPT) to run.
-
-### Stuck right after BepInEx preloader finished
-```
-fika_dedi  | [Message:   BepInEx] Preloader finished
-fika_dedi  | (Filename: C:\buildslave\unity\build\Runtime/Export/Debug/Debug.bindings.h Line: 39)
-fika_dedi  |
-fika_dedi  | Fallback handler could not load library Z:/opt/tarkov/EscapeFromTarkov_Data/Mono/data-00007D86E24EA790.dll
-```
-- Double check your server is reachable at whatever you set `SERVER_URL` to. If the client can't reach the backend, it tends to hang here.
-- If you are using ProxMox to spin up a VM to run this image, make sure nested virtualization is enabled.
-- Double check that you have both the `Fika.Core.dll` and `Fika.Dedicated.dll` plugins in the client's `BepInEx/plugins` folder! The game will crash in the container if you don't have both plugins!
-- Ensure your server contains a profile json file with filename matching the `PROFILE_ID` you provided to the container
-
-### Crash with assertion in virtual.c
-```
-../src-wine/dlls/ntdll/unix/virtual.c:1907: create_view: Assertion `!((UINT_PTR)base & page_mask)' failed.
-```
-If the dedicated client container crashes with this error, this usually means your max memory map count is too low.
-- Set the value higher and then try restarting the dedicated client
-  
-  `sudo sysctl -w vm.max_map_count=2147483642`
-  
-  Make this persist between reboots by creating a file `/etc/sysctl.d/80-vm-mmax.conf` with the following contents:
-  ```
-  vm.max_map_count = 2147483642
-  ```
-
-### Container stalls at wine: RLIMIT_NICE is <=20
-This happens sometimes on first boot or when the container is force-recreated e.g. by `docker-compose up --force-recreate`. This is because wine needs to run wineboot on container initialization.
-- Just wait. after roughly 60s, the client will resume starting normally
-
-### My container memory usage keeps going up until I run out of memory
-- Try setting the `AUTO_RESTART_ON_RAID_END` env var to `true`, to have the client restart itself after each raid is completed and all players have extracted.
-  This should effectively reset container memory usage back to the ~3Gb required on first boot, after each raid.
-- EFT is extremely memory hungry, if you are running out of memory while in raid, try to remove some mods that may be memory intensive to see if memory usage improves.
-- There may be no better solution than to simply add more RAM to the docker host.
-
-### Server output shows `Cannot read properties of undefined (reading 'info')`
-- This usually means your dedicated profile didn't generate properly. You can try deleting the dedicated profile and restarting the server to regenerate a new profile
-  - MAKE ABSOLUTELY SURE IT'S THE DEDICATED PROFILE. Its username will start with `dedicated_` with password `fika-dedicated`
-
-### I'm using ESYNC, but my client crashes
-- Increase your system file descriptor limit. See [this doc](https://github.com/lutris/docs/blob/master/HowToEsync.md) for more information.
-
-### After loading plugins, SPT.Custom throws an error
-`The type initializer for 'SPT.Custom.Patches.EasyAssetsPatch' threw an exception`
-- Try running the client and getting to the main menu before using/copying the EFT client files to the docker host. This usually means the client has not been run before.
+See [this wiki page](https://github.com/zhliau/fika-headless-docker/wiki/%F0%9F%A7%B0-Troubleshooting) for common problems and solutions.
 
 # 💻 Development
 ### Building
@@ -369,7 +248,7 @@ services:
     # My own SPT image but you can use any other
     image: ghcr.io/zhliau/fika-spt-server-docker:latest
     # ...
-  fika_dedicated:
+  fika_headless:
     image: ghcr.io/zhliau/fika-headless-docker:latest
     container_name: fika_ded
     volumes:
