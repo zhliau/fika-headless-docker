@@ -52,7 +52,7 @@ RUN dpkg --add-architecture i386 && apt update
 RUN apt install -y aptitude curl git tar
 RUN aptitude remove -y '?narrow(?installed,?version(deb.sury.org))'
 RUN curl --create-dirs -o /usr/include/linux/ntsync.h https://raw.githubusercontent.com/zen-kernel/zen-kernel/6.8/main/include/uapi/linux/ntsync.h
-RUN git clone --depth 4 https://github.com/kangtastic/wine-tkg-ntsync.git
+RUN git clone https://github.com/kangtastic/wine-tkg-ntsync.git
 
 WORKDIR /opt/wine-tkg-ntsync/
 # Temporarily fix build failure ever since pulling from upstream wine-tkg-git
