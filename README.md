@@ -53,6 +53,9 @@ docker pull ghcr.io/zhliau/fika-headless-docker:latest
 >
 > This image will **not** run on ARM hosts, since it uses wine built on x86.
 
+> [!WARNING]
+> If you are running this image on SPT version < 3.11, make sure to disable HTTPS by setting the environment variable `HTTPS` to `false`!
+
 ## Prerequisites
 - An SPT backend server running somewhere reachable by your docker host. Best if running on the same host.
   - You can use my other docker image for running SPT server + Fika: [fika-spt-server-docker](https://github.com/zhliau/fika-spt-server-docker)
