@@ -131,7 +131,7 @@ run_client() {
     echo "EFT PID is $eft_pid"
 
     # Show BepInEx logs in docker logs.
-    tail -f $bepinex_logfile &
+    tail -f -n 0 $bepinex_logfile &
     logwatch_pid=$!
 
     if [[ "$AUTO_RESTART_ON_RAID_END" == "true" ]]; then
