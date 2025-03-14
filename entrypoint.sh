@@ -125,6 +125,7 @@ raid_end_routine() {
 # or via watching the PID
 run_client() {
     echo "Using wine executable $WINE_BIN_PATH/wine"
+    echo "Connecting to server $proto://$SERVER_URL:$SERVER_PORT"
     WINEDEBUG=-all $xvfb_run $WINE_BIN_PATH/wine $eft_binary $batchmode $nographics $nodynamicai -token="$PROFILE_ID" -config="{'BackendUrl':'$proto://$SERVER_URL:$SERVER_PORT', 'Version':'live'}" &> $wine_logfile &
 
     eft_pid=$!
