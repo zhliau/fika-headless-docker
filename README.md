@@ -53,6 +53,9 @@ docker pull ghcr.io/zhliau/fika-headless-docker:latest
 >
 > This image will **not** run on ARM hosts, since it uses wine built on x86.
 
+> [!WARNING]
+> If you are running this image on SPT version < 3.11, make sure to disable HTTPS by setting the environment variable `HTTPS` to `false`!
+
 ## Prerequisites
 - An SPT backend server running somewhere reachable by your docker host. Best if running on the same host.
   - You can use my other docker image for running SPT server + Fika: [fika-spt-server-docker](https://github.com/zhliau/fika-spt-server-docker)
@@ -206,7 +209,7 @@ See [this wiki page](https://github.com/zhliau/fika-headless-docker/wiki/Wine-sy
 
 | Env var                        | Description                                                                                                                                            |
 | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `USE_DGPU`                     | If set to `true`, enable passing a GPU resource into the container with `nvidia-container-toolkit`. Make sure you have the required dependencies installed for your host |
+| `HTTPS`                        | If set to `true`, use https when constructing the backend connection string. This defaults to `true` but can be set to `false` if playing on SPT versions that did not support https (< 3.11) |
 | `DISABLE_NODYNAMICAI`          | If set to `true`, removes the `-noDynamicAI` parameter when starting the client, allowing the use of Fika's dynamic AI feature. Can help with headless client performance if you notice server FPS dropping below 30 |
 | `USE_MODSYNC`                  | If set to `true`, enables support for Corter-ModSync 0.8.1+ and the external updater. On container start, the headless client will close and start the updater the modsync plugin detects changes. On completion, the script will start the headless client up again |
 | `ENABLE_LOG_PURGE`             | If set to `true`, automatically purge the EFT `Logs/` directory every 00:00 UTC, to clear out large logfiles due to logspam. |
@@ -219,6 +222,7 @@ See [this wiki page](https://github.com/zhliau/fika-headless-docker/wiki/Wine-sy
 
 | Env var                    | Description                                                                                                                                                                                         |
 | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `USE_DGPU`                 | If set to `true`, enable passing a GPU resource into the container with `nvidia-container-toolkit`. Make sure you have the required dependencies installed for your host |
 | `USE_GRAPHICS`             | If set to `true`, disables the `-nographics` parameter when starting the headless client. This will significantly increase resource usage.                                                                           |
 | `DISABLE_BATCHMODE`        | If set to `true`, disable the `-batchmode` parameter when starting the client. This will significantly increase resource usage.                                                                                       |
 | `XVFB_DEBUG`               | If set to `true`, enables debug output for xvfb (the virtual framebuffer)                                                                                                                                             |
