@@ -15,7 +15,7 @@ services:
       - 6969:6969
     # Mark the container as healthy once the server has started
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:6969/launcher/ping"]
+      test: ["CMD", "curl", "-f", "--insecure", "https://localhost:6969/launcher/ping"]
       interval: 30s
       timeout: 10s
       retries: 3
