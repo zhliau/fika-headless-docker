@@ -56,7 +56,7 @@ RUN git clone https://github.com/kangtastic/wine-tkg-ntsync.git
 
 WORKDIR /opt/wine-tkg-ntsync/
 # Temporarily fix build failure ever since pulling from upstream wine-tkg-git
-RUN git checkout 26c0f63b0b1e5a699e181ccb40599ca36ae30a5b
+#RUN git checkout 26c0f63b0b1e5a699e181ccb40599ca36ae30a5b
 RUN cd wine-tkg-git && \
     sed -i 's/ntsync="false"/ntsync="true"/' ./customization.cfg && \
     sed -i 's/esync="true"/esync="false"/' ./customization.cfg && \
