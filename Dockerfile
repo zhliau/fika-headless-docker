@@ -145,5 +145,7 @@ COPY ./data/reg/system.reg /.wine/
 # Copy nvidia init script
 COPY ./scripts/install_nvidia_deps.sh /opt/scripts/
 
+# Expose default headless port since Docker Desktop does not reveal port map options unless this is available
+EXPOSE 25565
 COPY entrypoint.sh /usr/bin/entrypoint
 ENTRYPOINT ["/usr/bin/entrypoint"]
