@@ -52,7 +52,7 @@ RUN dpkg --add-architecture i386 && apt update
 RUN apt install -y aptitude curl git tar
 RUN aptitude remove -y '?narrow(?installed,?version(deb.sury.org))'
 RUN curl --create-dirs -o /usr/include/linux/ntsync.h https://raw.githubusercontent.com/zen-kernel/zen-kernel/6.8/main/include/uapi/linux/ntsync.h
-RUN git clone https://github.com/kangtastic/wine-tkg-ntsync.git
+RUN git clone https://github.com/Frogging-Family/wine-tkg-git.git wine-tkg-ntsync
 
 WORKDIR /opt/wine-tkg-ntsync/
 # Temporarily fix build failure ever since pulling from upstream wine-tkg-git
@@ -61,8 +61,8 @@ RUN cd wine-tkg-git && \
     sed -i 's/ntsync="false"/ntsync="true"/' ./customization.cfg && \
     sed -i 's/esync="true"/esync="false"/' ./customization.cfg && \
     sed -i 's/fsync="true"/fsync="false"/' ./customization.cfg && \
-    sed -i 's/_NOLIB32="false"/_NOLIB32="wow64"/' ./wine-tkg-profiles/advanced-customization.cfg && \
-    echo '_ci_build="true"' >> ./customization.cfg
+    sed -i 's/_NOLIB32="false"/_NOLIB32="wow64"/' ./wine-tkg-profiles/advanced-customization.cfg
+    #echo '_ci_build="true"' >> ./customization.cfg
 
 RUN cd wine-tkg-git && yes|./non-makepkg-build.sh
 RUN cp -r $(find . -type d -name wine-tkg-staging-ntsync-git*) /wine-tkg-ntsync
