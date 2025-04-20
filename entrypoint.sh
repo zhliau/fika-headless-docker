@@ -24,6 +24,7 @@ esync=${ESYNC:-false}
 fsync=${FSYNC:-false}
 ntsync=${NTSYNC:-false}
 pelican=${PELICAN:-false}
+port=${PORT:-6969} # Pelican overwrites the environment variable SERVER_PORT so we need to make another one available)
 https=${HTTPS:-true}
 proto=https
 
@@ -140,7 +141,6 @@ raid_end_routine() {
 
 use_pelican() {
     MODIFIED_STARTUP=$(echo ${STARTUP} | sed -e 's/{{/${/g' -e 's/}}/}/g')
-    # Modify xvfb_run because it errors on pelican due to requiring root perms.
     
     # Run the Server
     echo "Modified Startup: ${MODIFIED_STARTUP}"
@@ -164,6 +164,9 @@ run_client() {
     if [[ "$pelican" == "true" ]]; then
         use_pelican
     fi
+
+    # Assign the value from 'port' (which includes the default logic) to SERVER_PORT because Pelican overwrites the environment variable SERVER_PORT at runtime.
+    SERVER_PORT=${port}
 
     echo "Using wine executable $WINE_BIN_PATH/wine"
     echo "Connecting to server $proto://$SERVER_URL:$SERVER_PORT"
@@ -196,12 +199,10 @@ run_client() {
 
 if [[ "$pelican" == true ]]; then
     init_pelican_wineprefix
-    echo "Running wineboot update. Please wait ~60s. See $wine_logfile_name for logs."
-    $WINE_BIN_PATH/wineboot --update &> $wine_logfile
-else 
-    echo "Running wineboot update. Please wait ~60s. See $wine_logfile_name for logs."
-    $WINE_BIN_PATH/wineboot --update &> $wine_logfile
 fi
+
+echo "Running wineboot update. Please wait ~60s. See $wine_logfile_name for logs."
+$WINE_BIN_PATH/wineboot --update &> $wine_logfile
 
 
 if [[ "$ENABLE_LOG_PURGE" == "true" ]]; then
