@@ -1,11 +1,19 @@
 #!/bin/bash -e
 
-eft_dir=/opt/tarkov
-eft_binary=$eft_dir/EscapeFromTarkov.exe
-bepinex_logfile=$eft_dir/BepInEx/LogOutput.log
-wine_logfile_name=wine.log
-wine_logfile=$eft_dir/$wine_logfile_name
+set_paths() {
+    if [[ "$USE_PELICAN" == "true" ]]; then
+        eft_dir=/home/container/tarkov
+    else
+        eft_dir=/opt/tarkov
+    fi
+    eft_binary=$eft_dir/EscapeFromTarkov.exe
+    bepinex_logfile=$eft_dir/BepInEx/LogOutput.log
+    wine_logfile_name=wine.log
+    wine_logfile=$eft_dir/$wine_logfile_name
+}
 
+# Set default values
+set_paths
 xvfb_run="xvfb-run -a"
 nographics="-nographics"
 batchmode="-batchmode"
@@ -92,7 +100,11 @@ if [ "$USE_DGPU" == "true" ]; then
 fi
 
 if [ ! -f $eft_binary ]; then
-    echo "EFT Binary $eft_binary not found! Please make sure you have mounted the Fika client directory to /opt/tarkov"
+    if [ "$USE_PELICAN" == "true" ]; then
+        echo "EFT Binary $eft_binary not found! Please make sure you have uploaded the Fika client directory to /tarkov"
+    else 
+        echo "EFT Binary $eft_binary not found! Please make sure you have mounted the Fika client directory to /opt/tarkov"
+    fi
     exit 1
 fi
 
@@ -132,9 +144,6 @@ docker_full_id() {
 
 
 use_pelican() {
-    # Replace Startup Variables
-    eft_dir=/home/container/tarkov
-    
     export DOCKERID=$(docker_full_id)
 
     MODIFIED_STARTUP=$(echo ${STARTUP} | sed -e 's/{{/${/g' -e 's/}}/}/g')
