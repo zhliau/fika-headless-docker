@@ -149,7 +149,7 @@ use_pelican() {
 init_pelican_wineprefix() {
     echo "Creating wineprefix for pelican"
     export WINEPREFIX=/home/container/.wine
-    cp -r /.wine /home/container
+    cp -r -u /.wine /home/container
     chown -R $(whoami) /home/container/.wine
 }
 
