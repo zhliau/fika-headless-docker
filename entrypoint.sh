@@ -117,7 +117,7 @@ run_xvfb() {
     fi
     if [ -f "$xlockfile" ]; then rm -f $xlockfile; fi
     echo "Starting Xvfb in background"
-    /usr/bin/Xvfb :0 -screen 0 1024x768x24 -ac +extension GLX +render -noreset 2>&1 &
+    /usr/bin/Xvfb :0 -screen 0 1024x768x24 -ac +extension GLX +render -noreset -nolisten tcp -nolisten unix 2>&1 &
     xvfb_pid=$!
     echo "Xvfb running PID is $xvfb_pid"
 }
@@ -140,6 +140,8 @@ raid_end_routine() {
 
 use_pelican() {
     MODIFIED_STARTUP=$(echo ${STARTUP} | sed -e 's/{{/${/g' -e 's/}}/}/g')
+    # Modify xvfb_run because it errors on pelican due to requiring root perms.
+    
     # Run the Server
     echo "Modified Startup: ${MODIFIED_STARTUP}"
     echo "Running Pelican with user $(whoami)"
