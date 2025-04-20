@@ -100,7 +100,7 @@ if [ "$USE_DGPU" == "true" ]; then
 fi
 
 if [ ! -f $eft_binary ]; then
-    if [ "$USE_PELICAN" == "true" ]; then
+    if [ "$pelican" == "true" ]; then
         echo "EFT Binary $eft_binary not found! Please make sure you have uploaded the Fika client directory to /tarkov"
     else 
         echo "EFT Binary $eft_binary not found! Please make sure you have mounted the Fika client directory to /opt/tarkov"
@@ -146,6 +146,13 @@ use_pelican() {
     eval ${MODIFIED_STARTUP}
 }
 
+init_pelican_wineprefix() {
+    echo "Creating wineprefix for pelican"
+    export WINEPREFIX=/home/container/.wine
+    cp -r /.wine /home/container
+    chown -R $(whoami) /home/container/.wine
+}
+
 # Main client function. Should block until client has exited
 # Since we now run EFT client in background, end function
 # via watching for raid end (if autorestart is enabled)
@@ -186,9 +193,7 @@ run_client() {
 }
 
 if [[ "$pelican" == true ]]; then
-    echo "Running winecfg."
-    export WINEPREFIX=/home/container/.wine
-    $WINE_BIN_PATH/winecfg
+    init_pelican_wineprefix
     echo "Running wineboot update. Please wait ~60s. See $wine_logfile_name for logs."
     $WINE_BIN_PATH/wineboot --update &> $wine_logfile
 else 
