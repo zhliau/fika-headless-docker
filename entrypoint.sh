@@ -15,6 +15,7 @@ save_log_on_exit=${SAVE_LOG_ON_EXIT:-false}
 esync=${ESYNC:-false}
 fsync=${FSYNC:-false}
 ntsync=${NTSYNC:-false}
+pelican=${PELICAN:-false}
 https=${HTTPS:-true}
 proto=https
 
@@ -41,6 +42,11 @@ elif [[ "$fsync" == "true" ]]; then
     fi
     echo "Enabling wine fsync"
     export WINEFSYNC=1
+fi
+
+if [ "$USE_PELICAN" == "true" ]; then
+    echo "Running in Pelican mode"
+    pelican=true
 fi
 
 if [ "$USE_GRAPHICS" == "true" ]; then
@@ -119,11 +125,31 @@ raid_end_routine() {
         && kill -9 $1
 }
 
+docker_full_id() {
+  cat /proc/self/cgroup | head -1 | tr --delete ‘10:memory:/docker/’
+}
+
+use_pelican() {
+    # Replace Startup Variables
+    eft_dir=/home/container/tarkov
+    
+    export DOCKERID=${docker_full_id()}
+
+    MODIFIED_STARTUP=$(echo ${STARTUP} | sed -e 's/{{/${/g' -e 's/}}/}/g')
+    # Run the Server
+    eval ${MODIFIED_STARTUP}
+}
+
 # Main client function. Should block until client has exited
 # Since we now run EFT client in background, end function
 # via watching for raid end (if autorestart is enabled)
 # or via watching the PID
 run_client() {
+    # Important that pelican gets called quickly so the console can attach for logging.
+    if [[ "$pelican" == "true" ]]; then
+        use_pelican
+    fi
+
     echo "Using wine executable $WINE_BIN_PATH/wine"
     echo "Connecting to server $proto://$SERVER_URL:$SERVER_PORT"
     WINEDEBUG=-all $xvfb_run $WINE_BIN_PATH/wine $eft_binary $batchmode $nographics $nodynamicai -token="$PROFILE_ID" -config="{'BackendUrl':'$proto://$SERVER_URL:$SERVER_PORT', 'Version':'live'}" &> $wine_logfile &
