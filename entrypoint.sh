@@ -145,7 +145,7 @@ docker_full_id() {
 
 use_pelican() {
     export DOCKERID=$(docker_full_id)
-
+    chown -R container:container ${WINEPREFIX}
     MODIFIED_STARTUP=$(echo ${STARTUP} | sed -e 's/{{/${/g' -e 's/}}/}/g')
     # Run the Server
     echo "Modified Startup: ${MODIFIED_STARTUP}"
