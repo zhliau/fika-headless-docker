@@ -126,17 +126,21 @@ raid_end_routine() {
 }
 
 docker_full_id() {
-  cat /proc/self/cgroup | head -1 | tr --delete ‘10:memory:/docker/’
+    # Get short docker id from hostname
+    hostname
 }
+
 
 use_pelican() {
     # Replace Startup Variables
     eft_dir=/home/container/tarkov
     
-    export DOCKERID=${docker_full_id()}
+    export DOCKERID=$(docker_full_id)
 
     MODIFIED_STARTUP=$(echo ${STARTUP} | sed -e 's/{{/${/g' -e 's/}}/}/g')
     # Run the Server
+    echo "Modified Startup: ${MODIFIED_STARTUP}"
+    echo "Running Pelican with Docker ID: ${DOCKERID}"
     eval ${MODIFIED_STARTUP}
 }
 
