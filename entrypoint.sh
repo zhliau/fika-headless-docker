@@ -55,7 +55,6 @@ fi
 if [ "$USE_PELICAN" == "true" ]; then
     echo "Running in Pelican mode as user $(whoami)"
     pelican=true
-    chown -R $(whoami) ${WINEPREFIX}
     ls -la /
 fi
 
@@ -139,24 +138,18 @@ raid_end_routine() {
         && kill -9 $1
 }
 
-docker_full_id() {
-    # Get short docker id from hostname
-    hostname
-}
-
 
 use_pelican() {
-    export DOCKERID=$(docker_full_id)
     MODIFIED_STARTUP=$(echo ${STARTUP} | sed -e 's/{{/${/g' -e 's/}}/}/g')
     # Run the Server
     echo "Modified Startup: ${MODIFIED_STARTUP}"
-    echo "Running Pelican with Docker ID: ${DOCKERID}"
+    echo "Running Pelican with user $(whoami)"
     eval ${MODIFIED_STARTUP}
 }
 
 # Main client function. Should block until client has exited
 # Since we now run EFT client in background, end function
-# via watching for raid end (if autorestart is enabled)
+# via watching for raid end (if autorest art is enabled)
 # or via watching the PID
 run_client() {
     # Important that pelican gets called quickly so the console can attach for logging.
