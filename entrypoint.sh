@@ -53,8 +53,10 @@ elif [[ "$fsync" == "true" ]]; then
 fi
 
 if [ "$USE_PELICAN" == "true" ]; then
-    echo "Running in Pelican mode"
+    echo "Running in Pelican mode as user $(whoami)"
     pelican=true
+    chown -R $(whoami):$(whoami) ${WINEPREFIX}
+    ls -la /
 fi
 
 if [ "$USE_GRAPHICS" == "true" ]; then
@@ -145,7 +147,6 @@ docker_full_id() {
 
 use_pelican() {
     export DOCKERID=$(docker_full_id)
-    chown -R container:container ${WINEPREFIX}
     MODIFIED_STARTUP=$(echo ${STARTUP} | sed -e 's/{{/${/g' -e 's/}}/}/g')
     # Run the Server
     echo "Modified Startup: ${MODIFIED_STARTUP}"
