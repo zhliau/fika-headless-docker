@@ -55,7 +55,6 @@ fi
 if [ "$USE_PELICAN" == "true" ]; then
     echo "Running in Pelican mode as user $(whoami)"
     pelican=true
-    ls -la /
 fi
 
 if [ "$USE_GRAPHICS" == "true" ]; then
@@ -149,7 +148,7 @@ use_pelican() {
 
 # Main client function. Should block until client has exited
 # Since we now run EFT client in background, end function
-# via watching for raid end (if autorest art is enabled)
+# via watching for raid end (if autorestart is enabled)
 # or via watching the PID
 run_client() {
     # Important that pelican gets called quickly so the console can attach for logging.
@@ -186,8 +185,17 @@ run_client() {
     kill -9 $logwatch_pid
 }
 
-echo "Running wineboot update. Please wait ~60s. See $wine_logfile_name for logs."
-$WINE_BIN_PATH/wineboot --update &> $wine_logfile
+if [[ "$pelican" == true ]]; then
+    echo "Running winecfg."
+    export WINEPREFIX=/home/container/.wine
+    $WINE_BIN_PATH/winecfg
+    echo "Running wineboot update. Please wait ~60s. See $wine_logfile_name for logs."
+    $WINE_BIN_PATH/wineboot --update &> $wine_logfile
+else 
+    echo "Running wineboot update. Please wait ~60s. See $wine_logfile_name for logs."
+    $WINE_BIN_PATH/wineboot --update &> $wine_logfile
+fi
+
 
 if [[ "$ENABLE_LOG_PURGE" == "true" ]]; then
     echo "Enabling log purge"
