@@ -55,7 +55,7 @@ fi
 if [ "$USE_PELICAN" == "true" ]; then
     echo "Running in Pelican mode as user $(whoami)"
     pelican=true
-    chown -R $(whoami):$(whoami) ${WINEPREFIX}
+    chown -R $(whoami) ${WINEPREFIX}
     ls -la /
 fi
 
