@@ -63,14 +63,14 @@ RUN cd wine-tkg-git && \
     sed -i 's/fsync="true"/fsync="false"/' ./customization.cfg && \
     sed -i 's/_NOLIB32="false"/_NOLIB32="wow64"/' ./wine-tkg-profiles/advanced-customization.cfg
 
-# RUN cd wine-tkg-git && yes|./non-makepkg-build.sh
-# RUN cp -r $(find . -type d -name wine-tkg-staging-ntsync-git*) /wine-tkg-ntsync
+RUN cd wine-tkg-git && yes|./non-makepkg-build.sh
+RUN cp -r $(find . -type d -name wine-tkg-staging-ntsync-git*) /wine-tkg-ntsync
 
 FROM base
 
 ARG WINE_BRANCH="stable"
 
-# COPY --from=wine-builder /wine-tkg-ntsync /wine-tkg-ntsync
+COPY --from=wine-builder /wine-tkg-ntsync /wine-tkg-ntsync
 WORKDIR /
 
 # latest winetricks
