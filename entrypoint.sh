@@ -163,10 +163,9 @@ run_client() {
     # Important that pelican gets called quickly so the console can attach for logging.
     if [[ "$pelican" == "true" ]]; then
         use_pelican
+        # Assign the value from 'port' (which includes the default logic) to SERVER_PORT because Pelican overwrites the environment variable SERVER_PORT at runtime.
+        SERVER_PORT=${port}
     fi
-
-    # Assign the value from 'port' (which includes the default logic) to SERVER_PORT because Pelican overwrites the environment variable SERVER_PORT at runtime.
-    SERVER_PORT=${port}
 
     echo "Using wine executable $WINE_BIN_PATH/wine"
     echo "Connecting to server $proto://$SERVER_URL:$SERVER_PORT"
