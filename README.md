@@ -49,7 +49,7 @@ docker pull ghcr.io/zhliau/fika-headless-docker:latest
 > [!NOTE]
 > This image is confirmed to work on Unraid, Proxmox, but there may be issues with the client stalling.
 >
-> This image **will** work on Pelican assuming you use the Pelican egg file provided in this repo. See [Running with Pelican](#5-run-the-docker-image)
+> This image **will** work on Pelican assuming you use the Pelican egg file provided in this repo.
 >
 > This image will **not** run on WSL2 because of permissions issues.
 >
@@ -229,7 +229,7 @@ docker pull ghcr.io/zhliau/fika-headless-docker:latest
        - 🔫 EscapeFromTarkov.exe
 
        ...etc.
-  - **Start the Server**: You should now be ready to start the server. The first boot will take awhile (~5 minutes, depending on internet and computer speed) as it needs to download and setup the docker container.
+  - **Start the Server**: You should now be ready to start the server. The first boot will take awhile (~5-10 minutes, depending on internet and computer speed) as it needs to download and setup the docker container.
     - Wait until the Pelican server status has changed from Starting to Started.
 
 
