@@ -219,17 +219,23 @@ docker pull ghcr.io/zhliau/fika-headless-docker:latest
 
      - Connect to your Pelican server via the FTP Credentials provided via the Pelican client area under `Settings`
      - Upload your Headless client installation you created in Step #1 to the `/tarkov` directory in the FTP Server. Your file structure should look like the following once your upload is complete:
-       - 📁 BepInEx
-       - 📁 EscapeFromTarkov_Data
-       - 📁 Logs
+     ```
+     └──📁 tarkov/  
+       ├── 📁 BepInEx/  
+       ├── 📁 EscapeFromTarkov/  
+       ├── 📁 Logs/  
+       ├── 📁 .../  
+       ├── 📁 SPT_Data/  
+       ├── 📁 user/  
+       ├── 🔫 EscapeFromTarkov.exe  
+       └── 🗃️ ... etc.
+     ```
 
-       ...
-       - 📁 SPT_Data
-       - 📁 user
-       - 🔫 EscapeFromTarkov.exe
 
-       ...etc.
-  - **Start the Server**: You should now be ready to start the server. The first boot will take awhile (~5-10 minutes, depending on internet and computer speed) as it needs to download and setup the docker container.
+
+
+
+  - **Start the Server**: You should now be ready to start the server. The first boot will take awhile (~5-10 minutes+, depending on internet and computer speed) as it needs to download and setup the docker container.
     - Wait until the Pelican server status has changed from Starting to Started.
 
 
