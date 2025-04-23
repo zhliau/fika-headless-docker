@@ -184,6 +184,8 @@ docker pull ghcr.io/zhliau/fika-headless-docker:latest
 
 ### 5a. **Running with Pelican**
 
+   - # Not Using Pelican? Skip to [Verify the Headless Client is Running](#6-verify-the-headless-client-is-running)
+
    - Warning on Pelican usage: Certain features of this docker container may not work on Pelican. Specifically the USE_DGPU option may not function as intended as Pelican doesn't provide us a way to pass the host's nvidia device to the container. Please forgo Pelican and see [Run the Docker Image](#5-run-the-docker-image) if you're looking for this functionality.
 
    - **Import the provided Pelican egg**:
