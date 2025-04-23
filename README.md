@@ -6,7 +6,7 @@
 - [📦 Releases](#-releases)
 - [🚤 Running](#-running)
     + [Corter-Modsync support](#corter-modsync-support)
-    + [Wine Synchronization methods](#wine-synchronization-methods)]
+    + [Wine Synchronization methods](#wine-synchronization-methods)
 - [🌐 Environment variables](#-environment-variables)
   * [Required](#required)
   * [Optional](#optional)
