@@ -6,7 +6,7 @@
 - [📦 Releases](#-releases)
 - [🚤 Running](#-running)
     + [Corter-Modsync support](#corter-modsync-support)
-    + [Wine Synchronization methods](#wine-synchronization-methods)
+    + [Wine Synchronization methods](#wine-synchronization-methods)]
 - [🌐 Environment variables](#-environment-variables)
   * [Required](#required)
   * [Optional](#optional)
@@ -49,6 +49,8 @@ docker pull ghcr.io/zhliau/fika-headless-docker:latest
 > [!NOTE]
 > This image is confirmed to work on Unraid, Proxmox, but there may be issues with the client stalling.
 >
+> This image **will** work on Pelican assuming you use the Pelican egg file provided in this repo. See [Running with Pelican](#5-run-the-docker-image)
+>
 > This image will **not** run on WSL2 because of permissions issues.
 >
 > This image will **not** run on ARM hosts, since it uses wine built on x86.
@@ -69,6 +71,7 @@ docker pull ghcr.io/zhliau/fika-headless-docker:latest
 ### 1. **Prepare a Headless Client Installation**
 
    - **Copy SPT Installation**: Locate your existing SPT installation folder (where you play SPTarkov + Fika) and copy it to the machine you will use to run this image. This will serve as the headless client's installation.
+   - **Using Pelican?**: If you're using Pelican, Copy your existing SPT installation folder to a new folder on the same computer. We'll upload the files to the target machine in step #5.
 
 ### 2. **Install Fika Headless Client Plugin**
 
@@ -117,6 +120,8 @@ docker pull ghcr.io/zhliau/fika-headless-docker:latest
        ```
 
 ### 5. **Run the Docker Image**
+
+   - # Using Pelican? Skip to [Running with Pelican](#5a-running-with-pelican)
 
    - **Mount the Fika Client Directory**: Ensure that your headless client installation directory is mounted to the directory `/opt/tarkov` in the container.
 
@@ -177,6 +182,57 @@ docker pull ghcr.io/zhliau/fika-headless-docker:latest
          # ...
      ```
 
+### 5a. **Running with Pelican**
+
+   - Warning on Pelican usage: Certain features of this docker container may not work on Pelican. Specifically the USE_DGPU option may not function as intended as Pelican doesn't provide us a way to pass the host's nvidia device to the container. Please forgo Pelican and see [Run the Docker Image](#5-run-the-docker-image) if you're looking for this functionality.
+
+   - **Import the provided Pelican egg**:
+
+     - Navigate to your Pelican panel's admin area, navigate to "Eggs" on the side panel and click "Import".
+     - Paste the following URL into the "URL" tab of the import box and click submit: `https://url-to-egg-file.json` <!-- TODO: Determine URL of Egg file in main repo -->
+
+  - **Creating the Server**:
+
+     - Navigate to "Servers" on the side panel and click "New Server"
+     - Enter the name of your server, and select or create an IP Allocation that uses port 25565. If you'd like to use a port other than 25565, this is where to do so. This is **not** the port of your SPT Server.
+
+  - **Set Environment Variables**: On the next page, you'll have a list of Environment variables to set, the following are **required**:
+
+     - `PROFILE ID` to the profile ID obtained in step 3.
+
+     - `SERVER URL` to your server's URL or IP address.
+
+     - `SERVER PORT` to your SPT server's port (usually `6969`).
+
+     - If you're running an SPT Version < 3.11.0, make sure the "HTTPS" Variable is set to `false`, else it must be set to `true`.
+
+  - **Environment Configuration**: This is where you'll assign Resource limits to CPU, Memory and Disk space.
+
+     - I recommend leaving the CPU Unlimited.
+     - You will likely need a _minimum_ of 16gb of RAM.
+     - I recommend setting `Swap Memory` to `Unlimited` 
+     - _At least_ 60GB of disk space is necessary for the full installation of this container. I recommend having more available to prevent any future issues.
+     - Allocations and Databases aren't necessary for this installation, backups can be decided at your discretion
+     - Don't alter the docker settings.
+
+  - **Installation and EFT File upload**: Once your server has been created the installation script will create a directory called `tarkov`. 
+
+     - Connect to your Pelican server via the FTP Credentials provided via the Pelican client area under `Settings`
+     - Upload your Headless client installation you created in Step #1 to the `/tarkov` directory in the FTP Server. Your file structure should look like the following once your upload is complete:
+       - 📁 BepInEx
+       - 📁 EscapeFromTarkov_Data
+       - 📁 Logs
+
+       ...
+       - 📁 SPT_Data
+       - 📁 user
+       - 🔫 EscapeFromTarkov.exe
+
+       ...etc.
+  - **Start the Server**: You should now be ready to start the server. The first boot will take awhile (~5 minutes, depending on internet and computer speed) as it needs to download and setup the docker container.
+    - Wait until the Pelican server status has changed from Starting to Started.
+
+
 ### 6. **Verify the Headless Client is Running**
 
    - **Check Server Logs**: Look for messages in the server logs indicating that the headless client has connected. Note that this may take a few minutes to happen (~5 minutes).
@@ -194,7 +250,7 @@ docker pull ghcr.io/zhliau/fika-headless-docker:latest
 See [this wiki article](https://github.com/zhliau/fika-headless-docker/wiki/Corter%E2%80%90Modsync-support) for information on how to enable Corter-Modsync support.
 
 ## Wine Synchronization Methods
-See [this wiki page](https://github.com/zhliau/fika-headless-docker/wiki/Wine-synchronization-methods) on the supported winesync methods and how to enable t hem.
+See [this wiki page](https://github.com/zhliau/fika-headless-docker/wiki/Wine-synchronization-methods) on the supported winesync methods and how to enable them.
 
 # 🌐 Environment variables
 ## Required
