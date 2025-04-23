@@ -211,7 +211,7 @@ docker pull ghcr.io/zhliau/fika-headless-docker:latest
   - **Environment Configuration**: This is where you'll assign Resource limits to CPU, Memory and Disk space.
 
      - I recommend leaving the CPU Unlimited.
-     - You will likely need a _minimum_ of 16gb of RAM.
+     - You will likely need a _minimum_ of 16gb of RAM (To allocate to the server, meaning the host machine should probably have more).
      - I recommend setting `Swap Memory` to `Unlimited` 
      - _At least_ 60GB of disk space is necessary for the full installation of this container. I recommend having more available to prevent any future issues.
      - Allocations and Databases aren't necessary for this installation, backups can be decided at your discretion
@@ -224,7 +224,7 @@ docker pull ghcr.io/zhliau/fika-headless-docker:latest
      ```
      └──📁 tarkov/  
        ├── 📁 BepInEx/  
-       ├── 📁 EscapeFromTarkov/  
+       ├── 📁 EscapeFromTarkov_Data/  
        ├── 📁 Logs/  
        ├── 📁 .../  
        ├── 📁 SPT_Data/  
