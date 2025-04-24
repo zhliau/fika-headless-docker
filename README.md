@@ -118,7 +118,7 @@ docker pull ghcr.io/zhliau/fika-headless-docker:latest
 
 ### 5. **Run the Docker Image**
 
-   - **Mount the Fika Client Directory**: Ensure that your headless client installation directory is mounted to the directory `/opt/tarkov` in the container.
+   - **Mount the Fika Client Directory**: When running the docker image, ensure that your headless client installation directory (e.g. `/host/path/to/fika`) is volume-mounted to the directory `/opt/tarkov` in the container. You can do this with the `-v` option in docker, or the `volume` directive in your docker-compose yaml file.
 
    - **Set Environment Variables**: When running the docker image, set the following environment variables:
 
@@ -132,7 +132,7 @@ docker pull ghcr.io/zhliau/fika-headless-docker:latest
 
      ```shell
      docker run --name fika_headless \
-       -v /path/to/fika:/opt/tarkov \
+       -v /host/path/to/fika:/opt/tarkov \
        -e PROFILE_ID=blah \
        -e SERVER_URL=your.spt.server.ip \
        -e SERVER_PORT=6969 \
@@ -194,7 +194,7 @@ docker pull ghcr.io/zhliau/fika-headless-docker:latest
 See [this wiki article](https://github.com/zhliau/fika-headless-docker/wiki/Corter%E2%80%90Modsync-support) for information on how to enable Corter-Modsync support.
 
 ## Wine Synchronization Methods
-See [this wiki page](https://github.com/zhliau/fika-headless-docker/wiki/Wine-synchronization-methods) on the supported winesync methods and how to enable t hem.
+See [this wiki page](https://github.com/zhliau/fika-headless-docker/wiki/Wine-synchronization-methods) on the supported winesync methods and how to enable them.
 
 # 🌐 Environment variables
 ## Required
