@@ -124,7 +124,7 @@ docker pull ghcr.io/zhliau/fika-headless-docker:latest
 
    - ## Using Pelican? Skip to [Running with Pelican](#5a-running-with-pelican)
 
-   - **Mount the Fika Client Directory**: Ensure that your headless client installation directory is mounted to the directory `/opt/tarkov` in the container.
+   - **Mount the Fika Client Directory**: When running the docker image, ensure that your headless client installation directory (e.g. `/host/path/to/fika`) is volume-mounted to the directory `/opt/tarkov` in the container. You can do this with the `-v` option in docker, or the `volume` directive in your docker-compose yaml file.
 
    - **Set Environment Variables**: When running the docker image, set the following environment variables:
 
@@ -138,7 +138,7 @@ docker pull ghcr.io/zhliau/fika-headless-docker:latest
 
      ```shell
      docker run --name fika_headless \
-       -v /path/to/fika:/opt/tarkov \
+       -v /host/path/to/fika:/opt/tarkov \
        -e PROFILE_ID=blah \
        -e SERVER_URL=your.spt.server.ip \
        -e SERVER_PORT=6969 \
