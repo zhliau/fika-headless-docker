@@ -23,6 +23,7 @@
 - 🚚 Automatic purging of EFT `Logs/` dir, to clear out large logfiles due to logspam
 - 🍬 Optionally use Nvidia GPU when running the client, still completely headless without a real display
 - 🧪 Tested and works on SPT 3.9.x, 3.10.0
+- 🦢 Pelican support - just follow the Pelican instructions in the installation steps.
 
 # 👻 Headless Client
 
@@ -121,7 +122,7 @@ docker pull ghcr.io/zhliau/fika-headless-docker:latest
 
 ### 5. **Run the Docker Image**
 
-   - # Using Pelican? Skip to [Running with Pelican](#5a-running-with-pelican)
+   - ## Using Pelican? Skip to [Running with Pelican](#5a-running-with-pelican)
 
    - **Mount the Fika Client Directory**: Ensure that your headless client installation directory is mounted to the directory `/opt/tarkov` in the container.
 
@@ -184,14 +185,14 @@ docker pull ghcr.io/zhliau/fika-headless-docker:latest
 
 ### 5a. **Running with Pelican**
 
-   - # Not Using Pelican? Skip to [Verify the Headless Client is Running](#6-verify-the-headless-client-is-running)
+   - ## Not Using Pelican? Skip to [Verify the Headless Client is Running](#6-verify-the-headless-client-is-running)
 
    - Warning on Pelican usage: Certain features of this docker container may not work on Pelican. Specifically the USE_DGPU option may not function as intended as Pelican doesn't provide us a way to pass the host's nvidia device to the container. Please forgo Pelican and see [Run the Docker Image](#5-run-the-docker-image) if you're looking for this functionality.
 
    - **Import the provided Pelican egg**:
 
      - Navigate to your Pelican panel's admin area, navigate to "Eggs" on the side panel and click "Import".
-     - Paste the following URL into the "URL" tab of the import box and click submit: `https://url-to-egg-file.json` <!-- TODO: Determine URL of Egg file in main repo -->
+     - Right click and Copy the following URL, Paste it into the "URL" tab of the import box and click submit: [Pelican Egg](/egg-s-p-t-fika-headless-client.json) 
 
   - **Creating the Server**:
 
@@ -232,10 +233,6 @@ docker pull ghcr.io/zhliau/fika-headless-docker:latest
        ├── 🔫 EscapeFromTarkov.exe  
        └── 🗃️ ... etc.
      ```
-
-
-
-
 
   - **Start the Server**: You should now be ready to start the server. The first boot will take awhile (~5-10 minutes+, depending on internet and computer speed) as it needs to download and setup the docker container.
     - Wait until the Pelican server status has changed from Starting to Started.
