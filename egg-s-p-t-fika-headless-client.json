@@ -4,7 +4,7 @@
         "version": "PLCN_v1",
         "update_url": null
     },
-    "exported_at": "2025-04-22T12:19:37+00:00",
+    "exported_at": "2025-04-25T10:03:18+00:00",
     "name": "SPT Fika Headless Client",
     "author": "dazzuh@radiant.dj",
     "uuid": "f4bb2b79-d64c-4c4e-aefd-876c36cdb9cd",
@@ -12,7 +12,7 @@
     "tags": [],
     "features": [],
     "docker_images": {
-        "ghcr.io\/dazzuh\/fika-headless-docker:latest": "ghcr.io\/dazzuh\/fika-headless-docker:latest"
+        "ghcr.io\/zhliau\/fika-headless-docker:latest": "ghcr.io\/zhliau\/fika-headless-docker:latest"
     },
     "file_denylist": [],
     "startup": "echo \"Startup Recieved\"",
@@ -52,7 +52,7 @@
             "rules": [
                 "string"
             ],
-            "sort": 15
+            "sort": 14
         },
         {
             "name": "DISABLE NODYMANICAI",
@@ -148,7 +148,7 @@
             "user_viewable": true,
             "user_editable": true,
             "rules": [],
-            "sort": 17
+            "sort": 16
         },
         {
             "name": "SERVER PORT",
@@ -177,16 +177,6 @@
             "sort": 1
         },
         {
-            "name": "USE DGPU",
-            "description": "If set to true, enable passing a GPU resource into the container with nvidia-container-toolkit. Make sure you have the required dependencies installed for your host",
-            "env_variable": "USE_DGPU",
-            "default_value": "false",
-            "user_viewable": true,
-            "user_editable": true,
-            "rules": [],
-            "sort": 13
-        },
-        {
             "name": "USE GRAPHICS",
             "description": "If set to true, disables the -nographics parameter when starting the headless client. This will significantly increase resource usage.",
             "env_variable": "USE_GRAPHICS",
@@ -196,7 +186,7 @@
             "rules": [
                 "string"
             ],
-            "sort": 14
+            "sort": 13
         },
         {
             "name": "USE MODSYNC",
@@ -233,7 +223,7 @@
             "rules": [
                 "string"
             ],
-            "sort": 16
+            "sort": 15
         }
     ]
 }
