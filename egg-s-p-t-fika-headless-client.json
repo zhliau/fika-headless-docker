@@ -55,7 +55,7 @@
             "sort": 14
         },
         {
-            "name": "DISABLE NODYMANICAI",
+            "name": "DISABLE NODYNAMICAI",
             "description": "If set to true, removes the -noDynamicAI parameter when starting the client, allowing the use of Fika's dynamic AI feature. Can help with headless client performance if you notice server FPS dropping below 30",
             "env_variable": "DISABLE_NODYNAMICAI",
             "default_value": "false",
