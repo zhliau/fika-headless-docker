@@ -167,7 +167,7 @@
             "name": "SERVER URL",
             "description": "The IP Address of your SPT Server",
             "env_variable": "SERVER_URL",
-            "default_value": "127.0.0.1",
+            "default_value": "your.spt.server.ip",
             "user_viewable": true,
             "user_editable": true,
             "rules": [
