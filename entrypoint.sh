@@ -1,11 +1,19 @@
 #!/bin/bash -e
 
-eft_dir=/opt/tarkov
-eft_binary=$eft_dir/EscapeFromTarkov.exe
-bepinex_logfile=$eft_dir/BepInEx/LogOutput.log
-wine_logfile_name=wine.log
-wine_logfile=$eft_dir/$wine_logfile_name
+set_paths() {
+    if [[ "$USE_PELICAN" == "true" ]]; then
+        eft_dir=/home/container/tarkov
+    else
+        eft_dir=/opt/tarkov
+    fi
+    eft_binary=$eft_dir/EscapeFromTarkov.exe
+    bepinex_logfile=$eft_dir/BepInEx/LogOutput.log
+    wine_logfile_name=wine.log
+    wine_logfile=$eft_dir/$wine_logfile_name
+}
 
+# Set default values
+set_paths
 xvfb_run="xvfb-run -a"
 nographics="-nographics"
 batchmode="-batchmode"
@@ -15,6 +23,8 @@ save_log_on_exit=${SAVE_LOG_ON_EXIT:-false}
 esync=${ESYNC:-false}
 fsync=${FSYNC:-false}
 ntsync=${NTSYNC:-false}
+pelican=${PELICAN:-false}
+port=${PORT:-6969} # Pelican overwrites the environment variable SERVER_PORT so we need to make another one available)
 https=${HTTPS:-true}
 proto=https
 
@@ -41,6 +51,11 @@ elif [[ "$fsync" == "true" ]]; then
     fi
     echo "Enabling wine fsync"
     export WINEFSYNC=1
+fi
+
+if [ "$USE_PELICAN" == "true" ]; then
+    echo "Running in Pelican mode as user $(whoami)"
+    pelican=true
 fi
 
 if [ "$USE_GRAPHICS" == "true" ]; then
@@ -86,7 +101,11 @@ if [ "$USE_DGPU" == "true" ]; then
 fi
 
 if [ ! -f $eft_binary ]; then
-    echo "EFT Binary $eft_binary not found! Please make sure you have mounted the Fika client directory to /opt/tarkov"
+    if [ "$pelican" == "true" ]; then
+        echo "EFT Binary $eft_binary not found! Please make sure you have uploaded the Fika client directory to /tarkov"
+    else 
+        echo "EFT Binary $eft_binary not found! Please make sure you have mounted the Fika client directory to /opt/tarkov"
+    fi
     exit 1
 fi
 
@@ -99,7 +118,7 @@ run_xvfb() {
     fi
     if [ -f "$xlockfile" ]; then rm -f $xlockfile; fi
     echo "Starting Xvfb in background"
-    /usr/bin/Xvfb :0 -screen 0 1024x768x24 -ac +extension GLX +render -noreset 2>&1 &
+    /usr/bin/Xvfb :0 -screen 0 1024x768x24 -ac +extension GLX +render -noreset -nolisten tcp -nolisten unix 2>&1 &
     xvfb_pid=$!
     echo "Xvfb running PID is $xvfb_pid"
 }
@@ -119,11 +138,34 @@ raid_end_routine() {
         && kill -9 $1
 }
 
+
+use_pelican() {
+    MODIFIED_STARTUP=$(echo ${STARTUP} | sed -e 's/{{/${/g' -e 's/}}/}/g')
+    
+    # Run the Server
+    echo "Modified Startup: ${MODIFIED_STARTUP}"
+    echo "Running Pelican with user $(whoami)"
+    eval ${MODIFIED_STARTUP}
+}
+
+init_pelican_wineprefix() {
+    echo "Creating wineprefix for pelican"
+    export WINEPREFIX=/home/container/.wine
+    cp -r -u /.wine /home/container
+    chown -R $(whoami) /home/container/.wine
+}
+
 # Main client function. Should block until client has exited
 # Since we now run EFT client in background, end function
 # via watching for raid end (if autorestart is enabled)
 # or via watching the PID
 run_client() {
+    if [[ "$pelican" == "true" ]]; then
+        use_pelican
+        # Assign the value from 'port' (which includes the default logic) to SERVER_PORT because Pelican overwrites the environment variable SERVER_PORT at runtime.
+        SERVER_PORT=${port}
+    fi
+
     echo "Using wine executable $WINE_BIN_PATH/wine"
     echo "Connecting to server $proto://$SERVER_URL:$SERVER_PORT"
     WINEDEBUG=-all $xvfb_run $WINE_BIN_PATH/wine $eft_binary $batchmode $nographics $nodynamicai -token="$PROFILE_ID" -config="{'BackendUrl':'$proto://$SERVER_URL:$SERVER_PORT', 'Version':'live'}" &> $wine_logfile &
@@ -153,8 +195,13 @@ run_client() {
     kill -9 $logwatch_pid
 }
 
+if [[ "$pelican" == true ]]; then
+    init_pelican_wineprefix
+fi
+
 echo "Running wineboot update. Please wait ~60s. See $wine_logfile_name for logs."
 $WINE_BIN_PATH/wineboot --update &> $wine_logfile
+
 
 if [[ "$ENABLE_LOG_PURGE" == "true" ]]; then
     echo "Enabling log purge"

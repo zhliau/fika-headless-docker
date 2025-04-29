@@ -1,0 +1,229 @@
+{
+    "_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PANEL",
+    "meta": {
+        "version": "PLCN_v1",
+        "update_url": null
+    },
+    "exported_at": "2025-04-25T10:03:18+00:00",
+    "name": "SPT Fika Headless Client",
+    "author": "dazzuh@radiant.dj",
+    "uuid": "f4bb2b79-d64c-4c4e-aefd-876c36cdb9cd",
+    "description": "SPT Fika Headless egg based on https:\/\/github.com\/zhliau\/fika-headless-docker",
+    "tags": [],
+    "features": [],
+    "docker_images": {
+        "ghcr.io\/zhliau\/fika-headless-docker:latest": "ghcr.io\/zhliau\/fika-headless-docker:latest"
+    },
+    "file_denylist": [],
+    "startup": "echo \"Startup Recieved\"",
+    "config": {
+        "files": "{}",
+        "startup": "{\n    \"done\": \"[Info   :Fika.HeadlessWebSocket] Connected to HeadlessWebSocket\"\n}",
+        "logs": "{}",
+        "stop": "^C"
+    },
+    "scripts": {
+        "installation": {
+            "script": "#!\/bin\/bash\r\n# Fika Headless Client\r\n\r\ncd \/mnt\/server\r\nmkdir -p tarkov && cd tarkov\r\necho \"Upload your EFT Files to this folder. Structure should look like \/tarkov\/EscapeFromTarkov.exe\" > readme.txt\r\n\r\nexport WINEPREFIX=\/mnt\/server\/.wine\r\n\r\necho \"Installation complete, please upload your EFT game files to \/tarkov\"",
+            "container": "ghcr.io\/pelican-eggs\/installers:debian",
+            "entrypoint": "bash"
+        }
+    },
+    "variables": [
+        {
+            "name": "AUTO RESTART ON RAID END",
+            "description": "If set to true, auto restart the client on raid end, freeing all memory that isn't cleared properly on raid end",
+            "env_variable": "AUTO_RESTART_ON_RAID_END",
+            "default_value": "false",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": [
+                "string"
+            ],
+            "sort": 8
+        },
+        {
+            "name": "DISABLE BATCHMODE",
+            "description": "If set to true, disable the -batchmode parameter when starting the client. This will significantly increase resource usage.",
+            "env_variable": "DISABLE_BATCHMODE",
+            "default_value": "false",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": [
+                "string"
+            ],
+            "sort": 14
+        },
+        {
+            "name": "DISABLE NODYNAMICAI",
+            "description": "If set to true, removes the -noDynamicAI parameter when starting the client, allowing the use of Fika's dynamic AI feature. Can help with headless client performance if you notice server FPS dropping below 30",
+            "env_variable": "DISABLE_NODYNAMICAI",
+            "default_value": "false",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": [
+                "string"
+            ],
+            "sort": 5
+        },
+        {
+            "name": "ENABLE LOG PURGE",
+            "description": "If set to true, automatically purge the EFT Logs\/ directory every 00:00 UTC, to clear out large logfiles due to logspam.",
+            "env_variable": "ENABLE_LOG_PURGE",
+            "default_value": "false",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": [
+                "string"
+            ],
+            "sort": 7
+        },
+        {
+            "name": "ESYNC",
+            "description": "If set to true, enable wine esync, to use eventfd based synchronization instead of wineserver. This can improve client performance. Check compatibility by ulimit -Hn. If this value is less than 524288, you need to increase your system's process file descriptor limit. See this troubleshooting tip: https:\/\/github.com\/zhliau\/fika-headless-docker\/wiki\/%F0%9F%A7%B0-Troubleshooting#im-using-esync-but-my-client-crashes",
+            "env_variable": "ESYNC",
+            "default_value": "false",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": [
+                "string"
+            ],
+            "sort": 9
+        },
+        {
+            "name": "FSYNC",
+            "description": "If set to true, enable wine fsync, to use futex based synchronization instead of wineserver. This can dramatically improve client performance. Takes precedence over ESYNC. Requires linux kernel version >= 5.16. Check compatibility via kernel syscall availability with cat \/proc\/kallsyms",
+            "env_variable": "FSYNC",
+            "default_value": "false",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": [
+                "string"
+            ],
+            "sort": 10
+        },
+        {
+            "name": "HTTPS",
+            "description": "If set to true, use https when constructing the backend connection string. This defaults to true but can be set to false if playing on SPT versions that did not support https (< 3.11)",
+            "env_variable": "HTTPS",
+            "default_value": "true",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": [
+                "required",
+                "string"
+            ],
+            "sort": 4
+        },
+        {
+            "name": "NTSYNC",
+            "description": "If set to true, enable wine ntsync, to use a wine binary compiled with support for kernel level implementation of Windows NT synchronization primitives, the latest and potentially highest performing synchronization method. This can dramatically improve client performance. Takes precedence over FSYNC or ESYNC. Requires ntsync support in your host kernel. See this wiki page for details: https:\/\/github.com\/zhliau\/fika-headless-docker\/wiki\/Wine-synchronization-methods",
+            "env_variable": "NTSYNC",
+            "default_value": "false",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": [
+                "string"
+            ],
+            "sort": 11
+        },
+        {
+            "name": "PROFILE ID",
+            "description": "ProfileID of the headless profile to start the client with",
+            "env_variable": "PROFILE_ID",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": [
+                "required",
+                "string"
+            ],
+            "sort": 3
+        },
+        {
+            "name": "SAVE LOG ON EXIT",
+            "description": "If set to true, save a copy of the BepInEx LogOutput.log as LogOutput-$timestamp.log on client exit to preserve logs from previous client runs, since this file is truncated each time the client starts",
+            "env_variable": "SAVE_LOG_ON_EXIT",
+            "default_value": "false",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": [],
+            "sort": 16
+        },
+        {
+            "name": "SERVER PORT",
+            "description": "The SERVER_PORT of your SPT Server",
+            "env_variable": "PORT",
+            "default_value": "6969",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": [
+                "required",
+                "string"
+            ],
+            "sort": 2
+        },
+        {
+            "name": "SERVER URL",
+            "description": "The IP Address of your SPT Server",
+            "env_variable": "SERVER_URL",
+            "default_value": "your.spt.server.ip",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": [
+                "required",
+                "string"
+            ],
+            "sort": 1
+        },
+        {
+            "name": "USE GRAPHICS",
+            "description": "If set to true, disables the -nographics parameter when starting the headless client. This will significantly increase resource usage.",
+            "env_variable": "USE_GRAPHICS",
+            "default_value": "false",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": [
+                "string"
+            ],
+            "sort": 13
+        },
+        {
+            "name": "USE MODSYNC",
+            "description": "If set to true, enables support for Corter-ModSync 0.8.1+ and the external updater. On container start, the headless client will close and start the updater the modsync plugin detects changes. On completion, the script will start the headless client up again",
+            "env_variable": "USE_MODSYNC",
+            "default_value": "false",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": [
+                "string"
+            ],
+            "sort": 6
+        },
+        {
+            "name": "USE PELICAN",
+            "description": "This variable needs to always be set to true for this egg to function. ",
+            "env_variable": "USE_PELICAN",
+            "default_value": "true",
+            "user_viewable": false,
+            "user_editable": false,
+            "rules": [
+                "required",
+                "string"
+            ],
+            "sort": 12
+        },
+        {
+            "name": "XVFB_DEBUG",
+            "description": "If set to true, enables debug output for xvfb (the virtual framebuffer)",
+            "env_variable": "XVFB_DEBUG",
+            "default_value": "false",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": [
+                "string"
+            ],
+            "sort": 15
+        }
+    ]
+}
