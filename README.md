@@ -22,7 +22,7 @@
 - 🔨 Automatic restart on raid end, to manage container memory usage
 - 🚚 Automatic purging of EFT `Logs/` dir, to clear out large logfiles due to logspam
 - 🍬 Optionally use Nvidia GPU when running the client, still completely headless without a real display
-- 🧪 Tested and works on SPT 3.9.x, 3.10.0
+- 🧪 Tested and works on SPT 3.9.x, 3.10.x, 3.11.x
 - 🦢 Pelican support - just follow the Pelican instructions in the installation steps.
 
 # 👻 Headless Client
@@ -71,7 +71,7 @@ docker pull ghcr.io/zhliau/fika-headless-docker:latest
 ## Steps
 ### 1. **Prepare a Headless Client Installation**
 
-   - **Copy SPT Installation**: Locate your existing SPT installation folder (where you play SPTarkov + Fika) and copy it to the machine you will use to run this image. This will serve as the headless client's installation.
+   - **Copy SPT Installation**: Locate your existing SPT installation folder (the files you use to play EFT + SPTarkov + Fika) and copy it to the machine you will use to run this image. This will serve as the headless client's installation.
    - **Using Pelican?**: If you're using Pelican, Copy your existing SPT installation folder to a new folder on the same computer. We'll upload the files to the target machine in step #5.
 
 ### 2. **Install Fika Headless Client Plugin**
@@ -107,8 +107,10 @@ docker pull ghcr.io/zhliau/fika-headless-docker:latest
 
    - **Edit Fika Core Configuration**: Open the `com.fika.core.cfg` file located in the headless client's `BepInEx/config/` directory.
 
-     - Update values for `Force Bind IP` and/or `Force IP`. Set `Force Bind IP` to `Disabled`, and set `Force IP` to the IP of the docker host's interface.
-       If you are running a VPN, then this is your VPN IP.
+     - Update values for `Force Bind IP` and/or `Force IP`.
+       - Set `Force Bind IP` to `Disabled`.
+       - If you are port-forwarding, set `Force IP` to blank or your host's Public/WAN IP.
+       - If you are running a VPN, set `Force IP` to your docker host's VPN IP.
 
        ```
        ## Force Bind IP
@@ -116,13 +118,13 @@ docker pull ghcr.io/zhliau/fika-headless-docker:latest
        Force Bind IP = Disabled
 
        ## Force IP
-       # Set to the IP address of your host interface (e.g., your LAN IP or VPN IP)
-       Force IP = your.host.interface.ip
+       # Set blank, or to the IP address of your host interface (e.g., your WAN IP or VPN IP)
+       Force IP = 
        ```
 
 ### 5. **Run the Docker Image**
 
-   - ## Using Pelican? Skip to [Running with Pelican](#5a-running-with-pelican)
+   - ### Using Pelican? Skip to [Running with Pelican](#5a-running-with-pelican)
 
    - **Mount the Fika Client Directory**: When running the docker image, ensure that your headless client installation directory (e.g. `/host/path/to/fika`) is volume-mounted to the directory `/opt/tarkov` in the container. You can do this with the `-v` option in docker, or the `volume` directive in your docker-compose yaml file.
 
@@ -185,7 +187,7 @@ docker pull ghcr.io/zhliau/fika-headless-docker:latest
 
 ### 5a. **Running with Pelican**
 
-   - ## Not Using Pelican? Skip to [Verify the Headless Client is Running](#6-verify-the-headless-client-is-running)
+   - ### Not Using Pelican? Skip to [Verify the Headless Client is Running](#6-verify-the-headless-client-is-running)
 
    - Warning on Pelican usage: Certain features of this docker container may not work on Pelican. Specifically the USE_DGPU option may not function as intended as Pelican doesn't provide us a way to pass the host's nvidia device to the container. Please forgo Pelican and see [Run the Docker Image](#5-run-the-docker-image) if you're looking for this functionality.
 
@@ -240,7 +242,7 @@ docker pull ghcr.io/zhliau/fika-headless-docker:latest
 
 ### 6. **Verify the Headless Client is Running**
 
-   - **Check Server Logs**: Look for messages in the server logs indicating that the headless client has connected. Note that this may take a few minutes to happen (~5 minutes).
+   - **Check Server Logs**: Look for messages in the SPT Server logs indicating that the headless client has connected. Note that this may take a few minutes to happen (~5 minutes).
 
    - **Start a Raid Using Headless Client**:
 
@@ -283,8 +285,8 @@ See [this wiki page](https://github.com/zhliau/fika-headless-docker/wiki/Wine-sy
 
 | Env var                    | Description                                                                                                                                                                                         |
 | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `USE_DGPU`                 | If set to `true`, enable passing a GPU resource into the container with `nvidia-container-toolkit`. Make sure you have the required dependencies installed for your host |
-| `USE_GRAPHICS`             | If set to `true`, disables the `-nographics` parameter when starting the headless client. This will significantly increase resource usage.                                                                           |
+| `USE_DGPU`                 | If set to `true`, enable passing a GPU resource into the container with `nvidia-container-toolkit`. Additional setup and dependencies are required. Please see [Using an Nvidia GPU in the container](#using-an-nvidia-gpu-in-the-container) for details |
+| `USE_GRAPHICS`             | If set to `true`, disables the `-nographics` parameter when starting the headless client. |
 | `DISABLE_BATCHMODE`        | If set to `true`, disable the `-batchmode` parameter when starting the client. This will significantly increase resource usage.                                                                                       |
 | `XVFB_DEBUG`               | If set to `true`, enables debug output for xvfb (the virtual framebuffer)                                                                                                                                             |
 | `SAVE_LOG_ON_EXIT`         | If set to `true`, save a copy of the BepInEx `LogOutput.log` as `LogOutput-$timestamp.log` on client exit to preserve logs from previous client runs, since this file is truncated each time the client starts |
@@ -301,6 +303,10 @@ $ VERSION=0.1 ./build
 ```
 
 ### Using an Nvidia GPU in the container
+> [!WARNING]
+> This is a legacy option and is not recommended for most use cases, as it has several downsides including
+> increased resource usage, for potentially negligible client performance gain
+
 If you want to pass in your host Nvidia GPU, make sure you have the following:
 - set the env var `USE_DGPU=true` in the container
 - set the env var `USE_GRAPHICS=true` to disable headless mode
