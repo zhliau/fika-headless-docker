@@ -109,8 +109,8 @@ docker pull ghcr.io/zhliau/fika-headless-docker:latest
 
      - Update values for `Force Bind IP` and/or `Force IP`.
        - Set `Force Bind IP` to `Disabled`.
-       - If you are port-forwarding, set `Force IP` to blank or your host's Public/WAN IP.
-       - If you are running a VPN, set `Force IP` to your docker host's VPN IP.
+       - If your users are connecting via port-forwarding, set `Force IP` to blank or your host's Public/WAN IP.
+       - If your users are connecting via VPN, set `Force IP` to your docker host's VPN IP.
 
        ```
        ## Force Bind IP
