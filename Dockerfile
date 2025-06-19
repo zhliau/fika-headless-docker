@@ -81,8 +81,8 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     cron \
     xz-utils
-RUN mkdir /wine-tkg-ntsync && curl -sL "https://github.com/Kron4ek/Wine-Builds/releases/download/10.8/wine-10.8-staging-tkg-ntsync-amd64-wow64.tar.xz" | tar xvJ -C /wine-tkg-ntsync
-RUN mv /wine-tkg-ntsync/wine-10.8-staging-tkg-ntsync-amd64-wow64/* /wine-tkg-ntsync
+RUN mkdir /wine-tkg-ntsync && curl -sL "https://github.com/Kron4ek/Wine-Builds/releases/download/10.9/wine-10.9-staging-tkg-ntsync-amd64-wow64.tar.xz" | tar xvJ -C /wine-tkg-ntsync
+RUN mv /wine-tkg-ntsync/wine-10.9-staging-tkg-ntsync-amd64-wow64/* /wine-tkg-ntsync
 RUN mkdir /wine-ge && \
     curl -sL "https://github.com/GloriousEggroll/wine-ge-custom/releases/download/GE-Proton8-26/wine-lutris-GE-Proton8-26-x86_64.tar.xz" | tar xvJ -C /wine-ge
 RUN mv /wine-ge/lutris-GE-Proton8-26-x86_64/* /wine-ge
